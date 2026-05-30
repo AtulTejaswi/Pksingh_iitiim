@@ -14,8 +14,15 @@ const authenticate = async (req, res, next) => {
     }
     const token = authHeader.split(' ')[1];
     try {
-        const decoded = jsonwebtoken_1.default.verify(token, process.env.SUPABASE_JWT_SECRET);
-        let user = await db_1.prisma.user.findUnique({ where: { supabaseId: decoded.sub } });
+        const secret = process.env.SUPABASE_JWT_SECRET || process.env.LOCAL_JWT_SECRET;
+        if (!secret) {
+            res.status(500).json({ error: 'Server misconfiguration: JWT secret is missing' });
+            return;
+        }
+        const decoded = jsonwebtoken_1.default.verify(token, secret);
+        const user = await db_1.prisma.user.findUnique({
+            where: decoded.userId ? { id: decoded.userId } : { supabaseId: decoded.sub },
+        });
         if (!user) {
             res.status(401).json({ error: 'User not found. Please complete registration.' });
             return;

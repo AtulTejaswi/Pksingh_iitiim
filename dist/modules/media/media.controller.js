@@ -4,10 +4,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteMedia = exports.getLessonMedia = exports.addLink = exports.uploadMedia = exports.upload = void 0;
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 const supabase_js_1 = require("@supabase/supabase-js");
 const multer_1 = __importDefault(require("multer"));
 const db_1 = require("../../config/db");
-const supabase = (0, supabase_js_1.createClient)(process.env.SUPABASE_URL || 'https://placeholder.supabase.co', process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder');
+const useSupabase = Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+const supabase = useSupabase
+    ? (0, supabase_js_1.createClient)(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
+    : null;
 // Multer: in-memory buffer (we stream to Supabase)
 exports.upload = (0, multer_1.default)({
     storage: multer_1.default.memoryStorage(),
@@ -31,17 +36,28 @@ const uploadMedia = async (req, res) => {
     }
     const ext = file.originalname.split('.').pop();
     const storagePath = `lessons/${lessonId}/${Date.now()}.${ext}`;
-    // Upload to Supabase Storage bucket named "media"
-    const { error: uploadError } = await supabase.storage
-        .from('media')
-        .upload(storagePath, file.buffer, { contentType: file.mimetype });
-    if (uploadError) {
-        res.status(500).json({ error: 'File upload failed' });
-        return;
+    let publicUrl;
+    let savedPath = storagePath;
+    if (useSupabase && supabase) {
+        const { error: uploadError } = await supabase.storage
+            .from('media')
+            .upload(storagePath, file.buffer, { contentType: file.mimetype });
+        if (uploadError) {
+            res.status(500).json({ error: 'File upload failed' });
+            return;
+        }
+        const { data } = supabase.storage.from('media').getPublicUrl(storagePath);
+        publicUrl = data.publicUrl;
     }
-    const { data: { publicUrl } } = supabase.storage
-        .from('media')
-        .getPublicUrl(storagePath);
+    else {
+        const uploadFolder = path_1.default.join(process.cwd(), 'uploads', 'lessons', lessonId);
+        fs_1.default.mkdirSync(uploadFolder, { recursive: true });
+        const filename = `${Date.now()}.${ext}`;
+        const filePath = path_1.default.join(uploadFolder, filename);
+        fs_1.default.writeFileSync(filePath, file.buffer);
+        publicUrl = `${process.env.BACKEND_URL || 'http://localhost:4000'}/uploads/lessons/${lessonId}/${filename}`;
+        savedPath = `uploads/lessons/${lessonId}/${filename}`;
+    }
     const type = file.mimetype === 'application/pdf' ? 'PDF'
         : file.mimetype.startsWith('video') ? 'VIDEO'
             : 'IMAGE';
@@ -51,7 +67,7 @@ const uploadMedia = async (req, res) => {
             title: title ?? file.originalname,
             type,
             url: publicUrl,
-            storagePath,
+            storagePath: savedPath,
             sizeBytes: file.size,
             mimeType: file.mimetype,
         },
@@ -93,7 +109,15 @@ const deleteMedia = async (req, res) => {
         return;
     }
     if (media.storagePath) {
-        await supabase.storage.from('media').remove([media.storagePath]);
+        if (useSupabase && supabase) {
+            await supabase.storage.from('media').remove([media.storagePath]);
+        }
+        else {
+            const filePath = path_1.default.join(process.cwd(), media.storagePath);
+            if (fs_1.default.existsSync(filePath)) {
+                fs_1.default.unlinkSync(filePath);
+            }
+        }
     }
     await db_1.prisma.media.delete({ where: { id } });
     res.json({ message: 'Media deleted successfully' });

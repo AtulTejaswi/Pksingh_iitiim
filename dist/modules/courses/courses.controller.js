@@ -18,7 +18,7 @@ const listCourses = async (req, res) => {
         where: {
             isPublished: true,
             ...(subject && { subject: subject }),
-            ...(examTag && { examTags: { has: examTag } }),
+            ...(examTag && { examTags: { contains: examTag } }),
         },
         select: {
             id: true, title: true, description: true,
@@ -29,7 +29,11 @@ const listCourses = async (req, res) => {
         take: parseInt(limit),
         orderBy: { sortOrder: 'asc' },
     });
-    res.json({ courses });
+    const parsedCourses = courses.map((course) => ({
+        ...course,
+        examTags: course.examTags ? JSON.parse(course.examTags) : [],
+    }));
+    res.json({ courses: parsedCourses });
 };
 exports.listCourses = listCourses;
 const getCourse = async (req, res) => {
@@ -48,7 +52,7 @@ const getCourse = async (req, res) => {
         res.status(404).json({ error: 'Course not found' });
         return;
     }
-    res.json({ course });
+    res.json({ course: { ...course, examTags: course.examTags ? JSON.parse(course.examTags) : [] } });
 };
 exports.getCourse = getCourse;
 // POST /api/courses — admin only
@@ -58,8 +62,13 @@ const createCourse = async (req, res) => {
         res.status(400).json({ error: result.error.flatten() });
         return;
     }
-    const course = await db_1.prisma.course.create({ data: result.data });
-    res.status(201).json({ course });
+    const course = await db_1.prisma.course.create({
+        data: {
+            ...result.data,
+            examTags: JSON.stringify(result.data.examTags),
+        },
+    });
+    res.status(201).json({ course: { ...course, examTags: JSON.parse(course.examTags) } });
 };
 exports.createCourse = createCourse;
 const updateCourse = async (req, res) => {
@@ -69,11 +78,18 @@ const updateCourse = async (req, res) => {
         res.status(400).json({ error: result.error.flatten() });
         return;
     }
+    const { examTags, ...rest } = result.data;
+    const dataToUpdate = {
+        ...rest,
+    };
+    if (examTags !== undefined) {
+        dataToUpdate.examTags = JSON.stringify(examTags);
+    }
     const course = await db_1.prisma.course.update({
         where: { id },
-        data: result.data,
+        data: dataToUpdate,
     });
-    res.json({ course });
+    res.json({ course: { ...course, examTags: course.examTags ? JSON.parse(course.examTags) : [] } });
 };
 exports.updateCourse = updateCourse;
 const deleteCourse = async (req, res) => {

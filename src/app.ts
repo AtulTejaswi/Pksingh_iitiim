@@ -9,9 +9,9 @@ const app = express();
 // Security headers
 app.use(helmet());
 
-// CORS — only allow your frontend
+// CORS — allow frontend
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: [process.env.FRONTEND_URL || 'http://localhost:3000', 'https://pksingh.netlify.app'],
   credentials: true,
 }));
 

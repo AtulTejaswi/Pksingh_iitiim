@@ -8,6 +8,7 @@ const express_1 = __importDefault(require("express"));
 const helmet_1 = __importDefault(require("helmet"));
 const cors_1 = __importDefault(require("cors"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
+const path_1 = __importDefault(require("path"));
 const app = (0, express_1.default)();
 // Security headers
 app.use((0, helmet_1.default)());
@@ -18,6 +19,8 @@ app.use((0, cors_1.default)({
 }));
 // JSON body limit
 app.use(express_1.default.json({ limit: '10mb' }));
+// Serve local uploads when running without Supabase storage
+app.use('/uploads', express_1.default.static(path_1.default.join(process.cwd(), 'uploads')));
 // Global rate limit: 100 requests per 15 minutes per IP
 app.use((0, express_rate_limit_1.default)({
     windowMs: 15 * 60 * 1000,

@@ -1,7 +1,3 @@
 [build]
   command = "npm run build"
-  publish = ".next"
   base = "tutoring-platform"
-
-[build.environment]
-  NEXT_PRIVATE_LOCAL_WEBPACK = "true"
