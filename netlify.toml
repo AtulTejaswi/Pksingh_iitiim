@@ -1,6 +1,8 @@
 [build]
   command = "npm run build"
   base = "tutoring-platform"
+  publish = ".next"
+  functions = ".netlify/functions-internal"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
