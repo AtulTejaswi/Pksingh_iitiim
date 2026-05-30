@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─── ENUMS ───────────────────────────────────────────────────────────────────
+
+
+// ─── USERS ───────────────────────────────────────────────────────────────────
+
+model User {
+  id            String   @id @default(uuid())
+  supabaseId    String   @unique          // Links to Supabase Auth UID or local auth identifier
+  passwordHash  String?                           // Local development password hash
+  email         String   @unique
+  fullName      String
+  role          String   @default("STUDENT")
+  avatarUrl     String?
+  country       String?                  // "IN" or "US" for content targeting
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  enrollments   Enrollment[]
+  progress      LessonProgress[]
+
+  @@map("users")
+}
+
+// ─── COURSES ─────────────────────────────────────────────────────────────────
+
+model Course {
+  id           String    @id @default(uuid())
+  title        String
+  description  String
+  subject      String
+  examTags     String                  // JSON array of tags, stored as text for SQLite
+  thumbnailUrl String?
+  isFree       Boolean   @default(false)
+  isPublished  Boolean   @default(false)
+  sortOrder    Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  lessons      Lesson[]
+  enrollments  Enrollment[]
+
+  @@map("courses")
+}
+
+// ─── LESSONS ─────────────────────────────────────────────────────────────────
+
+model Lesson {
+  id           String   @id @default(uuid())
+  courseId     String
+  title        String
+  description  String?
+  content      String?  // Rich text / Markdown body
+  sortOrder    Int      @default(0)
+  isFree       Boolean  @default(false) // Preview lessons free even in paid course
+  isPublished  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  course       Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  media        Media[]
+  notes        Note[]
+  progress     LessonProgress[]
+
+  @@map("lessons")
+}
+
+// ─── MEDIA ───────────────────────────────────────────────────────────────────
+
+model Media {
+  id          String    @id @default(uuid())
+  lessonId    String
+  title       String
+  type        String
+  url         String                    // Supabase Storage URL or YouTube link
+  storagePath String?                  // Supabase Storage internal path (for deletion)
+  sizeBytes   Int?
+  mimeType    String?
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  lesson      Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@map("media")
+}
+
+// ─── NOTES ───────────────────────────────────────────────────────────────────
+
+model Note {
+  id        String   @id @default(uuid())
+  lessonId  String
+  title     String
+  content   String   // Markdown or HTML
+  fileUrl   String?  // Optional attached PDF
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@map("notes")
+}
+
+// ─── ENROLLMENTS ─────────────────────────────────────────────────────────────
+
+model Enrollment {
+  id          String           @id @default(uuid())
+  userId      String
+  courseId    String
+  status      String           @default("ACTIVE")
+  enrolledAt  DateTime         @default(now())
+  completedAt DateTime?
+
+  user        User             @relation(fields: [userId], references: [id])
+  course      Course           @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId])           // One enrollment per student per course
+  @@map("enrollments")
+}
+
+// ─── LESSON PROGRESS ─────────────────────────────────────────────────────────
+
+model LessonProgress {
+  id          String   @id @default(uuid())
+  userId      String
+  lessonId    String
+  completedAt DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+  lesson      Lesson   @relation(fields: [lessonId], references: [id])
+
+  @@unique([userId, lessonId])
+  @@map("lesson_progress")
+}
