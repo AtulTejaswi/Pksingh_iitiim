@@ -1,0 +1,150 @@
+'use client';
+
+import React, { useState, useEffect, Suspense } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth-context';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { loginSchema, LoginInput } from '@/lib/validators';
+import { LogIn, Key, Mail, AlertTriangle, ArrowLeft } from 'lucide-react';
+
+export const dynamic = 'force-dynamic';
+export default function LoginPage() {
+  const router = useRouter();
+  const { login, user } = useAuth();
+  const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  useEffect(() => {
+    // If user is already logged in, redirect them
+    if (user) {
+      if (user.role === 'ADMIN') {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/my-courses');
+      }
+    }
+    
+    // Check if session expired via URL param
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('expired')) {
+      setErrorMsg('Your session has expired. Please sign in again.');
+    }
+  }, [user, router]);
+
+  const onSubmit = async (data: LoginInput) => {
+    setErrorMsg('');
+    setSuccessMsg('');
+    try {
+      const profile = await login(data);
+      if (profile.role === 'ADMIN') {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/my-courses');
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Invalid email or password. Please try again.');
+    }
+  };
+
+return (
+  <Suspense fallback={null}>
+<div className="min-h-screen bg-[#0b0f19] flex flex-col items-center justify-center px-4 relative">
+      <div className="max-w-md w-full card p-8 relative overflow-hidden">
+        {/* Glow accent bar */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-sky-400"></div>
+
+        <div className="text-center mb-8">
+          <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mx-auto mb-4 text-indigo-400 shadow-md">
+            <LogIn className="w-6 h-6 animate-pulse" />
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold high-contrast">Sign In</h2>
+          <p className="muted text-xs sm:text-sm mt-2 leading-relaxed">
+            Welcome back to PK Singh. Let's continue your training!
+          </p>
+        </div>
+
+        {/* Error Message */}
+        {errorMsg && (
+          <div className="flex items-start gap-3 p-3 rounded-lg border border-red-500/20 bg-red-500/10 text-red-300 text-xs mb-6">
+            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+            <p>{errorMsg}</p>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          {/* Email */}
+          <div>
+            <label className="form-label">Email Address</label>
+            <div className="relative">
+              <Mail className="absolute left-3.5 top-3 w-4 h-4 text-[color:var(--text-muted)]" />
+              <input
+                type="email"
+                {...register('email')}
+                placeholder="email@example.com"
+                className="input-dark pl-10 pr-4 py-2.5 rounded-xl text-sm outline-none placeholder:text-[color:var(--text-muted)]"
+              />
+            </div>
+            {errors.email && (
+              <p className="text-red-400 text-[10px] font-medium mt-1">{errors.email.message}</p>
+            )}
+          </div>
+
+          {/* Password */}
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <label className="form-label">Password</label>
+              <a href="#" className="text-xs text-indigo-400 hover:text-white transition-colors">
+                Forgot password?
+              </a>
+            </div>
+            <div className="relative">
+              <Key className="absolute left-3.5 top-3 w-4 h-4 text-[color:var(--text-muted)]" />
+              <input
+                type="password"
+                {...register('password')}
+                placeholder="••••••••"
+                className="input-dark pl-10 pr-4 py-2.5 rounded-xl text-sm outline-none placeholder:text-[color:var(--text-muted)]"
+              />
+            </div>
+            {errors.password && (
+              <p className="text-red-400 text-[10px] font-medium mt-1">{errors.password.message}</p>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full py-3 rounded-xl glow-button bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm tracking-wide shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSubmitting ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                Signing in...
+              </>
+            ) : (
+              'Sign In'
+            )}
+          </button>
+        </form>
+
+        <p className="text-center text-xs text-gray-400 mt-6 leading-relaxed">
+          Don't have an account?{' '}
+          <Link href="/signup" className="text-indigo-400 hover:text-white font-semibold transition-colors">
+            Enroll Free
+          </Link>
+        </p>
+      </div>
+    </div>
+  </Suspense>
+);
+}

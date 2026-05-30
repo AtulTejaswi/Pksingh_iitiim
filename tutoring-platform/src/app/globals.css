@@ -1,0 +1,193 @@
+
+@import "tailwindcss";
+
+:root {
+  /* Dark premium design tokens */
+  --bg: #020617;
+  --surface: #0F172A; /* primary surface */
+  --surface-2: #1E293B; /* secondary surface */
+  --accent: #3B82F6;
+  --accent-grad: linear-gradient(135deg, #2563EB, #7C3AED);
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --borders: rgba(255,255,255,0.08);
+  --glass: rgba(255,255,255,0.03);
+  --glass-strong: rgba(255,255,255,0.04);
+  --card-shadow: 0 18px 50px rgba(2,6,23,0.6);
+  --elevated-shadow: 0 24px 80px rgba(2,6,23,0.7);
+  --focus: rgba(59,130,246,0.18);
+  --radius: 12px;
+  --transition-fast: 180ms;
+  --transition-medium: 260ms;
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--text-primary);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-accent: var(--accent);
+}
+
+/* Base */
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Typography helpers */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+h1 { font-size: clamp(1.6rem, 2.5vw, 2.6rem); }
+h2 { font-size: clamp(1.35rem, 2.1vw, 2rem); }
+h3 { font-size: clamp(1.15rem, 1.6vw, 1.4rem); }
+
+p, li, span, a, label {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.muted { color: var(--text-muted); }
+
+/* Cards */
+.card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid var(--borders);
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+  padding: 1rem;
+  transition: transform var(--transition-medium) ease, box-shadow var(--transition-medium) ease, border-color var(--transition-medium) ease;
+}
+
+.card.card-2 { background: var(--surface-2); }
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--elevated-shadow);
+  border-color: rgba(255,255,255,0.12);
+}
+
+/* Subject / Feature cards */
+.subject-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.015));
+  border-radius: 14px;
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: transform var(--transition-fast) ease, box-shadow var(--transition-fast) ease;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+.subject-card:hover {
+  transform: translateY(-8px) scale(1.01);
+  box-shadow: 0 30px 90px rgba(2,6,23,0.75);
+}
+
+.feature-card { background: var(--surface); border-radius: 12px; padding: 1rem; border: 1px solid var(--borders); }
+
+/* Hero */
+.hero-bg {
+  background: radial-gradient(circle at 10% 20%, rgba(59,130,246,0.06), transparent 18%),
+              radial-gradient(circle at 90% 60%, rgba(124,58,237,0.05), transparent 20%),
+              linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+}
+
+.hero-card { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding: 2rem; border-radius: 16px; border: 1px solid var(--borders); }
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  border-radius: 10px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: transform var(--transition-fast) ease, box-shadow var(--transition-fast) ease, opacity var(--transition-fast) ease;
+}
+
+.btn-primary {
+  background: var(--accent-grad);
+  box-shadow: 0 12px 30px rgba(59,130,246,0.18);
+}
+
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 20px 45px rgba(59,130,246,0.22); }
+
+.btn-ghost { background: transparent; border: 1px solid var(--borders); color: var(--text-primary); }
+
+/* Inputs */
+.input-dark, input, textarea, select {
+  background: var(--surface-2);
+  color: var(--text-primary);
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 0.6rem 0.8rem;
+  border-radius: 10px;
+  width: 100%;
+  transition: box-shadow var(--transition-fast) ease, border-color var(--transition-fast) ease;
+}
+
+.input-dark:focus, input:focus, textarea:focus {
+  outline: none;
+  border-color: rgba(59,130,246,0.9);
+  box-shadow: 0 8px 30px rgba(59,130,246,0.12);
+}
+
+/* Form labels and helper text */
+.form-label { color: var(--text-secondary); font-weight: 600; display:block; margin-bottom:0.4rem; }
+.form-helper { color: var(--text-muted); font-size: 0.9rem; }
+
+/* Borders and separators */
+.divider { height:1px; background: rgba(255,255,255,0.03); margin: 1rem 0; }
+
+/* Scrollbars tuned for dark theme */
+::-webkit-scrollbar { width:10px; height:10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius:9999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.1); }
+
+/* Small utilities */
+.glass-accent { background: var(--glass); border: 1px solid var(--borders); backdrop-filter: blur(6px); }
+.soft-shadow { box-shadow: 0 10px 30px rgba(2,6,23,0.55); }
+
+/* Accessibility helpers: ensure headings contrast */
+.high-contrast { color: var(--text-primary); font-weight: 800; }
+
+/* Buttons for forms */
+.cta { background: var(--accent-grad); padding: 0.8rem 1.1rem; border-radius: 12px; color: var(--text-primary); }
+
+/* Gradient text accent used across headings */
+.gradient-text {
+  background: var(--accent-grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Backwards-compatible glass-panel: dark glass surface used across many components */
+.glass-panel {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid var(--borders);
+  border-radius: 14px;
+  padding: 1rem;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: var(--card-shadow);
+}
+
+.glass-panel-hover { transition: transform var(--transition-medium) ease, box-shadow var(--transition-medium) ease; }
+.glass-panel-hover:hover { transform: translateY(-6px); box-shadow: var(--elevated-shadow); }
+
+
+
