@@ -6,8 +6,9 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "ts-node src/server.ts",
-    "build": "npx prisma generate && tsc",
-    "test": "jest"
+    "build": "tsc",
+    "test": "jest",
+    "postinstall": "prisma generate && prisma db push"
   },
   "keywords": [],
   "author": "",
