@@ -107,3 +107,17 @@ If you want the API to be available on the internet (which you need for a real a
 
 ## API Usage
 You can use tools like Postman to interact with the `/api/auth`, `/api/courses`, and `/api/lessons` endpoints, or connect a Frontend (like Next.js) to it.
+
+## Monitoring and Error Reporting
+
+Server-side:
+- `SENTRY_DSN` — set this in your deployment environment to enable backend error reporting via Sentry.
+- Prometheus metrics are exposed at `/metrics` when `prom-client` is available.
+- Health check available at `/health` which reports DB connectivity.
+
+Frontend:
+- `NEXT_PUBLIC_SENTRY_DSN` — set this to enable client-side error reporting for the Next.js app.
+- The frontend initializes Sentry in `tutoring-platform/src/lib/sentry.client.ts`.
+
+See `monitoring/prometheus-scrape.yml` for a sample Prometheus scrape config, and `monitoring/alerting.md` for PagerDuty/email alerting examples.
+

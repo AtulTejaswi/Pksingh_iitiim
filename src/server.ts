@@ -55,9 +55,12 @@ async function startServer() {
   try {
     await prisma.$connect();
     console.log('Connected to database successfully');
+    // mark app as DB-connected so /health can report
+    (app as any).locals.dbConnected = true;
     await ensureAdminUser();
   } catch (error) {
     console.error('Warning: Failed to connect to database or seed admin user. Server will run but DB features may fail:', error);
+    (app as any).locals.dbConnected = false;
   }
   
   app.listen(PORT, () => {
