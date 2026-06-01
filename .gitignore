@@ -1,4 +1,14 @@
-node_modules
+node_modules/
+dist/
+.env
+.env.*
+.next/
+tutoring-platform/.next/
+uploads/
+/*.log
+coverage/
+/.idea/
+/*.localnode_modules
 # Keep environment variables out of version control
 .env
 
