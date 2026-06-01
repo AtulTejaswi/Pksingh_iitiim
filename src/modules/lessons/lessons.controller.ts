@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { prisma } from '../../config/db';
 import { AuthRequest } from '../../middleware/auth.middleware';
 import { z } from 'zod';
+import { formatZodError } from '../../utils/formatZodError';
 
 const lessonSchema = z.object({
   courseId: z.string().uuid(),
@@ -12,6 +13,20 @@ const lessonSchema = z.object({
   isFree: z.boolean().optional(),
   isPublished: z.boolean().optional(),
 });
+
+// GET /api/lessons — list all lessons (admin only)
+export const listLessons = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { courseId } = req.query;
+  const where: any = {};
+  if (courseId) where.courseId = courseId as string;
+
+  const lessons = await prisma.lesson.findMany({
+    where,
+    include: { media: true, notes: true },
+    orderBy: { sortOrder: 'asc' },
+  });
+  res.json({ lessons });
+};
 
 export const getLesson = async (req: AuthRequest, res: Response): Promise<void> => {
   const id = req.params.id as string;
@@ -64,7 +79,7 @@ export const getLesson = async (req: AuthRequest, res: Response): Promise<void> 
 export const createLesson = async (req: AuthRequest, res: Response): Promise<void> => {
   const result = lessonSchema.safeParse(req.body);
   if (!result.success) {
-    res.status(400).json({ error: result.error.flatten() });
+    res.status(400).json({ error: formatZodError(result.error) });
     return;
   }
 
@@ -76,7 +91,7 @@ export const updateLesson = async (req: AuthRequest, res: Response): Promise<voi
   const id = req.params.id as string;
   const result = lessonSchema.partial().safeParse(req.body);
   if (!result.success) {
-    res.status(400).json({ error: result.error.flatten() });
+    res.status(400).json({ error: formatZodError(result.error) });
     return;
   }
 

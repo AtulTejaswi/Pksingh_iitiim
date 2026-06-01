@@ -1,80 +1,112 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { apiClient } from '@/lib/api-client';
 import { useGetAllEnrollments, useDeleteEnrollment, useGetCourses } from '@/hooks/useCourses';
 import { toast } from 'sonner';
-import { Users, Search, Filter, Trash2, ShieldAlert, BookOpen } from 'lucide-react';
+import { Users, Search, Filter, Trash2, BookOpen, ShieldAlert, Mail, Calendar, Download } from 'lucide-react';
+import ConfirmModal from '@/components/admin/ConfirmModal';
 
 export default function AdminStudentsPage() {
   const [search, setSearch] = useState('');
   const [courseFilter, setCourseFilter] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string; course: string } | null>(null);
 
   const { data: courses } = useGetCourses();
   const { data: enrollments, isLoading } = useGetAllEnrollments(courseFilter || undefined);
   const { mutate: deleteEnrollment, isPending: isDeleting } = useDeleteEnrollment();
+  const [isExporting, setIsExporting] = useState(false);
 
-  const handleUnenroll = (id: string, userName: string, courseTitle: string) => {
-    if (
-      window.confirm(
-        `Are you sure you want to remove ${userName}'s enrollment from "${courseTitle}"?`
-      )
-    ) {
-      deleteEnrollment(id, {
-        onSuccess: () => {
-          toast.success(`Removed ${userName} from ${courseTitle}`);
-        },
-        onError: (err: any) => {
-          toast.error(err.response?.data?.error || 'Failed to remove enrollment');
-        },
+  const handleExportEnrollments = async () => {
+    setIsExporting(true);
+    try {
+      const response = await apiClient.get('/enrollments/export', {
+        params: { format: 'csv', courseId: courseFilter || undefined },
+        responseType: 'blob',
       });
+      const blob = new Blob([response.data], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', courseFilter ? `enrollments-${courseFilter}.csv` : 'enrollments-export.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success('Enrollments exported successfully');
+    } catch (error: any) {
+      toast.error(error?.response?.data?.error || 'Failed to export enrollments');
+    } finally {
+      setIsExporting(false);
     }
   };
 
-  const filteredEnrollments = enrollments?.filter((enrollment) => {
-    const user = enrollment.user;
-    const matchesSearch =
-      user.fullName.toLowerCase().includes(search.toLowerCase()) ||
-      user.email.toLowerCase().includes(search.toLowerCase());
-    return matchesSearch;
-  }) || [];
+  const handleDeleteConfirm = () => {
+    if (!deleteTarget) return;
+    deleteEnrollment(deleteTarget.id, {
+      onSuccess: () => {
+        toast.success(`Removed ${deleteTarget.name} from ${deleteTarget.course}`);
+        setDeleteTarget(null);
+      },
+      onError: (err: any) => {
+        toast.error(err.response?.data?.error || 'Failed to unenroll student');
+        setDeleteTarget(null);
+      },
+    });
+  };
+
+  const filteredEnrollments = useMemo(() => {
+    if (!enrollments) return [];
+    return enrollments.filter((enrollment: any) => {
+      const user = enrollment.user;
+      const matchesSearch =
+        user.fullName.toLowerCase().includes(search.toLowerCase()) ||
+        user.email.toLowerCase().includes(search.toLowerCase());
+      return matchesSearch;
+    });
+  }, [enrollments, search]);
 
   return (
     <div className="w-full text-left">
-      {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-extrabold text-white tracking-tight flex items-center gap-2">
-          <Users className="w-8 h-8 text-indigo-400" /> Students Manager
-        </h1>
-        <p className="text-gray-400 text-sm mt-1">
-          Monitor enrolled students, manage course accessibility, and unenroll if necessary.
-        </p>
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
+            <Users className="w-6 h-6 text-indigo-400" /> Students
+          </h1>
+          <p className="text-gray-400 text-sm mt-0.5">Manage student enrollments across all courses.</p>
+        </div>
+        <button
+          type="button"
+          disabled={isExporting}
+          onClick={handleExportEnrollments}
+          className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-500 transition-all disabled:opacity-50"
+        >
+          <Download className="w-4 h-4" /> {isExporting ? 'Exporting...' : 'Export CSV'}
+        </button>
       </div>
 
-      {/* Filters Panel */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-8 p-6 rounded-2xl glass-panel relative overflow-hidden">
-        {/* Search */}
-        <div className="md:col-span-8 relative">
-          <Search className="absolute left-3.5 top-3 w-4.5 h-4.5 text-gray-400" />
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
           <input
             type="text"
-            placeholder="Search students by name or email..."
+            placeholder="Search by name or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] focus:bg-[rgba(255,255,255,0.05)] focus:border-indigo-500/50 text-white text-sm outline-none transition-all placeholder:text-gray-500"
+            className="w-full pl-9 pr-4 py-2 rounded-lg border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] focus:border-indigo-500/50 text-white text-sm outline-none transition-all placeholder:text-gray-600"
           />
         </div>
-
-        {/* Course Filter */}
-        <div className="md:col-span-4 relative">
-          <Filter className="absolute left-3.5 top-3.5 w-4 h-4 text-gray-400 pointer-events-none" />
+        <div className="relative w-full sm:w-48">
+          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
           <select
             value={courseFilter}
             onChange={(e) => setCourseFilter(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] focus:bg-[rgba(255,255,255,0.05)] focus:border-indigo-500/50 text-white text-sm outline-none transition-all appearance-none cursor-pointer"
+            className="w-full pl-9 pr-4 py-2 rounded-lg border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] text-gray-300 text-sm outline-none appearance-none cursor-pointer"
           >
-            <option value="" className="bg-[#0b0f19] text-white">All Courses</option>
-            {courses?.map((course) => (
-              <option key={course.id} value={course.id} className="bg-[#0b0f19] text-white">
+            <option value="" className="bg-[#0b0f19]">All Courses</option>
+            {courses?.map((course: any) => (
+              <option key={course.id} value={course.id} className="bg-[#0b0f19]">
                 {course.title}
               </option>
             ))}
@@ -82,64 +114,75 @@ export default function AdminStudentsPage() {
         </div>
       </div>
 
-      {/* Students List Table */}
+      {/* Table */}
       {isLoading ? (
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-16 rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] animate-pulse w-full"
-            ></div>
+        <div className="space-y-3">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-14 rounded-lg bg-[rgba(255,255,255,0.02)] animate-pulse border border-[rgba(255,255,255,0.04)]" />
           ))}
         </div>
       ) : filteredEnrollments.length === 0 ? (
-        <div className="text-center py-20 rounded-2xl glass-panel max-w-2xl mx-auto">
-          <ShieldAlert className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+        <div className="text-center py-16 rounded-xl border border-[rgba(255,255,255,0.06)]">
+          <ShieldAlert className="w-12 h-12 text-gray-500 mx-auto mb-4 opacity-50" />
           <h3 className="text-lg font-bold text-white mb-2">No Enrollments Found</h3>
           <p className="text-gray-400 text-sm max-w-sm mx-auto">
-            No student enrollments exist yet or match your search criteria.
+            No student enrollments match your search criteria.
           </p>
         </div>
       ) : (
-        <div className="rounded-2xl glass-panel overflow-hidden border border-[rgba(255,255,255,0.06)] shadow-xl">
+        <div className="rounded-xl border border-[rgba(255,255,255,0.06)] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-[rgba(255,255,255,0.06)] bg-[#070a12]/40 text-[10px] text-gray-400 font-extrabold uppercase tracking-wider">
-                  <th className="px-6 py-4">Student Info</th>
-                  <th className="px-6 py-4">Enrolled Course</th>
-                  <th className="px-6 py-4 text-right">Actions</th>
+                <tr className="border-b border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] text-[10px] text-gray-500 font-extrabold uppercase tracking-wider">
+                  <th className="px-4 py-3">Student</th>
+                  <th className="px-4 py-3">Course</th>
+                  <th className="px-4 py-3 hidden md:table-cell">Enrolled</th>
+                  <th className="px-4 py-3 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[rgba(255,255,255,0.04)] text-xs">
-                {filteredEnrollments.map((enrollment) => (
+              <tbody className="divide-y divide-[rgba(255,255,255,0.04)]">
+                {filteredEnrollments.map((enrollment: any) => (
                   <tr key={enrollment.id} className="hover:bg-[rgba(255,255,255,0.02)] transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col text-left">
-                        <span className="text-sm font-bold text-white leading-tight mb-1">
-                          {enrollment.user.fullName}
-                        </span>
-                        <span className="text-gray-500 text-[10px]">{enrollment.user.email}</span>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-pink-500 flex items-center justify-center shrink-0">
+                          <span className="text-white text-xs font-bold uppercase">
+                            {enrollment.user.fullName?.charAt(0) || '?'}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-white">{enrollment.user.fullName}</p>
+                          <p className="text-[10px] text-gray-500 flex items-center gap-1">
+                            <Mail className="w-3 h-3" /> {enrollment.user.email}
+                          </p>
+                        </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-300 font-medium">
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <BookOpen className="w-4 h-4 text-indigo-400" />
-                        <span>{enrollment.course.title}</span>
+                        <BookOpen className="w-4 h-4 text-indigo-400 shrink-0" />
+                        <span className="text-sm text-gray-300">{enrollment.course.title}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-4 py-3 hidden md:table-cell">
+                      <span className="text-xs text-gray-500 flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {new Date(enrollment.enrolledAt || enrollment.createdAt).toLocaleDateString()}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
                       <button
                         onClick={() =>
-                          handleUnenroll(
-                            enrollment.id,
-                            enrollment.user.fullName,
-                            enrollment.course.title
-                          )
+                          setDeleteTarget({
+                            id: enrollment.id,
+                            name: enrollment.user.fullName,
+                            course: enrollment.course.title,
+                          })
                         }
                         disabled={isDeleting}
-                        className="p-2 rounded-lg border border-red-500/20 bg-red-500/5 hover:bg-red-500/15 text-red-400 transition-all cursor-pointer"
-                        title="Remove Student from Course"
+                        className="p-2 rounded-lg border border-red-500/20 bg-red-500/5 hover:bg-red-500/15 text-red-400 transition-all"
+                        title="Unenroll student"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -151,6 +194,18 @@ export default function AdminStudentsPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Unenroll Student?"
+        itemName={deleteTarget ? `${deleteTarget.name} — ${deleteTarget.course}` : undefined}
+        message="This action cannot be undone."
+        confirmLabel="Yes, Unenroll"
+        variant="danger"
+        loading={isDeleting}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

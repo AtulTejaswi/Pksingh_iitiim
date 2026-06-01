@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { prisma } from '../../config/db';
 import { AuthRequest } from '../../middleware/auth.middleware';
 import { z } from 'zod';
+import { formatZodError } from '../../utils/formatZodError';
 
 const enrollmentSchema = z.object({
   courseId: z.string().uuid(),
@@ -10,7 +11,7 @@ const enrollmentSchema = z.object({
 export const enroll = async (req: AuthRequest, res: Response): Promise<void> => {
   const result = enrollmentSchema.safeParse(req.body);
   if (!result.success) {
-    res.status(400).json({ error: result.error.flatten() });
+    res.status(400).json({ error: formatZodError(result.error) });
     return;
   }
   if (!req.user) {
@@ -64,8 +65,37 @@ export const listAllEnrollments = async (req: AuthRequest, res: Response): Promi
     include: {
       user: { select: { id: true, email: true, fullName: true } },
       course: { select: { id: true, title: true } }
-    }
+    },
+    orderBy: { enrolledAt: 'desc' },
   });
+
+  res.json({ enrollments });
+};
+
+export const exportEnrollments = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { courseId, format } = req.query;
+  const enrollments = await prisma.enrollment.findMany({
+    where: {
+      ...(courseId && { courseId: courseId as string }),
+    },
+    include: {
+      user: { select: { id: true, email: true, fullName: true } },
+      course: { select: { id: true, title: true } }
+    },
+    orderBy: { enrolledAt: 'desc' },
+  });
+
+  if (String(format).toLowerCase() === 'csv') {
+    const csv = ['id,userId,userEmail,userName,courseId,courseTitle,status,enrolledAt,completedAt',
+      ...enrollments.map((enrollment) =>
+        `${enrollment.id},${enrollment.user.id},"${enrollment.user.email}","${enrollment.user.fullName}",${enrollment.course.id},"${enrollment.course.title}",${enrollment.status},${enrollment.enrolledAt.toISOString()},${enrollment.completedAt?.toISOString() || ''}`
+      ),
+    ].join('\n');
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="enrollments-export.csv"');
+    res.send(csv);
+    return;
+  }
 
   res.json({ enrollments });
 };

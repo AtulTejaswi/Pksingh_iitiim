@@ -5,6 +5,19 @@ export const loginSchema = z.object({
   password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
+export const forgotPasswordSchema = z.object({
+  email: z.string().email('Invalid email address'),
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string(),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: 'Passwords do not match',
+  path: ['confirmPassword'],
+});
+
 export const signupSchema = z.object({
   fullName: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
@@ -32,6 +45,7 @@ export const courseSchema = z.object({
     'GENERAL'
   ])),
   isFree: z.boolean(),
+  isPublished: z.boolean().optional(),
   thumbnailUrl: z.string().url('Invalid URL format').optional().or(z.literal('')),
 });
 
@@ -46,6 +60,8 @@ export const lessonSchema = z.object({
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type SignupInput = z.infer<typeof signupSchema>;
 export type CourseInput = z.infer<typeof courseSchema>;
 export type LessonInput = z.infer<typeof lessonSchema>;

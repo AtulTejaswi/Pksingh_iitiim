@@ -1,5 +1,6 @@
 import React from 'react';
 import Navbar from '@/components/student/Navbar';
+import AdminQuickLink from '@/components/common/AdminQuickLink';
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -17,6 +18,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
             <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
             <a href="#" className="hover:text-white transition-colors">Contact Support</a>
+            <AdminQuickLink />
           </div>
         </div>
       </footer>

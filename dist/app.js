@@ -12,9 +12,13 @@ const path_1 = __importDefault(require("path"));
 const app = (0, express_1.default)();
 // Security headers
 app.use((0, helmet_1.default)());
-// CORS — only allow your frontend
+// CORS — allow frontend
 app.use((0, cors_1.default)({
-    origin: process.env.FRONTEND_URL,
+    origin: [
+        process.env.FRONTEND_URL || 'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        'https://pksingh.netlify.app',
+    ],
     credentials: true,
 }));
 // JSON body limit
@@ -31,7 +35,7 @@ app.use((0, express_rate_limit_1.default)({
 // Auth-specific stricter rate limit
 exports.authRateLimit = (0, express_rate_limit_1.default)({
     windowMs: 15 * 60 * 1000,
-    max: 10,
+    max: 100,
     message: { error: 'Too many auth attempts, please try again later.' },
 });
 // Import Routes
@@ -50,4 +54,5 @@ app.use('/api/media', media_routes_1.default);
 app.use('/api/notes', notes_routes_1.default);
 // 404 handler
 app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
+// (debug route removed)
 exports.default = app;

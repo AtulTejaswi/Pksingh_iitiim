@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ClientProviders from "@/components/common/ClientProviders";
+import AdminQuickLink from '@/components/common/AdminQuickLink';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,10 +28,14 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-[#0b0f19] text-[#f8fafc]">
+      <body className="min-h-full flex flex-col bg-[#0b0f19] text-[#f8fafc]" suppressHydrationWarning>
         <ClientProviders>
           {children}
+          <div className="pointer-events-none fixed bottom-4 right-4 z-50 hidden md:block">
+            <AdminQuickLink />
+          </div>
         </ClientProviders>
       </body>
     </html>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { use } from 'react';
+import React from 'react';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
 import { useGetCourse } from '@/hooks/useCourses';
 import { useGetLesson, useMarkLessonProgress } from '@/hooks/useLessons';
@@ -9,16 +9,9 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 import { ArrowLeft, Play, ArrowRight, ArrowLeftSquare, Download, CheckCircle, FileText, CheckCircle2, List, Video, AlertCircle } from 'lucide-react';
 
-export default function LessonPlayerPage({
-  params,
-}: {
-  params: Promise<{ courseId: string; lessonId: string }>;
-}) {
+export default function LessonPlayerPage({ params }: { params: { courseId: string; lessonId: string } }) {
   const router = useRouter();
-  
-  // Unwrap promise params
-  const resolvedParams = use(params);
-  const { courseId, lessonId } = resolvedParams;
+  const { courseId, lessonId } = params;
 
   const { data: course, isLoading: isCourseLoading } = useGetCourse(courseId);
   const { data: lesson, isLoading: isLessonLoading } = useGetLesson(lessonId);

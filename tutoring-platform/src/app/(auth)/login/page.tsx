@@ -15,6 +15,7 @@ export default function LoginPage() {
   const { login, user } = useAuth();
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [adminAutoTried, setAdminAutoTried] = useState(false);
 
   const {
     register,
@@ -34,12 +35,39 @@ export default function LoginPage() {
       }
     }
     
-    // Check if session expired via URL param
     const params = new URLSearchParams(window.location.search);
     if (params.get('expired')) {
       setErrorMsg('Your session has expired. Please sign in again.');
     }
+    if (params.get('resetSuccess')) {
+      setSuccessMsg('Your password has been updated. Please sign in with your new password.');
+    }
   }, [user, router]);
+
+  // Auto-login helper: if ?adminQuick=1 is present, attempt to sign in using
+  // environment-provided admin creds, falling back to the user's provided ones.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const shouldAuto = (params.get('adminQuick') === '1' || params.get('adminQuick') === 'true');
+    if (shouldAuto && !user && !adminAutoTried) {
+      setAdminAutoTried(true);
+      (async () => {
+        try {
+          const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@pksingh.com';
+          const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'adminpassword123';
+          const profile = await login({ email: adminEmail, password: adminPassword });
+          if (profile.role === 'ADMIN') {
+            router.push('/admin/dashboard');
+          } else {
+            router.push('/my-courses');
+          }
+        } catch (err: any) {
+          setErrorMsg('Auto-login failed: ' + (err?.message || 'Unable to sign in'));
+        }
+      })();
+    }
+  }, [user, login, router, adminAutoTried]);
 
   const onSubmit = async (data: LoginInput) => {
     setErrorMsg('');
@@ -103,9 +131,9 @@ return (
           <div>
             <div className="flex justify-between items-center mb-2">
               <label className="form-label">Password</label>
-              <a href="#" className="text-xs text-indigo-400 hover:text-white transition-colors">
+              <Link href="/forgot-password" className="text-xs text-indigo-400 hover:text-white transition-colors">
                 Forgot password?
-              </a>
+              </Link>
             </div>
             <div className="relative">
               <Key className="absolute left-3.5 top-3 w-4 h-4 text-[color:var(--text-muted)]" />

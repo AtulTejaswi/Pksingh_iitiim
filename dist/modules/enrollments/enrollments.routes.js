@@ -9,5 +9,6 @@ router.post('/', auth_middleware_1.authenticate, rbac_middleware_1.studentOrAdmi
 router.get('/my', auth_middleware_1.authenticate, rbac_middleware_1.studentOrAdmin, enrollments_controller_1.getMyEnrollments);
 // Admin
 router.get('/', auth_middleware_1.authenticate, rbac_middleware_1.adminOnly, enrollments_controller_1.listAllEnrollments);
+router.get('/export', auth_middleware_1.authenticate, rbac_middleware_1.adminOnly, enrollments_controller_1.exportEnrollments);
 router.delete('/:id', auth_middleware_1.authenticate, rbac_middleware_1.adminOnly, enrollments_controller_1.removeEnrollment);
 exports.default = router;

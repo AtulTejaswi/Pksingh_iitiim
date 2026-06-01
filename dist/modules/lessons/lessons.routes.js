@@ -5,6 +5,7 @@ const lessons_controller_1 = require("./lessons.controller");
 const auth_middleware_1 = require("../../middleware/auth.middleware");
 const rbac_middleware_1 = require("../../middleware/rbac.middleware");
 const router = (0, express_1.Router)();
+router.get('/', auth_middleware_1.authenticate, rbac_middleware_1.adminOnly, lessons_controller_1.listLessons);
 router.get('/:id', auth_middleware_1.authenticate, rbac_middleware_1.studentOrAdmin, lessons_controller_1.getLesson);
 router.post('/:id/progress', auth_middleware_1.authenticate, rbac_middleware_1.studentOrAdmin, lessons_controller_1.markProgress);
 router.post('/', auth_middleware_1.authenticate, rbac_middleware_1.adminOnly, lessons_controller_1.createLesson);

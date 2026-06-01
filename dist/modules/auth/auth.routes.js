@@ -8,8 +8,14 @@ const router = (0, express_1.Router)();
 // Public
 router.post('/register', auth_controller_1.register);
 router.post('/login', auth_controller_1.login);
+router.post('/request-reset', auth_controller_1.requestPasswordReset);
+router.post('/reset-password', auth_controller_1.resetPassword);
 // Protected
 router.get('/me', auth_middleware_1.authenticate, auth_controller_1.getMe);
-// Admin only — promote a student to admin
+// Admin helpers
+router.get('/users', auth_middleware_1.authenticate, rbac_middleware_1.adminOnly, (req, res) => { return require('./auth.controller').listUsers(req, res); });
+router.get('/users/export', auth_middleware_1.authenticate, rbac_middleware_1.adminOnly, auth_controller_1.exportUsers);
+// Admin only — promote or demote user roles
 router.patch('/promote/:userId', auth_middleware_1.authenticate, rbac_middleware_1.adminOnly, auth_controller_1.promoteToAdmin);
+router.patch('/demote/:userId', auth_middleware_1.authenticate, rbac_middleware_1.adminOnly, auth_controller_1.demoteFromAdmin);
 exports.default = router;

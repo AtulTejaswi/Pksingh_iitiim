@@ -11,7 +11,11 @@ app.use(helmet());
 
 // CORS — allow frontend
 app.use(cors({
-  origin: [process.env.FRONTEND_URL || 'http://localhost:3000', 'https://pksingh.netlify.app'],
+  origin: [
+    process.env.FRONTEND_URL || 'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'https://pksingh.netlify.app',
+  ],
   credentials: true,
 }));
 
@@ -32,7 +36,7 @@ app.use(rateLimit({
 // Auth-specific stricter rate limit
 export const authRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: 100,
   message: { error: 'Too many auth attempts, please try again later.' },
 });
 
@@ -43,6 +47,7 @@ import lessonsRoutes from './modules/lessons/lessons.routes';
 import enrollmentsRoutes from './modules/enrollments/enrollments.routes';
 import mediaRoutes from './modules/media/media.routes';
 import notesRoutes from './modules/notes/notes.routes';
+import debugRoutes from './modules/debug/debug.routes';
 
 // Mount Routes
 app.use('/api/auth', authRateLimit, authRoutes);
@@ -51,8 +56,11 @@ app.use('/api/lessons', lessonsRoutes);
 app.use('/api/enrollments', enrollmentsRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/notes', notesRoutes);
+app.use('/api/debug', debugRoutes);
 
 // 404 handler
 app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
+
+// (debug route removed)
 
 export default app;

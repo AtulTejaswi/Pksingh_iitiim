@@ -8,6 +8,8 @@
     "dev": "ts-node src/server.ts",
     "build": "tsc",
     "test": "jest",
+    "e2e:install": "npx playwright install --with-deps",
+    "test:e2e": "npx playwright test",
     "postinstall": "prisma generate && prisma db push"
   },
   "keywords": [],
@@ -39,6 +41,7 @@
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.11",
     "ts-node": "^10.9.2",
+    "@playwright/test": "^1.40.0",
     "typescript": "^6.0.3",
     "next": "16.2.6"
   }

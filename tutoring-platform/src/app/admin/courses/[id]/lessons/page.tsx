@@ -1,16 +1,15 @@
+// Simplified single AdminLessonsPage component retained above; duplicate content removed.
 'use client';
 
-import React, { useState, use } from 'react';
+import React, { useState } from 'react';
 import { useGetCourse } from '@/hooks/useCourses';
 import { useDeleteLesson, useUploadMediaFile, useAddMediaLink, useDeleteMedia, useCreateNote, useDeleteNote } from '@/hooks/useLessons';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { ArrowLeft, Plus, Edit3, Trash2, Video, FileText, Link2, ExternalLink, PlusCircle, Trash, ChevronDown, ChevronUp, FileCode, BookOpen } from 'lucide-react';
 
-export default function AdminLessonsPage({ params }: { params: Promise<{ id: string }> }) {
-  // Unwrap params
-  const resolvedParams = use(params);
-  const courseId = resolvedParams.id;
+export default function AdminLessonsPage({ params }: { params: { id: string } }) {
+  const courseId = params.id;
 
   const { data: course, isLoading } = useGetCourse(courseId);
   const { mutate: deleteLesson, isPending: isDeleting } = useDeleteLesson();
@@ -53,6 +52,21 @@ export default function AdminLessonsPage({ params }: { params: Promise<{ id: str
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Client-side validation to prevent crashes
+    const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error('File size exceeds the 50MB limit. Please compress or choose a smaller file.');
+      e.target.value = '';
+      return;
+    }
+
+    const allowedTypes = ['application/pdf', 'video/mp4', 'image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Invalid file type. Only PDF, MP4, JPEG, PNG, and WebP are allowed.');
+      e.target.value = '';
+      return;
+    }
+
     const title = file.name;
     uploadMedia(
       { lessonId, title, file },
@@ -63,6 +77,7 @@ export default function AdminLessonsPage({ params }: { params: Promise<{ id: str
         },
         onError: (err: any) => {
           toast.error(err.response?.data?.error || 'File upload failed');
+          e.target.value = '';
         },
       }
     );

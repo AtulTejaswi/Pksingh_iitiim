@@ -7,6 +7,7 @@ import Testimonials from '@/components/common/Testimonials';
 import Navbar from '@/components/student/Navbar';
 import { useGetCourses } from '@/hooks/useCourses';
 import { BookOpen, GraduationCap, Award, CheckCircle2, ChevronRight, Zap, Target } from 'lucide-react';
+import AdminQuickLink from '@/components/common/AdminQuickLink';
 
 export default function LandingPage() {
   const { data: courses, isLoading } = useGetCourses();
@@ -396,11 +397,12 @@ export default function LandingPage() {
           <div>
             &copy; {new Date().getFullYear()} PK Singh. All rights reserved. Built for premium results.
           </div>
-          <div className="flex items-center gap-6">
-            <a href="#" className="text-slate-400 hover:text-white transition-colors">Privacy Policy</a>
-            <a href="#" className="text-slate-400 hover:text-white transition-colors">Terms of Service</a>
-            <a href="#" className="text-slate-400 hover:text-white transition-colors">Support Portal</a>
-          </div>
+            <div className="flex items-center gap-6">
+              <a href="#" className="text-slate-400 hover:text-white transition-colors">Privacy Policy</a>
+              <a href="#" className="text-slate-400 hover:text-white transition-colors">Terms of Service</a>
+              <a href="#" className="text-slate-400 hover:text-white transition-colors">Support Portal</a>
+              <AdminQuickLink />
+            </div>
         </div>
       </footer>
     </div>

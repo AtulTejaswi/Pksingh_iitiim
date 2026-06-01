@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteNote = exports.updateNote = exports.createNote = exports.getLessonNotes = void 0;
 const db_1 = require("../../config/db");
 const zod_1 = require("zod");
+const formatZodError_1 = require("../../utils/formatZodError");
 const noteSchema = zod_1.z.object({
     lessonId: zod_1.z.string().uuid(),
     title: zod_1.z.string().min(2),
@@ -21,7 +22,7 @@ exports.getLessonNotes = getLessonNotes;
 const createNote = async (req, res) => {
     const result = noteSchema.safeParse(req.body);
     if (!result.success) {
-        res.status(400).json({ error: result.error.flatten() });
+        res.status(400).json({ error: (0, formatZodError_1.formatZodError)(result.error) });
         return;
     }
     const note = await db_1.prisma.note.create({ data: result.data });
@@ -32,7 +33,7 @@ const updateNote = async (req, res) => {
     const id = req.params.id;
     const result = noteSchema.partial().safeParse(req.body);
     if (!result.success) {
-        res.status(400).json({ error: result.error.flatten() });
+        res.status(400).json({ error: (0, formatZodError_1.formatZodError)(result.error) });
         return;
     }
     const note = await db_1.prisma.note.update({

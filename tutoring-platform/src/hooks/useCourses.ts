@@ -25,15 +25,19 @@ export interface Course {
   }[];
 }
 
-export function useGetCourses(filters?: { subject?: string; examTag?: string }) {
+export function useGetCourses(filters?: { subject?: string; examTag?: string; includeDrafts?: boolean }) {
   return useQuery({
     queryKey: ['courses', filters],
     queryFn: async () => {
+      const params: any = {
+        ...filters,
+        limit: 100, // Fetch all for browsing
+      };
+      if (filters?.includeDrafts) {
+        params.includeDrafts = 1;
+      }
       const response = await apiClient.get<{ courses: Course[] }>('/courses', {
-        params: {
-          ...filters,
-          limit: 100, // Fetch all for browsing
-        },
+        params,
       });
       return response.data.courses;
     },
@@ -59,7 +63,9 @@ export function useCreateCourse() {
       return response.data.course;
     },
     onSuccess: () => {
+      // Invalidate both the base courses key and the drafts-included variant
       queryClient.invalidateQueries({ queryKey: ['courses'] });
+      queryClient.invalidateQueries({ queryKey: ['courses', { includeDrafts: true }] });
     },
   });
 }
@@ -73,6 +79,7 @@ export function useUpdateCourse() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['courses'] });
+      queryClient.invalidateQueries({ queryKey: ['courses', { includeDrafts: true }] });
       queryClient.invalidateQueries({ queryKey: ['course', variables.id] });
     },
   });
@@ -86,6 +93,7 @@ export function useDeleteCourse() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['courses'] });
+      queryClient.invalidateQueries({ queryKey: ['courses', { includeDrafts: true }] });
     },
   });
 }
@@ -99,6 +107,7 @@ export function useTogglePublishCourse() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['courses'] });
+      queryClient.invalidateQueries({ queryKey: ['courses', { includeDrafts: true }] });
       queryClient.invalidateQueries({ queryKey: ['course', variables.id] });
     },
   });
@@ -134,6 +143,7 @@ export function useGetAllEnrollments(courseId?: string) {
   return useQuery({
     queryKey: ['all-enrollments', courseId],
     queryFn: async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const response = await apiClient.get<{ enrollments: any[] }>('/enrollments', {
         params: { courseId },
       });

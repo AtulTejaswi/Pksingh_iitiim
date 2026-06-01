@@ -27,6 +27,24 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (error.response?.data?.error && typeof error.response.data.error === 'object') {
+      const errObj = error.response.data.error;
+      if (errObj.formErrors || errObj.fieldErrors) {
+        let msg = '';
+        if (errObj.formErrors && errObj.formErrors.length > 0) {
+          msg += errObj.formErrors.join(', ') + ' ';
+        }
+        if (errObj.fieldErrors) {
+          const fieldMsgs = Object.entries(errObj.fieldErrors)
+            .map(([field, msgs]) => `${field}: ${(msgs as string[]).join(', ')}`);
+          msg += fieldMsgs.join(' | ');
+        }
+        error.response.data.error = msg.trim() || 'Validation failed';
+      } else {
+        error.response.data.error = JSON.stringify(errObj);
+      }
+    }
+
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('access_token');

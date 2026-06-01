@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { prisma } from '../../config/db';
 import { AuthRequest } from '../../middleware/auth.middleware';
 import { z } from 'zod';
+import { formatZodError } from '../../utils/formatZodError';
 
 const noteSchema = z.object({
   lessonId: z.string().uuid(),
@@ -22,7 +23,7 @@ export const getLessonNotes = async (req: AuthRequest, res: Response): Promise<v
 export const createNote = async (req: AuthRequest, res: Response): Promise<void> => {
   const result = noteSchema.safeParse(req.body);
   if (!result.success) {
-    res.status(400).json({ error: result.error.flatten() });
+    res.status(400).json({ error: formatZodError(result.error) });
     return;
   }
 
@@ -34,7 +35,7 @@ export const updateNote = async (req: AuthRequest, res: Response): Promise<void>
   const id = req.params.id as string;
   const result = noteSchema.partial().safeParse(req.body);
   if (!result.success) {
-    res.status(400).json({ error: result.error.flatten() });
+    res.status(400).json({ error: formatZodError(result.error) });
     return;
   }
 

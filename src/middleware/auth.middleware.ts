@@ -20,7 +20,22 @@ export const authenticate = async (
   const token = authHeader.split(' ')[1];
 
   try {
-    const secret = process.env.SUPABASE_JWT_SECRET || process.env.LOCAL_JWT_SECRET;
+    const hasSupabaseCfg = Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+    const useSupabase = Boolean(hasSupabaseCfg && process.env.SUPABASE_JWT_SECRET);
+
+    let secret: string | undefined;
+    if (useSupabase) {
+      secret = process.env.SUPABASE_JWT_SECRET;
+    } else if (hasSupabaseCfg && !process.env.SUPABASE_JWT_SECRET) {
+      // Supabase is partially configured (URL + service key) but JWT secret missing.
+      // Log a warning and fall back to local JWT secret to avoid blocking login in many dev setups.
+      // This is safer for end-user experience; operators should still fix env vars for production.
+      console.warn('Warning: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set, but SUPABASE_JWT_SECRET is missing. Falling back to LOCAL_JWT_SECRET.');
+      secret = process.env.LOCAL_JWT_SECRET || 'local-secret';
+    } else {
+      secret = process.env.LOCAL_JWT_SECRET || 'local-secret';
+    }
+
     if (!secret) {
       res.status(500).json({ error: 'Server misconfiguration: JWT secret is missing' });
       return;

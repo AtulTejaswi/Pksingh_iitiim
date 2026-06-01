@@ -1,6 +1,4 @@
 import React from 'react';
-import Image from 'next/image';
-
 const testimonials = [
   { name: 'A. Kumar', text: 'Transformed my scores — clear explanations and exam strategy.', role: 'JEE Learner' },
   { name: 'S. Mehta', text: 'Best mentoring I have seen. Approachable and focused.', role: 'SAT Student' },

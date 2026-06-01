@@ -1,3 +1,48 @@
+# PK Singh Tutoring Platform
+
+Quick instructions for running and troubleshooting the backend (non-technical friendly).
+
+Prerequisites
+- Node.js 18+ and npm
+- SQLite (included via Prisma — DB file is stored locally using `DATABASE_URL`)
+
+Local development (backend)
+
+1. Install dependencies (first time):
+```bash
+npm install
+npm run postinstall
+```
+
+2. Start backend in development mode:
+```bash
+npm run dev
+```
+
+3. Start production-like server (after `npm run build`):
+```bash
+npm run build
+npm start
+```
+
+Common env vars (see `.env` file)
+- `DATABASE_URL` — SQLite or your DB connection string
+- `LOCAL_JWT_SECRET` — secret used for local JWT tokens (default set in code)
+- `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET` — only set these together if you use Supabase Auth. If `SUPABASE_URL`/`SERVICE_ROLE_KEY` are set but `SUPABASE_JWT_SECRET` is missing, server will warn in development and fail to start in production.
+- `ADMIN_EMAIL`, `ADMIN_PASSWORD` — used to seed initial admin user on first run
+
+Troubleshooting
+- If users cannot sign in: check backend logs for startup warnings about Supabase envs. If present, either set `SUPABASE_JWT_SECRET` or remove Supabase envs to use local auth.
+- To inspect a failing login flow manually:
+```bash
+curl -X POST http://localhost:4000/api/auth/login -H "Content-Type: application/json" -d '{"email":"admin@pksingh.com","password":"adminpassword123"}'
+```
+
+Support
+- If you need help, paste backend logs (the console output where `npm run dev` was started) and I will assist.
+
+---
+This README focuses on the backend. Frontend (Next.js) run steps are in `tutoring-platform/README.md`.
 # Tutoring Platform Backend
 
 This is a complete backend API for a tutoring platform (JEE, NEET, SAT, etc.) built with Node.js, Express, Prisma, and Supabase.

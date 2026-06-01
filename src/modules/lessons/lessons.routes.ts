@@ -1,10 +1,11 @@
 import { Router } from 'express';
-import { getLesson, createLesson, updateLesson, deleteLesson, markProgress } from './lessons.controller';
+import { listLessons, getLesson, createLesson, updateLesson, deleteLesson, markProgress } from './lessons.controller';
 import { authenticate } from '../../middleware/auth.middleware';
 import { adminOnly, studentOrAdmin } from '../../middleware/rbac.middleware';
 
 const router = Router();
 
+router.get('/', authenticate, adminOnly, listLessons);
 router.get('/:id', authenticate, studentOrAdmin, getLesson);
 router.post('/:id/progress', authenticate, studentOrAdmin, markProgress);
 

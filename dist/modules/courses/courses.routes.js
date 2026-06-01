@@ -7,9 +7,10 @@ const rbac_middleware_1 = require("../../middleware/rbac.middleware");
 const router = (0, express_1.Router)();
 // Public routes
 router.get('/', courses_controller_1.listCourses);
-router.get('/:id', courses_controller_1.getCourse);
 // Admin only routes
+router.get('/export', auth_middleware_1.authenticate, rbac_middleware_1.adminOnly, courses_controller_1.exportCourses);
 router.post('/', auth_middleware_1.authenticate, rbac_middleware_1.adminOnly, courses_controller_1.createCourse);
+router.get('/:id', courses_controller_1.getCourse);
 router.put('/:id', auth_middleware_1.authenticate, rbac_middleware_1.adminOnly, courses_controller_1.updateCourse);
 router.delete('/:id', auth_middleware_1.authenticate, rbac_middleware_1.adminOnly, courses_controller_1.deleteCourse);
 router.patch('/:id/publish', auth_middleware_1.authenticate, rbac_middleware_1.adminOnly, courses_controller_1.togglePublish);

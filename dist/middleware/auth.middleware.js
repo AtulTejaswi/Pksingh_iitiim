@@ -14,7 +14,8 @@ const authenticate = async (req, res, next) => {
     }
     const token = authHeader.split(' ')[1];
     try {
-        const secret = process.env.SUPABASE_JWT_SECRET || process.env.LOCAL_JWT_SECRET;
+        const useSupabase = Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.SUPABASE_JWT_SECRET);
+        const secret = useSupabase ? process.env.SUPABASE_JWT_SECRET : process.env.LOCAL_JWT_SECRET || 'local-secret';
         if (!secret) {
             res.status(500).json({ error: 'Server misconfiguration: JWT secret is missing' });
             return;

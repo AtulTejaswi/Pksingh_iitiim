@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.markProgress = exports.deleteLesson = exports.updateLesson = exports.createLesson = exports.getLesson = void 0;
+exports.markProgress = exports.deleteLesson = exports.updateLesson = exports.createLesson = exports.getLesson = exports.listLessons = void 0;
 const db_1 = require("../../config/db");
 const zod_1 = require("zod");
+const formatZodError_1 = require("../../utils/formatZodError");
 const lessonSchema = zod_1.z.object({
     courseId: zod_1.z.string().uuid(),
     title: zod_1.z.string().min(3).max(200),
@@ -12,6 +13,20 @@ const lessonSchema = zod_1.z.object({
     isFree: zod_1.z.boolean().optional(),
     isPublished: zod_1.z.boolean().optional(),
 });
+// GET /api/lessons — list all lessons (admin only)
+const listLessons = async (req, res) => {
+    const { courseId } = req.query;
+    const where = {};
+    if (courseId)
+        where.courseId = courseId;
+    const lessons = await db_1.prisma.lesson.findMany({
+        where,
+        include: { media: true, notes: true },
+        orderBy: { sortOrder: 'asc' },
+    });
+    res.json({ lessons });
+};
+exports.listLessons = listLessons;
 const getLesson = async (req, res) => {
     const id = req.params.id;
     const lesson = await db_1.prisma.lesson.findUnique({
@@ -55,7 +70,7 @@ exports.getLesson = getLesson;
 const createLesson = async (req, res) => {
     const result = lessonSchema.safeParse(req.body);
     if (!result.success) {
-        res.status(400).json({ error: result.error.flatten() });
+        res.status(400).json({ error: (0, formatZodError_1.formatZodError)(result.error) });
         return;
     }
     const lesson = await db_1.prisma.lesson.create({ data: result.data });
@@ -66,7 +81,7 @@ const updateLesson = async (req, res) => {
     const id = req.params.id;
     const result = lessonSchema.partial().safeParse(req.body);
     if (!result.success) {
-        res.status(400).json({ error: result.error.flatten() });
+        res.status(400).json({ error: (0, formatZodError_1.formatZodError)(result.error) });
         return;
     }
     const lesson = await db_1.prisma.lesson.update({

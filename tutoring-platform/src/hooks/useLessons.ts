@@ -25,16 +25,27 @@ export interface Lesson {
   id: string;
   courseId: string;
   title: string;
-  description: string | null;
-  content: string | null;
-  sortOrder: number;
-  isFree: boolean;
-  isPublished: boolean;
+  description?: string | null;
+  content?: string | null;
+  sortOrder?: number | null;
+  isFree?: boolean;
+  isPublished?: boolean;
   media?: Media[];
   notes?: Note[];
 }
 
-export function useGetLesson(id: string) {
+export function useGetLessons(courseId?: string) {
+  return useQuery({
+    queryKey: ['lessons', courseId],
+    queryFn: async () => {
+      const response = await apiClient.get<{ lessons: Lesson[] }>('/lessons', { params: { courseId } });
+      return response.data.lessons;
+    },
+    enabled: !!courseId,
+  });
+}
+
+export function useGetLesson(id?: string) {
   return useQuery({
     queryKey: ['lesson', id],
     queryFn: async () => {
@@ -46,76 +57,76 @@ export function useGetLesson(id: string) {
 }
 
 export function useCreateLesson() {
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async (data: LessonInput) => {
-      const response = await apiClient.post<{ lesson: Lesson }>('/lessons', data);
-      return response.data.lesson;
+      const r = await apiClient.post<{ lesson: Lesson }>('/lessons', data);
+      return r.data.lesson;
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['course', variables.courseId] });
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: ['lessons', (variables as any).courseId] });
+      qc.invalidateQueries({ queryKey: ['course', (variables as any).courseId] });
     },
   });
 }
 
 export function useUpdateLesson() {
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<LessonInput> }) => {
-      const response = await apiClient.put<{ lesson: Lesson }>(`/lessons/${id}`, data);
-      return response.data.lesson;
+      const r = await apiClient.put<{ lesson: Lesson }>(`/lessons/${id}`, data);
+      return r.data.lesson;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['lesson', data.id] });
-      queryClient.invalidateQueries({ queryKey: ['course', data.courseId] });
+      qc.invalidateQueries({ queryKey: ['lessons'] });
+      qc.invalidateQueries({ queryKey: ['lesson', data.id] });
+      qc.invalidateQueries({ queryKey: ['course', data.courseId] });
     },
   });
 }
 
 export function useDeleteLesson() {
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, courseId }: { id: string; courseId: string }) => {
+    mutationFn: async ({ id, courseId }: { id: string; courseId?: string }) => {
       await apiClient.delete(`/lessons/${id}`);
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['course', variables.courseId] });
+    onSuccess: (_data, variables: any) => {
+      qc.invalidateQueries({ queryKey: ['lessons', variables?.courseId] });
+      if (variables?.courseId) qc.invalidateQueries({ queryKey: ['course', variables.courseId] });
     },
   });
 }
 
-// Mark lesson complete progress
 export function useMarkLessonProgress() {
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async (lessonId: string) => {
       const response = await apiClient.post(`/lessons/${lessonId}/progress`);
       return response.data;
     },
     onSuccess: (_, lessonId) => {
-      queryClient.invalidateQueries({ queryKey: ['lesson-progress', lessonId] });
-      queryClient.invalidateQueries({ queryKey: ['my-enrollments'] }); // Refetches enrollments to update progress percent
+      qc.invalidateQueries({ queryKey: ['lesson-progress', lessonId] });
+      qc.invalidateQueries({ queryKey: ['my-enrollments'] });
     },
   });
 }
 
-// Add Media Link (YouTube/External)
 export function useAddMediaLink() {
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async (data: { lessonId: string; title: string; url: string; type: 'YOUTUBE_LINK' | 'EXTERNAL_LINK' }) => {
       const response = await apiClient.post<{ media: Media }>('/media/link', data);
       return response.data.media;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['lesson', data.lessonId] });
+      qc.invalidateQueries({ queryKey: ['lesson', data.lessonId] });
     },
   });
 }
 
-// Upload Media File (Multipart form data)
 export function useUploadMediaFile() {
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ lessonId, title, file }: { lessonId: string; title: string; file: File }) => {
       const formData = new FormData();
@@ -124,68 +135,62 @@ export function useUploadMediaFile() {
       formData.append('file', file);
 
       const response = await apiClient.post<{ media: Media }>('/media/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data.media;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['lesson', data.lessonId] });
+      qc.invalidateQueries({ queryKey: ['lesson', data.lessonId] });
     },
   });
 }
 
-// Delete Media
 export function useDeleteMedia() {
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, lessonId }: { id: string; lessonId: string }) => {
       await apiClient.delete(`/media/${id}`);
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['lesson', variables.lessonId] });
+    onSuccess: (_data, variables: any) => {
+      qc.invalidateQueries({ queryKey: ['lesson', variables.lessonId] });
     },
   });
 }
 
-// Create Note
 export function useCreateNote() {
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async (data: { lessonId: string; title: string; content: string; fileUrl?: string }) => {
       const response = await apiClient.post<{ note: Note }>('/notes', data);
       return response.data.note;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['lesson', data.lessonId] });
+      qc.invalidateQueries({ queryKey: ['lesson', data.lessonId] });
     },
   });
 }
 
-// Update Note
 export function useUpdateNote() {
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<{ title: string; content: string; fileUrl: string }> }) => {
       const response = await apiClient.put<{ note: Note }>(`/notes/${id}`, data);
       return response.data.note;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['lesson', data.lessonId] });
+      qc.invalidateQueries({ queryKey: ['lesson', data.lessonId] });
     },
   });
 }
 
-// Delete Note
 export function useDeleteNote() {
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, lessonId }: { id: string; lessonId: string }) => {
       await apiClient.delete(`/notes/${id}`);
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['lesson', variables.lessonId] });
+    onSuccess: (_data, variables: any) => {
+      qc.invalidateQueries({ queryKey: ['lesson', variables.lessonId] });
     },
   });
 }

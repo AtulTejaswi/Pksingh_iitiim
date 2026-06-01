@@ -1,6 +1,6 @@
 'use client';
 
-import React, { use } from 'react';
+import React from 'react';
 import { useGetCourse, useEnrollCourse, useGetMyEnrollments } from '@/hooks/useCourses';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
@@ -8,13 +8,10 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 import { ArrowLeft, BookOpen, Clock, Users, Play, Award, Download, Lock, AlertTriangle } from 'lucide-react';
 
-export default function CourseDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default function CourseDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { user } = useAuth();
-  
-  // Unwrap promise params in Next.js 15+ compatible way
-  const resolvedParams = use(params);
-  const courseId = resolvedParams.id;
+  const courseId = params.id;
 
   const { data: course, isLoading: isCourseLoading } = useGetCourse(courseId);
   const { mutate: enroll, isPending: isEnrolling } = useEnrollCourse();
