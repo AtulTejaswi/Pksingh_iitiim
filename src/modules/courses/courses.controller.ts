@@ -29,7 +29,7 @@ export const listCourses = async (req: Request, res: Response): Promise<void> =>
     whereClause.isPublished = true;
   }
 
-  console.log('DEBUG listCourses whereClause before query:', whereClause);
+    // minimal diagnostic retained: returned count
   const courses = await prisma.course.findMany({
     where: whereClause,
     select: {
@@ -43,7 +43,7 @@ export const listCourses = async (req: Request, res: Response): Promise<void> =>
     orderBy: { sortOrder: 'asc' },
   });
 
-  console.log('DEBUG listCourses where:', whereClause, 'returned:', courses.length);
+  // lightweight diagnostic: returned count (removed verbose sample log)
 
   const parsedCourses = courses.map((course) => ({
     ...course,
