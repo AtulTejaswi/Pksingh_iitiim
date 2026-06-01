@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteMedia = exports.getLessonMedia = exports.addLink = exports.uploadMedia = exports.upload = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
+const os_1 = __importDefault(require("os"));
 const supabase_js_1 = require("@supabase/supabase-js");
 const multer_1 = __importDefault(require("multer"));
 const db_1 = require("../../config/db");
@@ -14,9 +15,15 @@ const supabase = useSupabase
     ? (0, supabase_js_1.createClient)(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
     : null;
 // Multer: in-memory buffer (we stream to Supabase)
+// Use disk storage to avoid buffering large uploads in memory.
+const uploadTempDir = path_1.default.join(os_1.default.tmpdir(), 'pksingh_uploads');
+fs_1.default.mkdirSync(uploadTempDir, { recursive: true });
 exports.upload = (0, multer_1.default)({
-    storage: multer_1.default.memoryStorage(),
-    limits: { fileSize: parseInt(process.env.MAX_FILE_SIZE_MB || '50') * 1024 * 1024 },
+    storage: multer_1.default.diskStorage({
+        destination: (_req, _file, cb) => cb(null, uploadTempDir),
+        filename: (_req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
+    }),
+    limits: { fileSize: parseInt(process.env.MAX_FILE_SIZE_MB || '500') * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
         const allowed = (process.env.ALLOWED_MIME_TYPES || 'application/pdf,video/mp4,image/jpeg,image/png,image/webp').split(',');
         if (allowed.includes(file.mimetype)) {
@@ -38,41 +45,87 @@ const uploadMedia = async (req, res) => {
     const storagePath = `lessons/${lessonId}/${Date.now()}.${ext}`;
     let publicUrl;
     let savedPath = storagePath;
-    if (useSupabase && supabase) {
-        const { error: uploadError } = await supabase.storage
-            .from('media')
-            .upload(storagePath, file.buffer, { contentType: file.mimetype });
-        if (uploadError) {
-            res.status(500).json({ error: 'File upload failed' });
-            return;
+    try {
+        if (useSupabase && supabase) {
+            // Stream file to Supabase storage to avoid buffering large files in memory.
+            try {
+                const fileStream = fs_1.default.createReadStream(file.path);
+                const { error: uploadError } = await supabase.storage
+                    .from('media')
+                    .upload(storagePath, fileStream, { contentType: file.mimetype });
+                if (uploadError) {
+                    // Try buffer fallback if stream upload fails
+                    const buffer = fs_1.default.readFileSync(file.path);
+                    const { error: uploadError2 } = await supabase.storage.from('media').upload(storagePath, buffer, { contentType: file.mimetype });
+                    if (uploadError2) {
+                        console.error('Supabase upload errors', uploadError, uploadError2);
+                        throw new Error('Supabase upload failed');
+                    }
+                }
+                const { data } = supabase.storage.from('media').getPublicUrl(storagePath);
+                publicUrl = data.publicUrl;
+                // remove temp file after successful transfer
+                if (fs_1.default.existsSync(file.path))
+                    fs_1.default.unlinkSync(file.path);
+            }
+            catch (err) {
+                // If supabase upload fails, rethrow so we return 500 to caller
+                throw err;
+            }
         }
-        const { data } = supabase.storage.from('media').getPublicUrl(storagePath);
-        publicUrl = data.publicUrl;
+        else {
+            const uploadFolder = path_1.default.join(process.cwd(), 'uploads', 'lessons', lessonId);
+            fs_1.default.mkdirSync(uploadFolder, { recursive: true });
+            const filename = path_1.default.basename(file.path);
+            const filePath = path_1.default.join(uploadFolder, filename);
+            try {
+                fs_1.default.copyFileSync(file.path, filePath);
+            }
+            catch (copyErr) {
+                try {
+                    fs_1.default.renameSync(file.path, filePath);
+                }
+                catch (renameErr) {
+                    console.error('Failed to move temp file to uploads folder', copyErr, renameErr);
+                }
+            }
+            // Use BACKEND_URL if provided; otherwise derive base URL from the incoming request
+            const providedUrl = process.env.BACKEND_URL;
+            const derivedBase = providedUrl ?? `${req.protocol}://${req.get('host')}`;
+            publicUrl = `${derivedBase.replace(/\/$/, '')}/uploads/lessons/${lessonId}/${filename}`;
+            savedPath = `uploads/lessons/${lessonId}/${filename}`;
+        }
+        const type = file.mimetype === 'application/pdf' ? 'PDF'
+            : file.mimetype.startsWith('video') ? 'VIDEO'
+                : 'IMAGE';
+        const stats = fs_1.default.existsSync(file.path) ? fs_1.default.statSync(file.path) : { size: file.size };
+        const media = await db_1.prisma.media.create({
+            data: {
+                lessonId,
+                title: title ?? file.originalname,
+                type,
+                url: publicUrl,
+                storagePath: savedPath,
+                sizeBytes: stats.size,
+                mimeType: file.mimetype,
+            },
+        });
+        res.status(201).json({ media });
     }
-    else {
-        const uploadFolder = path_1.default.join(process.cwd(), 'uploads', 'lessons', lessonId);
-        fs_1.default.mkdirSync(uploadFolder, { recursive: true });
-        const filename = `${Date.now()}.${ext}`;
-        const filePath = path_1.default.join(uploadFolder, filename);
-        fs_1.default.writeFileSync(filePath, file.buffer);
-        publicUrl = `${process.env.BACKEND_URL || 'http://localhost:4000'}/uploads/lessons/${lessonId}/${filename}`;
-        savedPath = `uploads/lessons/${lessonId}/${filename}`;
+    catch (err) {
+        console.error('uploadMedia error', err);
+        res.status(500).json({ error: 'File upload failed' });
     }
-    const type = file.mimetype === 'application/pdf' ? 'PDF'
-        : file.mimetype.startsWith('video') ? 'VIDEO'
-            : 'IMAGE';
-    const media = await db_1.prisma.media.create({
-        data: {
-            lessonId,
-            title: title ?? file.originalname,
-            type,
-            url: publicUrl,
-            storagePath: savedPath,
-            sizeBytes: file.size,
-            mimeType: file.mimetype,
-        },
-    });
-    res.status(201).json({ media });
+    finally {
+        // Cleanup temp file if it still exists
+        try {
+            if (file.path && fs_1.default.existsSync(file.path))
+                fs_1.default.unlinkSync(file.path);
+        }
+        catch (e) {
+            // ignore
+        }
+    }
 };
 exports.uploadMedia = uploadMedia;
 const addLink = async (req, res) => {
