@@ -83,7 +83,10 @@ export const uploadMedia = async (req: AuthRequest, res: Response): Promise<void
       const filePath = path.join(uploadFolder, filename);
       fs.renameSync(file.path, filePath);
 
-      publicUrl = `${process.env.BACKEND_URL || 'http://localhost:4000'}/uploads/lessons/${lessonId}/${filename}`;
+      // Use BACKEND_URL if provided; otherwise derive base URL from the incoming request
+      const providedUrl = process.env.BACKEND_URL;
+      const derivedBase = providedUrl ?? `${req.protocol}://${req.get('host')}`;
+      publicUrl = `${derivedBase.replace(/\/$/, '')}/uploads/lessons/${lessonId}/${filename}`;
       savedPath = `uploads/lessons/${lessonId}/${filename}`;
     }
 
