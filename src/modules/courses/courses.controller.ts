@@ -44,7 +44,6 @@ export const listCourses = async (req: Request, res: Response): Promise<void> =>
   });
 
   console.log('DEBUG listCourses where:', whereClause, 'returned:', courses.length);
-  console.log('DEBUG listCourses sample course:', courses[0]);
 
   const parsedCourses = courses.map((course) => ({
     ...course,
