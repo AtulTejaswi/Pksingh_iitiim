@@ -123,7 +123,7 @@ export const uploadMedia = async (req: AuthRequest, res: Response): Promise<void
     res.status(201).json({ media });
   } catch (err) {
     console.error('uploadMedia error', err);
-    res.status(500).json({ error: 'File upload failed' });
+    res.status(500).json({ error: 'File upload failed', details: String(err) });
   } finally {
     // Cleanup temp file if it still exists
     try {
