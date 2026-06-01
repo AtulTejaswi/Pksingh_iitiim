@@ -77,10 +77,12 @@ export function useUpdateCourse() {
       const response = await apiClient.put<{ course: Course }>(`/courses/${id}`, data);
       return response.data.course;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['courses'] });
       queryClient.invalidateQueries({ queryKey: ['courses', { includeDrafts: true }] });
       queryClient.invalidateQueries({ queryKey: ['course', variables.id] });
+      // Ensure the single-course cache is updated immediately with returned data
+      queryClient.setQueryData(['course', variables.id], data);
     },
   });
 }

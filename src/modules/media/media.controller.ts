@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 import { createClient } from '@supabase/supabase-js';
 import multer from 'multer';
 import { prisma } from '../../config/db';
@@ -12,9 +13,16 @@ const supabase = useSupabase
   : null;
 
 // Multer: in-memory buffer (we stream to Supabase)
+// Use disk storage to avoid buffering large uploads in memory.
+const uploadTempDir = path.join(os.tmpdir(), 'pksingh_uploads');
+fs.mkdirSync(uploadTempDir, { recursive: true });
+
 export const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: parseInt(process.env.MAX_FILE_SIZE_MB || '50') * 1024 * 1024 },
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, uploadTempDir),
+    filename: (_req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
+  }),
+  limits: { fileSize: parseInt(process.env.MAX_FILE_SIZE_MB || '500') * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowed = (process.env.ALLOWED_MIME_TYPES || 'application/pdf,video/mp4,image/jpeg,image/png,image/webp').split(',');
     if (allowed.includes(file.mimetype)) {
@@ -26,7 +34,7 @@ export const upload = multer({
 });
 
 export const uploadMedia = async (req: AuthRequest, res: Response): Promise<void> => {
-  const file = req.file;
+  const file = req.file as Express.Multer.File | undefined;
   const { lessonId, title } = req.body;
 
   if (!file) {
@@ -40,47 +48,67 @@ export const uploadMedia = async (req: AuthRequest, res: Response): Promise<void
   let publicUrl: string;
   let savedPath = storagePath;
 
-  if (useSupabase && supabase) {
-    const { error: uploadError } = await supabase.storage
-      .from('media')
-      .upload(storagePath, file.buffer, { contentType: file.mimetype });
+  try {
+    if (useSupabase && supabase) {
+      // Attempt streaming upload from temp file to avoid loading into memory
+      const fileStream = fs.createReadStream(file.path);
+      const { error: uploadError } = await supabase.storage
+        .from('media')
+        .upload(storagePath, fileStream as any, { contentType: file.mimetype });
 
-    if (uploadError) {
-      res.status(500).json({ error: 'File upload failed' });
-      return;
+      if (uploadError) {
+        // fallback: read buffer and retry
+        const buffer = fs.readFileSync(file.path);
+        const { error: uploadError2 } = await supabase.storage.from('media').upload(storagePath, buffer, { contentType: file.mimetype });
+        if (uploadError2) {
+          throw new Error('Supabase upload failed');
+        }
+      }
+
+      const { data } = supabase.storage.from('media').getPublicUrl(storagePath);
+      publicUrl = data.publicUrl;
+    } else {
+      const uploadFolder = path.join(process.cwd(), 'uploads', 'lessons', lessonId);
+      fs.mkdirSync(uploadFolder, { recursive: true });
+
+      const filename = path.basename(file.path);
+      const filePath = path.join(uploadFolder, filename);
+      fs.renameSync(file.path, filePath);
+
+      publicUrl = `${process.env.BACKEND_URL || 'http://localhost:4000'}/uploads/lessons/${lessonId}/${filename}`;
+      savedPath = `uploads/lessons/${lessonId}/${filename}`;
     }
 
-    const { data } = supabase.storage.from('media').getPublicUrl(storagePath);
-    publicUrl = data.publicUrl;
-  } else {
-    const uploadFolder = path.join(process.cwd(), 'uploads', 'lessons', lessonId);
-    fs.mkdirSync(uploadFolder, { recursive: true });
+    const type = file.mimetype === 'application/pdf' ? 'PDF'
+               : file.mimetype.startsWith('video') ? 'VIDEO'
+               : 'IMAGE';
 
-    const filename = `${Date.now()}.${ext}`;
-    const filePath = path.join(uploadFolder, filename);
-    fs.writeFileSync(filePath, file.buffer);
+    const stats = fs.existsSync(file.path) ? fs.statSync(file.path) : { size: file.size };
 
-    publicUrl = `${process.env.BACKEND_URL || 'http://localhost:4000'}/uploads/lessons/${lessonId}/${filename}`;
-    savedPath = `uploads/lessons/${lessonId}/${filename}`;
+    const media = await prisma.media.create({
+      data: {
+        lessonId,
+        title: title ?? file.originalname,
+        type,
+        url: publicUrl,
+        storagePath: savedPath,
+        sizeBytes: stats.size,
+        mimeType: file.mimetype,
+      },
+    });
+
+    res.status(201).json({ media });
+  } catch (err) {
+    console.error('uploadMedia error', err);
+    res.status(500).json({ error: 'File upload failed' });
+  } finally {
+    // Cleanup temp file if it still exists
+    try {
+      if (file.path && fs.existsSync(file.path)) fs.unlinkSync(file.path);
+    } catch (e) {
+      // ignore
+    }
   }
-
-  const type = file.mimetype === 'application/pdf' ? 'PDF'
-             : file.mimetype.startsWith('video') ? 'VIDEO'
-             : 'IMAGE';
-
-  const media = await prisma.media.create({
-    data: {
-      lessonId,
-      title: title ?? file.originalname,
-      type,
-      url: publicUrl,
-      storagePath: savedPath,
-      sizeBytes: file.size,
-      mimeType: file.mimetype,
-    },
-  });
-
-  res.status(201).json({ media });
 };
 
 export const addLink = async (req: AuthRequest, res: Response): Promise<void> => {
