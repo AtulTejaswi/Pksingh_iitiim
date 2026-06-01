@@ -72,8 +72,20 @@ export const uploadMedia = async (req: AuthRequest, res: Response): Promise<void
         // remove temp file after successful transfer
         if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
       } catch (err) {
-        // If supabase upload fails, rethrow so we return 500 to caller
-        throw err;
+        // On any Supabase failure, log and fall back to local disk storage instead of returning 500.
+        console.warn('Supabase upload failed, falling back to local disk storage:', String(err));
+
+        const uploadFolder = path.join(process.cwd(), 'uploads', 'lessons', lessonId);
+        fs.mkdirSync(uploadFolder, { recursive: true });
+
+        const filename = path.basename(file.path);
+        const filePath = path.join(uploadFolder, filename);
+        try { fs.renameSync(file.path, filePath); } catch (renameErr) { console.error('Failed to move temp file to uploads folder', renameErr); }
+
+        const providedUrl = process.env.BACKEND_URL;
+        const derivedBase = providedUrl ?? `${req.protocol}://${req.get('host')}`;
+        publicUrl = `${derivedBase.replace(/\/$/, '')}/uploads/lessons/${lessonId}/${filename}`;
+        savedPath = `uploads/lessons/${lessonId}/${filename}`;
       }
     } else {
       const uploadFolder = path.join(process.cwd(), 'uploads', 'lessons', lessonId);
