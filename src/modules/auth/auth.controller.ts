@@ -223,6 +223,38 @@ export const exportUsers = async (req: AuthRequest, res: Response): Promise<void
   res.json({ users });
 };
 
+// Temporary one-time admin seeding endpoint.
+// Creates an admin user if none exists. Intended for emergency/first-deploy usage only.
+export const seedAdmin = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const existing = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
+    if (existing) {
+      res.status(409).json({ error: 'Admin user already exists' });
+      return;
+    }
+
+    const email = 'admin@pksingh.com';
+    const password = 'adminpassword123';
+    const passwordHash = hashPassword(password);
+    const localId = randomUUID();
+
+    const user = await prisma.user.create({
+      data: {
+        supabaseId: localId,
+        passwordHash,
+        email,
+        fullName: 'PK Singh Admin',
+        role: 'ADMIN',
+      },
+    });
+
+    res.json({ message: 'Admin created', user: { id: user.id, email: user.email, password } });
+  } catch (err) {
+    console.error('seedAdmin error', err);
+    res.status(500).json({ error: 'Failed to seed admin' });
+  }
+};
+
 export const requestPasswordReset = async (req: Request, res: Response): Promise<void> => {
   const result = resetRequestSchema.safeParse(req.body);
   if (!result.success) {
