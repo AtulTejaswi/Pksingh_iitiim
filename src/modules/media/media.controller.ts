@@ -79,8 +79,13 @@ export const uploadMedia = async (req: AuthRequest, res: Response): Promise<void
         fs.mkdirSync(uploadFolder, { recursive: true });
 
         const filename = path.basename(file.path);
-        const filePath = path.join(uploadFolder, filename);
-        try { fs.renameSync(file.path, filePath); } catch (renameErr) { console.error('Failed to move temp file to uploads folder', renameErr); }
+        const destPath = path.join(uploadFolder, filename);
+        try {
+          // Prefer copy to avoid issues with temp file locks; fallback to rename if copy fails
+          fs.copyFileSync(file.path, destPath);
+        } catch (copyErr) {
+          try { fs.renameSync(file.path, destPath); } catch (renameErr) { console.error('Failed to move temp file to uploads folder', copyErr, renameErr); }
+        }
 
         const providedUrl = process.env.BACKEND_URL;
         const derivedBase = providedUrl ?? `${req.protocol}://${req.get('host')}`;
@@ -106,7 +111,7 @@ export const uploadMedia = async (req: AuthRequest, res: Response): Promise<void
                : file.mimetype.startsWith('video') ? 'VIDEO'
                : 'IMAGE';
 
-    const stats = fs.existsSync(file.path) ? fs.statSync(file.path) : { size: file.size };
+    const stats = fs.existsSync(path.join(process.cwd(), savedPath || '')) ? fs.statSync(path.join(process.cwd(), savedPath || '')) : (fs.existsSync(file.path) ? fs.statSync(file.path) : { size: file.size });
 
     const media = await prisma.media.create({
       data: {
