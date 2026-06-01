@@ -4,10 +4,37 @@ import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
 
+// Optional instrumentation: Sentry for error reporting and Prometheus metrics
+let Sentry: any = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const sentryPkg = require('@sentry/node');
+  Sentry = sentryPkg;
+  if (process.env.SENTRY_DSN) {
+    Sentry.init({ dsn: process.env.SENTRY_DSN, environment: process.env.NODE_ENV || 'development' });
+  } else {
+    Sentry = null;
+  }
+} catch (e) {
+  Sentry = null;
+}
+
+let promClient: any = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  promClient = require('prom-client');
+  promClient.collectDefaultMetrics({ timeout: 5000 });
+} catch (e) {
+  promClient = null;
+}
+
 const app = express();
 
 // Security headers
 app.use(helmet());
+
+// Sentry request handler (capture requests) — if configured
+if (Sentry) app.use(Sentry.Handlers.requestHandler());
 
 // CORS — allow frontend
 app.use(cors({
@@ -57,6 +84,28 @@ app.use('/api/enrollments', enrollmentsRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/notes', notesRoutes);
 app.use('/api/debug', debugRoutes);
+
+// Health check
+app.get('/health', (_req, res) => {
+  const dbConnected = Boolean(app.locals.dbConnected);
+  res.json({ status: 'ok', uptime: process.uptime(), dbConnected });
+});
+
+// Prometheus metrics endpoint
+if (promClient) {
+  app.get('/metrics', async (_req, res) => {
+    try {
+      const metrics = await promClient.register.metrics();
+      res.set('Content-Type', promClient.register.contentType);
+      res.send(metrics);
+    } catch (err) {
+      res.status(500).send('Error collecting metrics');
+    }
+  });
+}
+
+// Sentry error handler should be before the 404 so errors are captured
+if (Sentry) app.use(Sentry.Handlers.errorHandler());
 
 // 404 handler
 app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
