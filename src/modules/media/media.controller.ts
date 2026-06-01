@@ -98,7 +98,11 @@ export const uploadMedia = async (req: AuthRequest, res: Response): Promise<void
 
       const filename = path.basename(file.path);
       const filePath = path.join(uploadFolder, filename);
-      fs.renameSync(file.path, filePath);
+      try {
+        fs.copyFileSync(file.path, filePath);
+      } catch (copyErr) {
+        try { fs.renameSync(file.path, filePath); } catch (renameErr) { console.error('Failed to move temp file to uploads folder', copyErr, renameErr); }
+      }
 
       // Use BACKEND_URL if provided; otherwise derive base URL from the incoming request
       const providedUrl = process.env.BACKEND_URL;
