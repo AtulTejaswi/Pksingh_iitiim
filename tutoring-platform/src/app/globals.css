@@ -189,5 +189,22 @@ p, li, span, a, label {
 .glass-panel-hover { transition: transform var(--transition-medium) ease, box-shadow var(--transition-medium) ease; }
 .glass-panel-hover:hover { transform: translateY(-6px); box-shadow: var(--elevated-shadow); }
 
+/* Premium Animations */
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(2deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
 
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.15; transform: scale(1); }
+  50% { opacity: 0.25; transform: scale(1.05); }
+}
 
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

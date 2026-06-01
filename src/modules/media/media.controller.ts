@@ -37,6 +37,17 @@ export const uploadMedia = async (req: AuthRequest, res: Response): Promise<void
   const file = req.file as Express.Multer.File | undefined;
   const { lessonId, title } = req.body;
 
+  if (!lessonId || typeof lessonId !== 'string') {
+    res.status(400).json({ error: 'lessonId is required' });
+    return;
+  }
+
+  const lesson = await prisma.lesson.findUnique({ where: { id: lessonId } });
+  if (!lesson) {
+    res.status(404).json({ error: 'Lesson not found' });
+    return;
+  }
+
   if (!file) {
     res.status(400).json({ error: 'No file provided' });
     return;
@@ -145,6 +156,17 @@ export const uploadMedia = async (req: AuthRequest, res: Response): Promise<void
 
 export const addLink = async (req: AuthRequest, res: Response): Promise<void> => {
   const { lessonId, title, url, type } = req.body; // type = YOUTUBE_LINK or EXTERNAL_LINK
+
+  if (!lessonId || !title?.trim() || !url?.trim()) {
+    res.status(400).json({ error: 'lessonId, title, and url are required' });
+    return;
+  }
+
+  const lesson = await prisma.lesson.findUnique({ where: { id: lessonId } });
+  if (!lesson) {
+    res.status(404).json({ error: 'Lesson not found' });
+    return;
+  }
   
   if (!['YOUTUBE_LINK', 'EXTERNAL_LINK'].includes(type)) {
     res.status(400).json({ error: 'Invalid link type' });

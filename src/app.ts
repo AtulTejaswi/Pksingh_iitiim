@@ -49,6 +49,10 @@ import mediaRoutes from './modules/media/media.routes';
 import notesRoutes from './modules/notes/notes.routes';
 import debugRoutes from './modules/debug/debug.routes';
 
+app.get('/api/health', (_req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // Mount Routes
 app.use('/api/auth', authRateLimit, authRoutes);
 app.use('/api/courses', coursesRoutes);

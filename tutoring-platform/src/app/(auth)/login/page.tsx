@@ -25,16 +25,27 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
+  const postLoginPath = () => {
+    if (typeof window === 'undefined') return null;
+    const redirect = new URLSearchParams(window.location.search).get('redirect');
+    if (redirect && redirect.startsWith('/') && !redirect.startsWith('//')) {
+      return redirect;
+    }
+    return null;
+  };
+
   useEffect(() => {
-    // If user is already logged in, redirect them
     if (user) {
-      if (user.role === 'ADMIN') {
+      const custom = postLoginPath();
+      if (custom) {
+        router.push(custom);
+      } else if (user.role === 'ADMIN') {
         router.push('/admin/dashboard');
       } else {
         router.push('/my-courses');
       }
     }
-    
+
     const params = new URLSearchParams(window.location.search);
     if (params.get('expired')) {
       setErrorMsg('Your session has expired. Please sign in again.');
@@ -74,7 +85,10 @@ export default function LoginPage() {
     setSuccessMsg('');
     try {
       const profile = await login(data);
-      if (profile.role === 'ADMIN') {
+      const custom = postLoginPath();
+      if (custom) {
+        router.push(custom);
+      } else if (profile.role === 'ADMIN') {
         router.push('/admin/dashboard');
       } else {
         router.push('/my-courses');

@@ -237,10 +237,17 @@ export default function AdminCoursesPage() {
                   {/* Actions */}
                   <div className="flex items-center gap-2 pt-3 border-t border-[rgba(255,255,255,0.04)]">
                     <Link
-                      href={`/admin/courses/${course.id}/edit`}
-                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-[rgba(255,255,255,0.08)] hover:bg-[rgba(255,255,255,0.05)] text-gray-300 text-xs font-semibold transition-all"
+                      href={`/admin/courses/${course.id}/lessons`}
+                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 text-xs font-semibold transition-all"
                     >
-                      <Edit3 className="w-3.5 h-3.5" /> Edit
+                      <BookOpen className="w-3.5 h-3.5" /> Content
+                    </Link>
+                    <Link
+                      href={`/admin/courses/${course.id}/edit`}
+                      className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-[rgba(255,255,255,0.08)] hover:bg-[rgba(255,255,255,0.05)] text-gray-300 text-xs font-semibold transition-all"
+                      title="Edit course settings"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
                     </Link>
                     <a
                       href={`/courses/${course.id}`}

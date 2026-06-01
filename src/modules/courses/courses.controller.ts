@@ -15,17 +15,18 @@ const courseSchema = z.object({
 });
 
 // GET /api/courses — public
-export const listCourses = async (req: Request, res: Response): Promise<void> => {
+export const listCourses = async (req: AuthRequest, res: Response): Promise<void> => {
   const { subject, examTag, page = '1', limit = '12', includeDrafts = '0' } = req.query;
 
   const includeDraftsBool = String(includeDrafts) === '1' || String(includeDrafts).toLowerCase() === 'true';
+  const isAdmin = req.user?.role === 'ADMIN';
 
   const whereClause: any = {
     ...(subject && { subject: subject as any }),
     ...(examTag && { examTags: { contains: examTag as string } }),
   };
 
-  if (!includeDraftsBool) {
+  if (!includeDraftsBool || !isAdmin) {
     whereClause.isPublished = true;
   }
 
@@ -59,20 +60,100 @@ export const getCourse = async (req: AuthRequest, res: Response): Promise<void> 
   const course = await prisma.course.findUnique({
     where: { id },
     include: {
-      lessons: {
-        where: isAdmin ? undefined : { isPublished: true },
-        select: { id: true, title: true, isFree: true, sortOrder: true, description: true, isPublished: true },
-        orderBy: { sortOrder: 'asc' }
-      }
-    }
+      lessons: isAdmin
+        ? {
+            orderBy: { sortOrder: 'asc' },
+            include: {
+              media: { orderBy: { sortOrder: 'asc' } },
+              notes: { orderBy: { createdAt: 'asc' } },
+            },
+          }
+        : {
+            where: { isPublished: true },
+            select: {
+              id: true,
+              title: true,
+              isFree: true,
+              sortOrder: true,
+              description: true,
+              isPublished: true,
+            },
+            orderBy: { sortOrder: 'asc' },
+          },
+      _count: { select: { lessons: true, enrollments: true } },
+    },
   });
 
   if (!course) {
     res.status(404).json({ error: 'Course not found' });
     return;
   }
+
+  if (!course.isPublished && !isAdmin) {
+    res.status(404).json({ error: 'Course not found' });
+    return;
+  }
   
   res.json({ course: { ...course, examTags: course.examTags ? JSON.parse(course.examTags) : [] } });
+};
+
+export const getPublicStats = async (_req: Request, res: Response): Promise<void> => {
+  const [students, publishedCourses, publishedLessons, enrollments] = await Promise.all([
+    prisma.user.count({ where: { role: 'STUDENT' } }),
+    prisma.course.count({ where: { isPublished: true } }),
+    prisma.lesson.count({ where: { isPublished: true } }),
+    prisma.enrollment.count({ where: { status: 'ACTIVE' } }),
+  ]);
+
+  res.json({
+    stats: {
+      students,
+      publishedCourses,
+      publishedLessons,
+      enrollments,
+    },
+  });
+};
+
+export const getCourseProgress = async (req: AuthRequest, res: Response): Promise<void> => {
+  if (!req.user) {
+    res.status(401).json({ error: 'Not authenticated' });
+    return;
+  }
+
+  const courseId = req.params.id as string;
+  const course = await prisma.course.findUnique({ where: { id: courseId } });
+  if (!course) {
+    res.status(404).json({ error: 'Course not found' });
+    return;
+  }
+
+  const lessons = await prisma.lesson.findMany({
+    where: { courseId, isPublished: true },
+    select: { id: true, sortOrder: true },
+    orderBy: { sortOrder: 'asc' },
+  });
+
+  const completedRows = await prisma.lessonProgress.findMany({
+    where: {
+      userId: req.user.id,
+      lessonId: { in: lessons.map((l) => l.id) },
+    },
+    select: { lessonId: true, completedAt: true },
+  });
+
+  const completedSet = new Set(completedRows.map((r) => r.lessonId));
+  const lastIncomplete = lessons.find((l) => !completedSet.has(l.id));
+
+  res.json({
+    progress: {
+      totalLessons: lessons.length,
+      completedLessons: completedRows.length,
+      percentComplete: lessons.length === 0 ? 0 : Math.round((completedRows.length / lessons.length) * 100),
+      completedLessonIds: completedRows.map((r) => r.lessonId),
+      resumeLessonId: lastIncomplete?.id ?? lessons[lessons.length - 1]?.id ?? null,
+    },
+  });
 };
 
 // POST /api/courses — admin only

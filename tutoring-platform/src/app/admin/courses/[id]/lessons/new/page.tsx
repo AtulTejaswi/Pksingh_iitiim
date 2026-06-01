@@ -33,7 +33,7 @@ export default function NewLessonPage({ params }: { params: { id: string } }) {
   const onSubmit = (data: LessonInput) => {
     createLesson(data, {
       onSuccess: () => {
-        toast.success('Lecture module created successfully!');
+        toast.success('Lesson created — expand it to add videos, PDFs, and notes.');
         router.push(`/admin/courses/${courseId}/lessons`);
       },
       onError: (err: any) => {

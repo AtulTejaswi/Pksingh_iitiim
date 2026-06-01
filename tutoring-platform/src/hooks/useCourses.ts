@@ -19,9 +19,11 @@ export interface Course {
     id: string;
     title: string;
     isFree: boolean;
+    isPublished?: boolean;
     sortOrder: number;
-    media?: { id: string; title: string; type: string }[];
-    notes?: { id: string; title: string }[];
+    description?: string | null;
+    media?: { id: string; title: string; type: string; url?: string }[];
+    notes?: { id: string; title: string; content?: string }[];
   }[];
 }
 
@@ -129,14 +131,47 @@ export function useEnrollCourse() {
   });
 }
 
-// Fetch student enrollments
-export function useGetMyEnrollments() {
+export interface EnrollmentProgress {
+  totalLessons: number;
+  completedLessons: number;
+  percentComplete: number;
+  resumeLessonId: string | null;
+}
+
+export interface MyEnrollment {
+  id: string;
+  course: { id: string; title: string; thumbnailUrl: string | null; subject?: string };
+  progress?: EnrollmentProgress;
+}
+
+// Fetch student enrollments (only when logged in)
+export function useGetMyEnrollments(enabled = true) {
   return useQuery({
     queryKey: ['my-enrollments'],
     queryFn: async () => {
-      const response = await apiClient.get<{ enrollments: { id: string; course: { id: string; title: string; thumbnailUrl: string | null } }[] }>('/enrollments/my');
+      const response = await apiClient.get<{ enrollments: MyEnrollment[] }>('/enrollments/my');
       return response.data.enrollments;
     },
+    enabled,
+    retry: false,
+  });
+}
+
+export interface PublicStats {
+  students: number;
+  publishedCourses: number;
+  publishedLessons: number;
+  enrollments: number;
+}
+
+export function useGetPublicStats() {
+  return useQuery({
+    queryKey: ['public-stats'],
+    queryFn: async () => {
+      const response = await apiClient.get<{ stats: PublicStats }>('/courses/stats');
+      return response.data.stats;
+    },
+    staleTime: 60_000,
   });
 }
 

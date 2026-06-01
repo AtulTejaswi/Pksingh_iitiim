@@ -15,9 +15,11 @@ export default function CourseDetailPage({ params }: { params: { id: string } })
 
   const { data: course, isLoading: isCourseLoading } = useGetCourse(courseId);
   const { mutate: enroll, isPending: isEnrolling } = useEnrollCourse();
-  const { data: myEnrollments, isLoading: isEnrollmentsLoading } = useGetMyEnrollments();
+  const { data: myEnrollments, isLoading: isEnrollmentsLoading } = useGetMyEnrollments(!!user);
 
-  const isEnrolled = myEnrollments?.some((enrollment) => enrollment.course.id === courseId) || false;
+  const isEnrolled = user
+    ? myEnrollments?.some((enrollment) => enrollment.course.id === courseId) || false
+    : false;
 
   const handleEnroll = () => {
     if (!user) {
@@ -37,7 +39,7 @@ export default function CourseDetailPage({ params }: { params: { id: string } })
     });
   };
 
-  if (isCourseLoading || isEnrollmentsLoading) {
+  if (isCourseLoading || (user && isEnrollmentsLoading)) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center">
         <div className="w-10 h-10 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
@@ -77,9 +79,9 @@ export default function CourseDetailPage({ params }: { params: { id: string } })
         <div className="lg:col-span-8 space-y-8">
           {/* Visual card header */}
           <div className={`rounded-2xl p-8 relative overflow-hidden ${
-            course.subject === 'PHYSICS' ? 'from-purple-950/70 to-indigo-905/70' :
-            course.subject === 'CHEMISTRY' ? 'from-sky-950/70 to-blue-905/70' :
-            'from-emerald-950/70 to-cyan-905/70'
+            course.subject === 'PHYSICS' ? 'from-purple-950/70 to-indigo-900/70' :
+            course.subject === 'CHEMISTRY' ? 'from-sky-950/70 to-blue-900/70' :
+            'from-emerald-950/70 to-cyan-900/70'
           } bg-gradient-to-br border border-[rgba(255,255,255,0.08)] min-h-[220px] flex flex-col justify-between`}>
             <div className="absolute top-[-20%] right-[-20%] w-[50%] h-[50%] bg-white/5 blur-[50px]"></div>
             <div className="flex flex-wrap gap-2 mb-6">
@@ -145,26 +147,24 @@ export default function CourseDetailPage({ params }: { params: { id: string } })
                         </div>
                       </div>
                     </div>
-                    {isEnrolled && firstLessonId ? (
+                    {isEnrolled ? (
                       <Link
                         href={`/my-courses/${courseId}/lessons/${lesson.id}`}
                         className="w-8 h-8 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all"
                       >
                         <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
                       </Link>
+                    ) : lesson.isFree ? (
+                      <Link
+                        href={`/courses/${courseId}/lessons/${lesson.id}`}
+                        className="px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold hover:bg-emerald-500 hover:text-white transition-all uppercase tracking-wider"
+                      >
+                        Preview
+                      </Link>
                     ) : (
-                      lesson.isFree && firstLessonId ? (
-                        <Link
-                          href={`/my-courses/${courseId}/lessons/${lesson.id}`}
-                          className="px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold hover:bg-emerald-500 hover:text-white transition-all uppercase tracking-wider"
-                        >
-                          Preview
-                        </Link>
-                      ) : (
-                        <div className="text-gray-500">
-                          <Lock className="w-4 h-4" />
-                        </div>
-                      )
+                      <div className="text-gray-500" title="Sign in and enroll to unlock">
+                        <Lock className="w-4 h-4" />
+                      </div>
                     )}
                   </div>
                 ))}

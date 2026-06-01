@@ -5,12 +5,20 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Testimonials from '@/components/common/Testimonials';
 import Navbar from '@/components/student/Navbar';
-import { useGetCourses } from '@/hooks/useCourses';
+import { useGetCourses, useGetPublicStats } from '@/hooks/useCourses';
 import { BookOpen, GraduationCap, Award, CheckCircle2, ChevronRight, Zap, Target } from 'lucide-react';
-import AdminQuickLink from '@/components/common/AdminQuickLink';
+import SiteFooter from '@/components/common/SiteFooter';
+
+function formatStat(value: number, fallback: string): string {
+  if (value <= 0) return fallback;
+  if (value >= 1000) return `${Math.floor(value / 100) * 100}+`;
+  if (value >= 100) return `${value}+`;
+  return String(value);
+}
 
 export default function LandingPage() {
   const { data: courses, isLoading } = useGetCourses();
+  const { data: stats } = useGetPublicStats();
 
   // Pick top 3 published courses as featured
   const featuredCourses = courses
@@ -22,14 +30,14 @@ export default function LandingPage() {
       <Navbar />
 
       {/* Decorative Blur Orbs */}
-      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-sky-400/15 blur-[120px] pointer-events-none"></div>
-      <div className="absolute top-[40%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-400/10 blur-[120px] pointer-events-none"></div>
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-sky-400/15 blur-[120px] pointer-events-none animate-pulse-slow"></div>
+      <div className="absolute top-[40%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-400/10 blur-[120px] pointer-events-none animate-float"></div>
 
       {/* Hero Section */}
       <section id="home" className="relative pt-24 pb-14 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full hero-bg overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -left-10 top-8 h-56 w-56 rounded-full bg-sky-300/20 blur-3xl"></div>
-          <div className="absolute right-0 top-28 h-72 w-72 rounded-full bg-indigo-300/10 blur-3xl"></div>
+          <div className="absolute -left-10 top-8 h-56 w-56 rounded-full bg-sky-300/20 blur-3xl animate-float"></div>
+          <div className="absolute right-0 top-28 h-72 w-72 rounded-full bg-indigo-300/10 blur-3xl animate-pulse-slow"></div>
           <div className="absolute left-1/2 top-12 text-[5rem] font-black text-slate-200/20 select-none">∑</div>
           <div className="absolute right-10 bottom-10 text-[6rem] font-black text-slate-200/15 select-none">π</div>
         </div>
@@ -65,14 +73,14 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row gap-4 mb-10">
               <Link
                 href="/courses"
-                className="glow-button inline-flex items-center justify-center gap-2 rounded-3xl bg-gradient-to-r from-sky-600 to-indigo-600 px-8 py-4 text-sm font-semibold text-white transition-all hover:shadow-xl"
+                className="glow-button inline-flex items-center justify-center gap-2 rounded-3xl bg-gradient-to-r from-sky-600 to-indigo-600 px-8 py-4 text-sm font-semibold text-white transition-all duration-300 hover:shadow-2xl hover:scale-105 hover:from-sky-500 hover:to-indigo-500"
               >
                 Explore Courses
                 <ChevronRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/signup"
-                className="inline-flex items-center justify-center gap-2 rounded-3xl border border-slate-700 bg-slate-900/80 text-slate-100 px-8 py-4 text-sm font-semibold transition-all hover:bg-slate-800/90 hover:shadow-lg"
+                className="inline-flex items-center justify-center gap-2 rounded-3xl border border-slate-700 bg-slate-900/80 text-slate-100 px-8 py-4 text-sm font-semibold transition-all duration-300 hover:bg-slate-800/90 hover:shadow-xl hover:scale-105 hover:border-slate-600"
               >
                 Join Free Now
               </Link>
@@ -98,11 +106,14 @@ export default function LandingPage() {
             <div className="space-y-6">
               <div className="flex items-center gap-4">
                 <div className="flex h-20 w-20 items-center justify-center rounded-full border border-slate-700/70 bg-slate-900/80 shadow-sm overflow-hidden">
-                  <Image src="/images/pk-singh.jpg" alt="PK Singh" width={80} height={80} className="object-cover" />
+                  <Image src="/images/pk-singh.svg" alt="PK Singh" width={80} height={80} className="object-cover" priority />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-slate-100">PK Singh</p>
                   <p className="text-xs text-slate-400 uppercase tracking-[0.3em]">IIT • IIM • Author</p>
+                </div>
+                <div className="ml-auto">
+                  <Image src="/images/pk_sir_logo.svg" alt="Brand Logo" width={80} height={24} className="w-[80px] h-auto rounded bg-[#0B1A34] px-1.5 py-1 opacity-90" />
                 </div>
               </div>
               <div className="rounded-[1.75rem] border border-slate-700/70 bg-slate-900/80 p-6">
@@ -135,22 +146,28 @@ export default function LandingPage() {
               <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-sky-400/15 text-sky-300">
                 <BookOpen className="w-6 h-6" />
               </div>
-              <p className="text-4xl font-extrabold text-slate-100">5,000+</p>
-              <p className="mt-3 text-sm text-slate-300/90 uppercase tracking-[0.24em]">Active Students</p>
+              <p className="text-4xl font-extrabold text-slate-100">
+                {formatStat(stats?.enrollments ?? stats?.students ?? 0, 'Growing')}
+              </p>
+              <p className="mt-3 text-sm text-slate-300/90 uppercase tracking-[0.24em]">Learners enrolled</p>
             </div>
             <div className="icon-card relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-slate-900/80 p-6 backdrop-blur-md">
               <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-indigo-300/15 text-indigo-200">
                 <Zap className="w-6 h-6" />
               </div>
-              <p className="text-4xl font-extrabold text-slate-100">99.8%</p>
-              <p className="mt-3 text-sm text-slate-300 uppercase tracking-[0.24em]">Success Rate</p>
+              <p className="text-4xl font-extrabold text-slate-100">
+                {formatStat(stats?.publishedCourses ?? 0, 'New')}
+              </p>
+              <p className="mt-3 text-sm text-slate-300 uppercase tracking-[0.24em]">Published courses</p>
             </div>
             <div className="icon-card relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-slate-900/80 p-6 backdrop-blur-md">
               <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-emerald-300/15 text-emerald-200">
                 <Award className="w-6 h-6" />
               </div>
-              <p className="text-4xl font-extrabold text-slate-100">200+</p>
-              <p className="mt-3 text-sm text-slate-300 uppercase tracking-[0.24em]">Full Lectures</p>
+              <p className="text-4xl font-extrabold text-slate-100">
+                {formatStat(stats?.publishedLessons ?? 0, 'Adding soon')}
+              </p>
+              <p className="mt-3 text-sm text-slate-300 uppercase tracking-[0.24em]">Lesson modules</p>
             </div>
             <div className="icon-card relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-slate-900/80 p-6 backdrop-blur-md">
               <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-slate-100/25 text-slate-100">
@@ -207,6 +224,8 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      <Testimonials />
 
       {/* Browse by Subject shortcuts */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-16">
@@ -378,7 +397,7 @@ export default function LandingPage() {
 
           <div className="rounded-2xl p-6 bg-slate-900/80 border border-slate-700/60 shadow-md flex flex-col items-center">
             <div className="w-32 h-32 rounded-full overflow-hidden mb-4 border border-slate-700/60">
-              <Image src="/images/pk-singh.jpg" alt="PK Singh" width={160} height={160} className="object-cover" />
+              <Image src="/images/pk-singh.svg" alt="PK Singh" width={160} height={160} className="object-cover" />
             </div>
             <h4 className="text-sm uppercase text-blue-300 tracking-[0.24em] mb-3">Snapshot</h4>
             <ul className="text-slate-300 text-sm space-y-2 text-center">
@@ -391,20 +410,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="w-full border-t border-slate-800/50 bg-slate-950/95 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-slate-400">
-          <div>
-            &copy; {new Date().getFullYear()} PK Singh. All rights reserved. Built for premium results.
-          </div>
-            <div className="flex items-center gap-6">
-              <a href="#" className="text-slate-400 hover:text-white transition-colors">Privacy Policy</a>
-              <a href="#" className="text-slate-400 hover:text-white transition-colors">Terms of Service</a>
-              <a href="#" className="text-slate-400 hover:text-white transition-colors">Support Portal</a>
-              <AdminQuickLink />
-            </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

@@ -47,11 +47,15 @@ apiClient.interceptors.response.use(
 
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
+        const hadToken = Boolean(localStorage.getItem('access_token'));
         localStorage.removeItem('access_token');
         localStorage.removeItem('user');
-        // Let the AuthProvider handle redirecting or state resetting
-        if (!window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/signup') && window.location.pathname !== '/') {
-          window.location.href = '/login?expired=true';
+        const path = window.location.pathname;
+        const requiresAuth =
+          path.startsWith('/my-courses') ||
+          path.startsWith('/admin');
+        if (hadToken && requiresAuth) {
+          window.location.href = `/login?expired=true&redirect=${encodeURIComponent(path)}`;
         }
       }
     }

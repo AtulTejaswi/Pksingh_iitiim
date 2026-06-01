@@ -17,12 +17,11 @@ export default function Navbar() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-500 to-sky-400 flex items-center justify-center shadow-sm">
-                <span className="font-bold text-white text-base">PK</span>
-              </div>
-              <span className="font-bold text-xl tracking-tight high-contrast">
-                PK Singh <span className="text-[color:var(--accent)] font-medium text-sm ml-1">Mentor</span>
-              </span>
+              <img 
+                src="/images/pk_sir_logo.svg" 
+                alt="PK Singh Logo" 
+                className="w-[140px] h-auto rounded-lg bg-[#0B1A34] px-2 py-1"
+              />
             </Link>
           </div>
 
@@ -31,6 +30,9 @@ export default function Navbar() {
             <Link href="/" className="text-slate-200 hover:text-sky-300 transition-colors text-sm font-medium">Home</Link>
             <Link href="/about" className="text-slate-200 hover:text-sky-300 transition-colors text-sm font-medium">About</Link>
             <Link href="/courses" className="text-slate-200 hover:text-sky-300 transition-colors text-sm font-medium">Courses</Link>
+            {user && user.role === 'STUDENT' && (
+              <Link href="/my-courses" className="text-slate-200 hover:text-sky-300 transition-colors text-sm font-medium">My Courses</Link>
+            )}
             <Link href="/#how" className="text-slate-200 hover:text-sky-300 transition-colors text-sm font-medium">How It Works</Link>
           </div>
 
@@ -90,6 +92,9 @@ export default function Navbar() {
           <Link href="/" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-200 hover:text-sky-300">Home</Link>
           <Link href="/about" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-200 hover:text-sky-300">About</Link>
           <Link href="/courses" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-200 hover:text-sky-300">Courses</Link>
+          {user && user.role === 'STUDENT' && (
+            <Link href="/my-courses" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-200 hover:text-sky-300">My Courses</Link>
+          )}
           <Link href="/#how" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-200 hover:text-sky-300">How It Works</Link>
 
           {user ? (

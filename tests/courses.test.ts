@@ -9,8 +9,15 @@ describe('Courses endpoints', () => {
 
   it('GET /api/courses — should list courses', async () => {
     const res = await request(app).get('/api/courses');
-    // It should hit the controller, but might fail connecting to real DB in test environment
-    // For now we just expect 200 or 500
     expect([200, 500]).toContain(res.status);
+  });
+
+  it('GET /api/courses/stats — public platform stats', async () => {
+    const res = await request(app).get('/api/courses/stats');
+    expect([200, 500]).toContain(res.status);
+    if (res.status === 200) {
+      expect(res.body.stats).toBeDefined();
+      expect(typeof res.body.stats.publishedCourses).toBe('number');
+    }
   });
 });

@@ -1,12 +1,15 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useCreateCourse, useUpdateCourse, useGetCourse } from '@/hooks/useCourses';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { useCreateCourse, useUpdateCourse, useGetCourse, CourseInput } from '@/hooks/useCourses';
 import { useGetLessons, useCreateLesson, useUpdateLesson, useDeleteLesson } from '@/hooks/useLessons';
+import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
-import { ArrowLeft, ArrowRight, Save, GripVertical, Plus, Trash2, Edit3, X, Check, Upload, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, GripVertical, Plus, Trash2, Edit3, X, Check, Upload, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import ConfirmModal from '@/components/admin/ConfirmModal';
+import LessonResourcesPanel from '@/components/admin/LessonResourcesPanel';
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors,
   DragEndEvent,
@@ -56,13 +59,19 @@ interface LessonFormData {
 function SortableLessonCard({
   lesson,
   index,
+  isExpanded,
+  onToggleExpand,
   onEdit,
   onDelete,
+  courseId,
 }: {
   lesson: any;
   index: number;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
   onEdit: (lesson: any) => void;
   onDelete: (id: string) => void;
+  courseId: string;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: lesson.id });
 
@@ -73,41 +82,63 @@ function SortableLessonCard({
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="flex items-center gap-3 p-3 rounded-lg border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] hover:bg-[rgba(255,255,255,0.04)] transition-colors group">
-      <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-1 text-gray-500 hover:text-gray-300 transition-colors">
-        <GripVertical className="w-4 h-4" />
-      </button>
-      <div className="w-7 h-7 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold shrink-0">
-        {index + 1}
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-white truncate">{lesson.title}</p>
-        <div className="flex items-center gap-3 text-[10px] text-gray-500">
-          {lesson.duration && <span>{lesson.duration} min</span>}
-          {lesson.videoUrl && <span className="truncate max-w-[120px]">{lesson.videoUrl}</span>}
+    <div className="rounded-lg border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] overflow-hidden">
+      <div ref={setNodeRef} style={style} className="flex items-center gap-3 p-3 hover:bg-[rgba(255,255,255,0.04)] transition-colors group relative">
+        <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-1 text-gray-500 hover:text-gray-300 transition-colors">
+          <GripVertical className="w-4 h-4" />
+        </button>
+        <div className="w-7 h-7 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold shrink-0">
+          {index + 1}
+        </div>
+        <div className="flex-1 min-w-0 cursor-pointer" onPointerDown={(e) => { e.stopPropagation(); onToggleExpand(); }}>
+          <p className="text-sm font-semibold text-white truncate">{lesson.title}</p>
+          <div className="flex items-center gap-3 text-[10px] text-gray-500 mt-0.5">
+            {lesson.duration && <span>{lesson.duration} min</span>}
+            {lesson.videoUrl && <span className="truncate max-w-[120px]">{lesson.videoUrl}</span>}
+          </div>
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
+          <button onPointerDown={(e) => { e.stopPropagation(); onEdit(lesson); }} className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-[rgba(255,255,255,0.05)] transition-all opacity-0 group-hover:opacity-100">
+            <Edit3 className="w-3.5 h-3.5" />
+          </button>
+          <button onPointerDown={(e) => { e.stopPropagation(); onDelete(lesson.id); }} className="p-1.5 rounded-lg text-red-400 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100">
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+          <button onPointerDown={(e) => { e.stopPropagation(); onToggleExpand(); }} className="p-1.5 rounded-lg text-gray-400 hover:text-white transition-all">
+            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
         </div>
       </div>
-      <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button onClick={() => onEdit(lesson)} className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-[rgba(255,255,255,0.05)] transition-all">
-          <Edit3 className="w-3.5 h-3.5" />
-        </button>
-        <button onClick={() => onDelete(lesson.id)} className="p-1.5 rounded-lg text-red-400 hover:bg-red-500/10 transition-all">
-          <Trash2 className="w-3.5 h-3.5" />
-        </button>
-      </div>
+      {isExpanded && courseId && (
+        <div onPointerDown={(e) => e.stopPropagation()}>
+          <LessonResourcesPanel lessonId={lesson.id} courseId={courseId} lessonTitle={lesson.title} />
+        </div>
+      )}
     </div>
   );
 }
 
-export default function CourseBuilder({ courseId }: { courseId?: string }) {
+async function attachVideoToLesson(lessonId: string, videoUrl: string, videoTitle: string) {
+  if (!videoUrl.trim()) return;
+  const isYoutube = /youtube\.com|youtu\.be/i.test(videoUrl);
+  await apiClient.post('/media/link', {
+    lessonId,
+    title: videoTitle || 'Lesson video',
+    url: videoUrl.trim(),
+    type: isYoutube ? 'YOUTUBE_LINK' : 'EXTERNAL_LINK',
+  });
+}
+
+function CourseBuilderInner({ courseId }: { courseId?: string }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const isEdit = !!courseId;
 
   const { data: existingCourse, isLoading: loadingCourse } = useGetCourse(courseId || '');
   const { data: existingLessons } = useGetLessons(courseId);
 
-  const { mutate: createCourse, isPending: isCreating } = useCreateCourse();
-  const { mutate: updateCourse, isPending: isUpdating } = useUpdateCourse();
+  const { mutateAsync: createCourseAsync, isPending: isCreating } = useCreateCourse();
+  const { mutateAsync: updateCourseAsync, isPending: isUpdating } = useUpdateCourse();
   const { mutate: createLesson, isPending: isCreatingLesson } = useCreateLesson();
   const { mutate: updateLessonMutation } = useUpdateLesson();
   const { mutate: deleteLessonMutation, isPending: isDeletingLesson } = useDeleteLesson();
@@ -140,6 +171,7 @@ export default function CourseBuilder({ courseId }: { courseId?: string }) {
   const [lessons, setLessons] = useState<any[]>([]);
   const [showAddLesson, setShowAddLesson] = useState(false);
   const [editingLesson, setEditingLesson] = useState<any>(null);
+  const [expandedLessonId, setExpandedLessonId] = useState<string | null>(null);
   const [lessonForm, setLessonForm] = useState<LessonFormData>({ title: '', videoUrl: '', duration: '', notes: '' });
   const [deleteLessonId, setDeleteLessonId] = useState<string | null>(null);
 
@@ -151,6 +183,14 @@ export default function CourseBuilder({ courseId }: { courseId?: string }) {
   );
 
   /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    const stepParam = searchParams.get('step');
+    if (stepParam) {
+      const n = parseInt(stepParam, 10);
+      if (n >= 1 && n <= 4) setStep(n);
+    }
+  }, [searchParams]);
+
   useEffect(() => {
     if (isEdit && existingCourse) {
       setTitle(existingCourse.title || '');
@@ -183,7 +223,7 @@ export default function CourseBuilder({ courseId }: { courseId?: string }) {
     if (s === 1) {
       if (!title.trim()) errs.title = 'Course title is required';
       if (!description.trim()) errs.description = 'Description is required';
-      else if (description.length > 300) errs.description = 'Max 300 characters';
+      else if (description.trim().length < 10) errs.description = 'Description must be at least 10 characters';
       if (!subject) errs.subject = 'Please select a subject';
       if (examTags.length === 0) errs.examTags = 'Select at least one exam target';
     }
@@ -198,8 +238,40 @@ export default function CourseBuilder({ courseId }: { courseId?: string }) {
     return Object.keys(errs).length === 0;
   };
 
-  const handleNext = () => {
-    if (validateStep(step)) setStep(step + 1);
+  const buildCoursePayload = (published: boolean): CourseInput => {
+    const payload: CourseInput = {
+      title: title.trim(),
+      description: description.trim(),
+      subject: subject as CourseInput['subject'],
+      examTags: examTags as CourseInput['examTags'],
+      isFree,
+      isPublished: published,
+    };
+    if (thumbnailPreview && thumbnailPreview.startsWith('http')) {
+      payload.thumbnailUrl = thumbnailPreview;
+    }
+    return payload;
+  };
+
+  const handleNext = async () => {
+    if (!validateStep(step)) return;
+
+    if (step === 1 && !isEdit) {
+      setSaving(true);
+      try {
+        const course = await createCourseAsync(buildCoursePayload(false));
+        toast.success('Course saved — continue with media and lessons');
+        router.push(`/admin/courses/${course.id}/edit?step=2`);
+      } catch (err: unknown) {
+        const e = err as { response?: { data?: { error?: string } } };
+        toast.error(e.response?.data?.error || 'Could not save course');
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
+
+    setStep(step + 1);
   };
 
   const handleBack = () => {
@@ -221,16 +293,42 @@ export default function CourseBuilder({ courseId }: { courseId?: string }) {
           toast.error('Save the course first before adding lessons');
           return;
         }
-        const newLesson: any = await new Promise((resolve, reject) => {
+        const newLesson: { id: string } = await new Promise((resolve, reject) => {
           createLesson(
-            { courseId, title: lessonForm.title, description: lessonForm.notes, isFree: false, isPublished: true },
+            {
+              courseId,
+              title: lessonForm.title,
+              description: lessonForm.notes || undefined,
+              content: lessonForm.notes || undefined,
+              isFree: false,
+              isPublished: true,
+              sortOrder: lessons.length,
+            },
             {
               onSuccess: (data) => resolve(data),
-              onError: (err: any) => reject(err),
+              onError: (err: unknown) => reject(err),
             }
           );
         });
-        setLessons((prev) => [...prev, { id: newLesson.id, title: lessonForm.title, videoUrl: lessonForm.videoUrl, duration: lessonForm.duration, notes: lessonForm.notes, sortOrder: prev.length }]);
+        if (lessonForm.videoUrl.trim()) {
+          try {
+            await attachVideoToLesson(newLesson.id, lessonForm.videoUrl, lessonForm.title);
+          } catch (err: unknown) {
+            const e = err as { response?: { data?: { error?: string } } };
+            toast.error(e.response?.data?.error || 'Lesson saved but video link failed');
+          }
+        }
+        setLessons((prev) => [
+          ...prev,
+          {
+            id: newLesson.id,
+            title: lessonForm.title,
+            videoUrl: lessonForm.videoUrl,
+            duration: lessonForm.duration,
+            notes: lessonForm.notes,
+            sortOrder: prev.length,
+          },
+        ]);
         toast.success('Lesson added');
       }
       setLessonForm({ title: '', videoUrl: '', duration: '', notes: '' });
@@ -300,35 +398,21 @@ export default function CourseBuilder({ courseId }: { courseId?: string }) {
       return;
     }
     setSaving(true);
-    const courseData: any = {
-      title: title.trim(),
-      description: description.trim(),
-      subject,
-      examTags,
-      isFree,
-      isPublished: publishMode === 'publish',
-    };
-    if (thumbnailPreview && !thumbnailFile) courseData.thumbnailUrl = thumbnailPreview;
-    if (!isFree && price) courseData.price = parseFloat(price);
+    const courseData = buildCoursePayload(publishMode === 'publish');
 
     try {
       if (isEdit && courseId) {
-        await updateCourse({ id: courseId, data: courseData });
-        toast.success(publishMode === 'publish' ? 'Course published successfully!' : 'Draft saved.');
+        await updateCourseAsync({ id: courseId, data: courseData });
+        toast.success(publishMode === 'publish' ? 'Course published!' : 'Draft saved.');
+        router.push(`/admin/courses/${courseId}/lessons`);
       } else {
-        await createCourse(courseData, {
-          onSuccess: () => {
-            toast.success(publishMode === 'publish' ? 'Course published successfully!' : 'Draft saved.');
-            router.push('/admin/courses');
-          },
-          onError: (err: any) => {
-            toast.error(err?.response?.data?.error || 'Something went wrong. Please try again.');
-          },
-        });
+        const course = await createCourseAsync(courseData);
+        toast.success(publishMode === 'publish' ? 'Course published!' : 'Draft saved.');
+        router.push(`/admin/courses/${course.id}/lessons`);
       }
-      if (isEdit) router.push('/admin/courses');
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error || 'Something went wrong. Please try again.');
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { error?: string } } };
+      toast.error(e.response?.data?.error || 'Something went wrong. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -410,14 +494,14 @@ export default function CourseBuilder({ courseId }: { courseId?: string }) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               onBlur={() => { if (!description.trim()) setErrors((e) => ({ ...e, description: 'Description is required' })); else setErrors((e) => { const { description, ...rest } = e; return rest; }); }}
-              rows={3}
-              maxLength={300}
-              placeholder="Brief overview of what this course covers..."
+              rows={4}
+              maxLength={2000}
+              placeholder="Brief overview of what this course covers (at least 10 characters)..."
               className={`w-full px-4 py-2.5 rounded-xl border text-sm outline-none transition-all placeholder:text-gray-600 bg-[rgba(255,255,255,0.03)] focus:border-indigo-500/50 text-white resize-none ${errors.description ? 'border-red-500/50' : 'border-[rgba(255,255,255,0.08)]'}`}
             />
             <div className="flex justify-between mt-1">
               {errors.description && <p className="text-red-400 text-[10px] font-medium">{errors.description}</p>}
-              <span className="text-[10px] text-gray-500 ml-auto">{description.length}/300</span>
+              <span className="text-[10px] text-gray-500 ml-auto">{description.length}/2000</span>
             </div>
           </div>
 
@@ -625,6 +709,18 @@ export default function CourseBuilder({ courseId }: { courseId?: string }) {
       {/* Step 3: Curriculum */}
       {step === 3 && (
         <div className="space-y-6">
+          {courseId && (
+            <div className="p-4 rounded-xl border border-sky-500/30 bg-sky-500/10">
+              <p className="text-sm text-sky-100">
+                You can now expand any lesson to upload PDFs, attach MP4 videos, and add notes inline.
+              </p>
+            </div>
+          )}
+          {!courseId && (
+            <p className="text-amber-300 text-sm p-3 rounded-lg border border-amber-500/30 bg-amber-500/10">
+              Complete Step 1 and save the course before adding lessons.
+            </p>
+          )}
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-white">Curriculum — Lessons</h2>
             {!showAddLesson && (
@@ -659,8 +755,11 @@ export default function CourseBuilder({ courseId }: { courseId?: string }) {
                     key={lesson.id}
                     lesson={lesson}
                     index={idx}
+                    isExpanded={expandedLessonId === lesson.id}
+                    onToggleExpand={() => setExpandedLessonId(expandedLessonId === lesson.id ? null : lesson.id)}
                     onEdit={handleEditLesson}
                     onDelete={(id) => setDeleteLessonId(id)}
+                    courseId={courseId || ''}
                   />
                 ))}
               </div>
@@ -916,5 +1015,19 @@ export default function CourseBuilder({ courseId }: { courseId?: string }) {
         onCancel={() => setDeleteLessonId(null)}
       />
     </div>
+  );
+}
+
+export default function CourseBuilder({ courseId }: { courseId?: string }) {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-[40vh] flex items-center justify-center">
+          <div className="w-10 h-10 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <CourseBuilderInner courseId={courseId} />
+    </Suspense>
   );
 }

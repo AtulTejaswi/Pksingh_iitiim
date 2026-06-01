@@ -10,6 +10,7 @@
     "test": "jest",
     "e2e:install": "npx playwright install --with-deps",
     "test:e2e": "npx playwright test",
+    "seed:sample": "npx ts-node seed_sample_course.ts",
     "postinstall": "prisma generate && prisma db push"
   },
   "keywords": [],

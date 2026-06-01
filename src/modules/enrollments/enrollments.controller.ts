@@ -48,12 +48,48 @@ export const getMyEnrollments = async (req: AuthRequest, res: Response): Promise
     where: { userId: req.user.id },
     include: {
       course: {
-        select: { id: true, title: true, thumbnailUrl: true }
+        select: { id: true, title: true, thumbnailUrl: true, subject: true }
       }
-    }
+    },
+    orderBy: { enrolledAt: 'desc' },
   });
 
-  res.json({ enrollments });
+  const enriched = await Promise.all(
+    enrollments.map(async (enrollment) => {
+      const lessons = await prisma.lesson.findMany({
+        where: { courseId: enrollment.courseId, isPublished: true },
+        select: { id: true, sortOrder: true },
+        orderBy: { sortOrder: 'asc' },
+      });
+      const completed = await prisma.lessonProgress.count({
+        where: {
+          userId: req.user!.id,
+          lessonId: { in: lessons.map((l) => l.id) },
+        },
+      });
+      const completedIds = await prisma.lessonProgress.findMany({
+        where: {
+          userId: req.user!.id,
+          lessonId: { in: lessons.map((l) => l.id) },
+        },
+        select: { lessonId: true },
+      });
+      const completedSet = new Set(completedIds.map((r) => r.lessonId));
+      const resumeLesson = lessons.find((l) => !completedSet.has(l.id));
+
+      return {
+        ...enrollment,
+        progress: {
+          totalLessons: lessons.length,
+          completedLessons: completed,
+          percentComplete: lessons.length === 0 ? 0 : Math.round((completed / lessons.length) * 100),
+          resumeLessonId: resumeLesson?.id ?? lessons[0]?.id ?? null,
+        },
+      };
+    })
+  );
+
+  res.json({ enrollments: enriched });
 };
 
 export const listAllEnrollments = async (req: AuthRequest, res: Response): Promise<void> => {
