@@ -8,6 +8,9 @@ const router = (0, express_1.Router)();
 // Public
 router.post('/register', auth_controller_1.register);
 router.post('/login', auth_controller_1.login);
+// Temporary one-time endpoint to seed an admin if none exists
+// Dev-only quick login (local dev only)
+router.post('/dev-login', (req, res) => { return require('./auth.controller').devLogin(req, res); });
 router.post('/request-reset', auth_controller_1.requestPasswordReset);
 router.post('/reset-password', auth_controller_1.resetPassword);
 // Protected
