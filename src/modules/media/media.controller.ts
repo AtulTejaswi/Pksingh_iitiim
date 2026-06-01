@@ -50,23 +50,31 @@ export const uploadMedia = async (req: AuthRequest, res: Response): Promise<void
 
   try {
     if (useSupabase && supabase) {
-      // Attempt streaming upload from temp file to avoid loading into memory
-      const fileStream = fs.createReadStream(file.path);
-      const { error: uploadError } = await supabase.storage
-        .from('media')
-        .upload(storagePath, fileStream as any, { contentType: file.mimetype });
+      // Stream file to Supabase storage to avoid buffering large files in memory.
+      try {
+        const fileStream = fs.createReadStream(file.path);
+        const { error: uploadError } = await supabase.storage
+          .from('media')
+          .upload(storagePath, fileStream as any, { contentType: file.mimetype });
 
-      if (uploadError) {
-        // fallback: read buffer and retry
-        const buffer = fs.readFileSync(file.path);
-        const { error: uploadError2 } = await supabase.storage.from('media').upload(storagePath, buffer, { contentType: file.mimetype });
-        if (uploadError2) {
-          throw new Error('Supabase upload failed');
+        if (uploadError) {
+          // Try buffer fallback if stream upload fails
+          const buffer = fs.readFileSync(file.path);
+          const { error: uploadError2 } = await supabase.storage.from('media').upload(storagePath, buffer, { contentType: file.mimetype });
+          if (uploadError2) {
+            console.error('Supabase upload errors', uploadError, uploadError2);
+            throw new Error('Supabase upload failed');
+          }
         }
-      }
 
-      const { data } = supabase.storage.from('media').getPublicUrl(storagePath);
-      publicUrl = data.publicUrl;
+        const { data } = supabase.storage.from('media').getPublicUrl(storagePath);
+        publicUrl = data.publicUrl;
+        // remove temp file after successful transfer
+        if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+      } catch (err) {
+        // If supabase upload fails, rethrow so we return 500 to caller
+        throw err;
+      }
     } else {
       const uploadFolder = path.join(process.cwd(), 'uploads', 'lessons', lessonId);
       fs.mkdirSync(uploadFolder, { recursive: true });
