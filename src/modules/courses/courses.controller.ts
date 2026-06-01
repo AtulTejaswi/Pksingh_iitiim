@@ -35,6 +35,7 @@ export const listCourses = async (req: Request, res: Response): Promise<void> =>
     select: {
       id: true, title: true, description: true,
       subject: true, examTags: true, thumbnailUrl: true, isFree: true,
+      isPublished: true,
       _count: { select: { lessons: true, enrollments: true } },
     },
     skip: (parseInt(page as string) - 1) * parseInt(limit as string),
@@ -43,6 +44,7 @@ export const listCourses = async (req: Request, res: Response): Promise<void> =>
   });
 
   console.log('DEBUG listCourses where:', whereClause, 'returned:', courses.length);
+  console.log('DEBUG listCourses sample course:', courses[0]);
 
   const parsedCourses = courses.map((course) => ({
     ...course,
@@ -174,6 +176,5 @@ export const togglePublish = async (req: AuthRequest, res: Response): Promise<vo
     where: { id },
     data: { isPublished },
   });
-  
-  res.json({ course });
+  res.json({ course: { ...course, examTags: course.examTags ? JSON.parse(course.examTags) : [] } });
 };
