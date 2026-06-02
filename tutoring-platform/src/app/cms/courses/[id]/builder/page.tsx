@@ -1,23 +1,83 @@
 'use client';
 import React, { useState } from 'react';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Save, Plus, File, Video, AlertCircle, GripVertical } from 'lucide-react';
 
-// Note: Utilizing @hello-pangea/dnd (or @dnd-kit) for the drag-and-drop list
-// Scaffolded skeleton for the Course Builder Redesign (Phase 4)
+interface Lesson {
+  id: string;
+  title: string;
+  type: 'video' | 'pdf';
+  isPublished: boolean;
+}
+
+function SortableLesson({ lesson }: { lesson: Lesson }) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: lesson.id });
+  const style = { transform: CSS.Transform.toString(transform), transition };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"
+    >
+      <div className="flex items-center gap-3">
+        <button {...attributes} {...listeners} className="text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing" aria-label="Drag to reorder">
+          <GripVertical size={18} />
+        </button>
+        <div className="p-2 bg-white rounded-md shadow-sm text-blue-500">
+          {lesson.type === 'video' ? <Video size={16} /> : <File size={16} />}
+        </div>
+        <span className="font-medium text-gray-800">{lesson.title}</span>
+      </div>
+      <div className="flex items-center gap-3">
+        {lesson.isPublished ? (
+          <span className="text-xs font-medium text-emerald-700 bg-emerald-100 px-2 py-1 rounded-full">Published</span>
+        ) : (
+          <span className="text-xs font-medium text-gray-600 bg-gray-200 px-2 py-1 rounded-full">Draft</span>
+        )}
+        <button className="text-sm font-medium text-blue-600 hover:underline">Edit</button>
+      </div>
+    </div>
+  );
+}
+
 export default function CourseBuilderPage() {
-  const [lessons, setLessons] = useState([
+  const [lessons, setLessons] = useState<Lesson[]>([
     { id: '1', title: 'Introduction to Mechanics', type: 'video', isPublished: true },
     { id: '2', title: 'Kinematics Formula Sheet', type: 'pdf', isPublished: true },
     { id: '3', title: 'Newton Laws', type: 'video', isPublished: false },
   ]);
 
-  const onDragEnd = (result: any) => {
-    if (!result.destination) return;
-    const items = Array.from(lessons);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-    setLessons(items);
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setLessons((items) => {
+        const oldIndex = items.findIndex((i) => i.id === active.id);
+        const newIndex = items.findIndex((i) => i.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
   };
 
   return (
@@ -50,12 +110,12 @@ export default function CourseBuilderPage() {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Course Details</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                <input type="text" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" defaultValue="Complete Physics Masterclass" />
+                <label htmlFor="course-title" className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                <input id="course-title" type="text" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" defaultValue="Complete Physics Masterclass" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" rows={4} defaultValue="A comprehensive guide to IIT-JEE Physics." />
+                <label htmlFor="course-desc" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea id="course-desc" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" rows={4} defaultValue="A comprehensive guide to IIT-JEE Physics." />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Thumbnail</label>
@@ -79,44 +139,15 @@ export default function CourseBuilderPage() {
               </button>
             </div>
 
-            <DragDropContext onDragEnd={onDragEnd}>
-              <Droppable droppableId="lessons-list">
-                {(provided) => (
-                  <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-3">
-                    {lessons.map((lesson, index) => (
-                      <Draggable key={lesson.id} draggableId={lesson.id} index={index}>
-                        {(provided) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div {...provided.dragHandleProps} className="text-gray-400 hover:text-gray-600">
-                                <GripVertical size={18} />
-                              </div>
-                              <div className="p-2 bg-white rounded-md shadow-sm text-blue-500">
-                                {lesson.type === 'video' ? <Video size={16} /> : <File size={16} />}
-                              </div>
-                              <span className="font-medium text-gray-800">{lesson.title}</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              {lesson.isPublished ? (
-                                <span className="text-xs font-medium text-emerald-700 bg-emerald-100 px-2 py-1 rounded-full">Published</span>
-                              ) : (
-                                <span className="text-xs font-medium text-gray-600 bg-gray-200 px-2 py-1 rounded-full">Draft</span>
-                              )}
-                              <button className="text-sm font-medium text-blue-600 hover:underline">Edit</button>
-                            </div>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={lessons.map((l) => l.id)} strategy={verticalListSortingStrategy}>
+                <div className="space-y-3">
+                  {lessons.map((lesson) => (
+                    <SortableLesson key={lesson.id} lesson={lesson} />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
 
             {lessons.length === 0 && (
               <div className="text-center py-12">
