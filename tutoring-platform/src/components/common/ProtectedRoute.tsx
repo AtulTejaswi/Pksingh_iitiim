@@ -10,18 +10,26 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children, adminOnly = false }: ProtectedRouteProps) {
-  const { user, loading } = useAuth();
+  const { user, loading, verified } = useAuth();
+
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        router.push('/login');
-      } else if (adminOnly && user.role !== 'ADMIN') {
-        router.push('/');
-      }
+    if (loading) return;
+
+    if (!user) {
+      router.push('/login');
+      return;
     }
-  }, [user, loading, adminOnly, router]);
+
+    if (adminOnly) {
+      // Wait until /auth/me verification finishes to avoid role-based flicker.
+      if (!verified) return;
+      if (user.role !== 'ADMIN') router.push('/');
+      return;
+    }
+  }, [user, loading, verified, adminOnly, router]);
+
 
   if (loading) {
     return (

@@ -13,3 +13,14 @@
 - [x] Run frontend checks: `npm run lint` and `npm run build` (inside `tutoring-platform`).
 - [x] Perform quick API smoke checks for auth/courses/lessons/enrollments/media/notes.
 
+## New tuning work (this change)
+- [x] Add auth profile “verified” state to avoid role-based redirects before `/auth/me` completes.
+- [x] Make `ProtectedRoute` wait for verified state when `adminOnly` is enabled.
+- [ ] Remove narrow 401 redirect heuristics in `api-client`; redirect more consistently.
+- [ ] Remove hardcoded fallback admin credentials + lock down auto-login.
+- [x] Add cross-tab logout sync via `storage` events.
+
+
+
+
+
