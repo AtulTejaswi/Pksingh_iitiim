@@ -128,27 +128,32 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user || !user.passwordHash || !verifyPassword(password, user.passwordHash)) {
-    console.warn('Auth: local login failed for', email, { userFound: !!user });
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user || !user.passwordHash || !verifyPassword(password, user.passwordHash)) {
+      console.warn('Auth: local login failed for', email, { userFound: !!user });
+      res.status(401).json({ error: 'Invalid email or password' });
+      return;
+    }
+
+    const token = jwt.sign({ sub: user.id, userId: user.id }, jwtSecret, { expiresIn: '7d' });
+
+    res.json({
+      accessToken: token,
+      refreshToken: null,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        fullName: user.fullName,
+        country: (user.country as any) || null,
+        avatarUrl: user.avatarUrl || null,
+      },
+    });
+  } catch (err) {
+    console.error('Auth: login DB error', err);
     res.status(401).json({ error: 'Invalid email or password' });
-    return;
   }
-
-  const token = jwt.sign({ sub: user.id, userId: user.id }, jwtSecret, { expiresIn: '7d' });
-
-  res.json({
-    accessToken: token,
-    refreshToken: null,
-    user: {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      fullName: user.fullName,
-      country: (user.country as any) || null,
-      avatarUrl: user.avatarUrl || null,
-    },
-  });
 };
 
 // Development helper: issue a token for the seeded admin without a password.
