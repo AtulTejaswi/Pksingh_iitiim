@@ -7,7 +7,12 @@ const PORT = process.env.PORT || 4000;
 
 const ensureAdminUser = async () => {
   const email = process.env.ADMIN_EMAIL || 'admin@pksingh.com';
-  const password = process.env.ADMIN_PASSWORD || 'adminpassword123';
+  const isProd = process.env.NODE_ENV === 'production';
+  const password = process.env.ADMIN_PASSWORD || (isProd ? '' : 'adminpassword123');
+  if (!password) {
+    console.warn('ADMIN_PASSWORD is not set. Skipping default admin seeding in production.');
+    return;
+  }
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
@@ -29,7 +34,7 @@ const ensureAdminUser = async () => {
     },
   });
 
-  console.log(`Created default admin user: ${user.email} with password: ${password}`);
+  console.log(`Created default admin user: ${user.email}`);
 };
 
 async function startServer() {
