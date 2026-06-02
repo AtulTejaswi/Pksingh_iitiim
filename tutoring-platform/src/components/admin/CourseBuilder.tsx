@@ -407,10 +407,16 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
     const courseData = buildCoursePayload(publishMode === 'publish');
 
     try {
-      if (isEdit && courseId) {
-        await updateCourseAsync({ id: courseId, data: courseData });
+      // Strictly use PUT for edit routes.
+      if (isEdit) {
+        const id = courseIdResolved;
+        if (!id) {
+          toast.error('Missing course id for edit');
+          return;
+        }
+        await updateCourseAsync({ id, data: courseData });
         toast.success(publishMode === 'publish' ? 'Course published!' : 'Draft saved.');
-        router.push(`/admin/courses/${courseId}/lessons`);
+        router.push(`/admin/courses/${id}/lessons`);
       } else {
         const course = await createCourseAsync(courseData);
         toast.success(publishMode === 'publish' ? 'Course published!' : 'Draft saved.');
@@ -423,6 +429,7 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
       setSaving(false);
     }
   };
+
 
   const isYouTubeUrl = (url: string) => {
     return url.includes('youtube.com/watch') || url.includes('youtu.be/');
