@@ -3,7 +3,8 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useCreateCourse, useUpdateCourse, useGetCourse, CourseInput } from '@/hooks/useCourses';
+import { useCreateCourse, useUpdateCourse, useGetCourse } from '@/hooks/useCourses';
+
 import { useGetLessons, useCreateLesson, useUpdateLesson, useDeleteLesson } from '@/hooks/useLessons';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
@@ -132,9 +133,14 @@ async function attachVideoToLesson(lessonId: string, videoUrl: string, videoTitl
 function CourseBuilderInner({ courseId }: { courseId?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const isEdit = !!courseId;
 
-  const { data: existingCourse, isLoading: loadingCourse } = useGetCourse(courseId || '');
+  // If this builder is mounted for /admin/courses/:id/edit, we must never
+  // fall back into “create course” mode.
+  const courseIdResolved = courseId ?? null;
+  const isEdit = courseIdResolved !== null;
+
+  const { data: existingCourse, isLoading: loadingCourse } = useGetCourse(courseIdResolved || '');
+
   const { data: existingLessons } = useGetLessons(courseId);
 
   const { mutateAsync: createCourseAsync, isPending: isCreating } = useCreateCourse();
