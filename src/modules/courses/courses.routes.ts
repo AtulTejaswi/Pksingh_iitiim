@@ -12,7 +12,7 @@ router.get('/', optionalAuthenticate, listCourses);
 // Admin only routes
 router.get('/export', authenticate, superAdminOnly, exportCourses);
 router.post('/', authenticate, superAdminOnly, createCourse);
-router.get('/:id/progress', authenticate, authenticate, getCourseProgress);
+router.get('/:id/progress', authenticate, getCourseProgress);
 router.get('/:id', optionalAuthenticate, getCourse);
 router.put('/:id', authenticate, superAdminOnly, updateCourse);
 router.delete('/:id', authenticate, superAdminOnly, deleteCourse);

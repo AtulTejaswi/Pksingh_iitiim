@@ -5,7 +5,7 @@ import { superAdminOnly } from '../../middleware/rbac.middleware';
 
 const router = Router();
 
-router.get('/lesson/:lessonId', authenticate, authenticate, getLessonNotes);
+router.get('/lesson/:lessonId', authenticate, getLessonNotes);
 
 router.post('/', authenticate, superAdminOnly, createNote);
 router.put('/:id', authenticate, superAdminOnly, updateNote);

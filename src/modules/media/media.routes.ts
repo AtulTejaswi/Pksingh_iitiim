@@ -6,7 +6,7 @@ import { superAdminOnly } from '../../middleware/rbac.middleware';
 const router = Router();
 
 // Student
-router.get('/lesson/:lessonId', authenticate, authenticate, getLessonMedia);
+router.get('/lesson/:lessonId', authenticate, getLessonMedia);
 
 // Admin
 router.post('/upload', authenticate, superAdminOnly, upload.single('file'), uploadMedia);

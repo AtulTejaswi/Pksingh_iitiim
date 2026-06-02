@@ -7,7 +7,7 @@ const router = Router();
 
 router.get('/', authenticate, superAdminOnly, listLessons);
 router.get('/:id', optionalAuthenticate, getLesson);
-router.post('/:id/progress', authenticate, authenticate, markProgress);
+router.post('/:id/progress', authenticate, markProgress);
 
 router.post('/', authenticate, superAdminOnly, createLesson);
 router.put('/:id', authenticate, superAdminOnly, updateLesson);

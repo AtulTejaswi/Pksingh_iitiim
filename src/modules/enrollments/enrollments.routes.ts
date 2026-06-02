@@ -5,8 +5,8 @@ import { superAdminOnly } from '../../middleware/rbac.middleware';
 
 const router = Router();
 
-router.post('/', authenticate, authenticate, enroll);
-router.get('/my', authenticate, authenticate, getMyEnrollments);
+router.post('/', authenticate, enroll);
+router.get('/my', authenticate, getMyEnrollments);
 
 // Admin
 router.get('/', authenticate, superAdminOnly, listAllEnrollments);
