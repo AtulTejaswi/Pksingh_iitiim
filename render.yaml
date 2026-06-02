@@ -8,8 +8,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: DATABASE_URL
-        value: file:./dev.db
+      # IMPORTANT: Set DATABASE_URL in the Render dashboard (Supabase/Postgres connection string).
+      # Do not commit real credentials to this repo.
       - key: LOCAL_JWT_SECRET
         generateValue: true
       - key: NODE_VERSION
