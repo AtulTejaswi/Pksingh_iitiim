@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { register, login, getMe, promoteToAdmin, demoteFromAdmin, requestPasswordReset, resetPassword, exportUsers } from './auth.controller';
 import { authenticate } from '../../middleware/auth.middleware';
-import { adminOnly } from '../../middleware/rbac.middleware';
+import { superAdminOnly } from '../../middleware/rbac.middleware';
 
 const router = Router();
 
@@ -18,11 +18,8 @@ router.post('/reset-password', resetPassword);
 router.get('/me', authenticate, getMe);
 
 // Admin helpers
-router.get('/users', authenticate, adminOnly, (req, res) => { return require('./auth.controller').listUsers(req, res); });
-router.get('/users/export', authenticate, adminOnly, exportUsers);
+router.get('/users', authenticate, superAdminOnly, (req, res) => { return require('./auth.controller').listUsers(req, res); });
+router.get('/users/export', authenticate, superAdminOnly, exportUsers);
 
 // Admin only — promote or demote user roles
-router.patch('/promote/:userId', authenticate, adminOnly, promoteToAdmin);
-router.patch('/demote/:userId', authenticate, adminOnly, demoteFromAdmin);
-
 export default router;

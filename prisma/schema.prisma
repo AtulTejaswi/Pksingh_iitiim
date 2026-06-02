@@ -3,12 +3,38 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 // ─── ENUMS ───────────────────────────────────────────────────────────────────
 
+enum Role {
+  SUPER_ADMIN
+  INSTRUCTOR
+  MENTOR
+  STUDENT
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum QueryStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum EventType {
+  LIVE_CLASS
+  WEBINAR
+  WORKSHOP
+  COUNSELING
+}
 
 // ─── USERS ───────────────────────────────────────────────────────────────────
 
@@ -18,7 +44,7 @@ model User {
   passwordHash  String?                           // Local development password hash
   email         String   @unique
   fullName      String
-  role          String   @default("STUDENT")
+  role          Role     @default(STUDENT)
   avatarUrl     String?
   country       String?                  // "IN" or "US" for content targeting
   createdAt     DateTime @default(now())
@@ -26,6 +52,10 @@ model User {
 
   enrollments   Enrollment[]
   progress      LessonProgress[]
+  queries       StudentQuery[]
+  authoredBlogs Blog[]
+  certificates  Certificate[]
+  reviews       Review[]
 
   @@map("users")
 }
@@ -33,63 +63,134 @@ model User {
 // ─── COURSES ─────────────────────────────────────────────────────────────────
 
 model Course {
-  id           String    @id @default(uuid())
+  id           String        @id @default(uuid())
   title        String
   description  String
   subject      String
-  examTags     String                  // JSON array of tags, stored as text for SQLite
+  difficulty   String?
+  duration     String?       // E.g., "10 hours", "4 weeks"
+  language     String?
+  categoryId   String?
+  category     Category?     @relation(fields: [categoryId], references: [id])
+  tags         CourseTag[]
   thumbnailUrl String?
-  isFree       Boolean   @default(false)
-  isPublished  Boolean   @default(false)
-  sortOrder    Int       @default(0)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  isFree       Boolean       @default(false)
+  status       PublishStatus @default(DRAFT)
+  sortOrder    Int           @default(0)
+  prerequisites String?      // JSON or text
+  learningOutcomes String?   // JSON or text
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   lessons      Lesson[]
   enrollments  Enrollment[]
+  reviews      Review[]
 
+  @@index([status])
+  @@index([categoryId])
   @@map("courses")
+}
+
+// ─── CATEGORIES & TAGS ───────────────────────────────────────────────────────
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique
+  courses   Course[]
+  blogs     Blog[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("categories")
+}
+
+model Tag {
+  id        String      @id @default(uuid())
+  name      String      @unique
+  slug      String      @unique
+  courses   CourseTag[]
+  blogs     BlogTag[]
+  media     MediaAssetTag[]
+  createdAt DateTime    @default(now())
+  
+  @@map("tags")
+}
+
+model CourseTag {
+  courseId String
+  tagId    String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  tag      Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([courseId, tagId])
+  @@map("course_tags")
 }
 
 // ─── LESSONS ─────────────────────────────────────────────────────────────────
 
 model Lesson {
-  id           String   @id @default(uuid())
+  id           String        @id @default(uuid())
   courseId     String
   title        String
   description  String?
-  content      String?  // Rich text / Markdown body
-  sortOrder    Int      @default(0)
-  isFree       Boolean  @default(false) // Preview lessons free even in paid course
-  isPublished  Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  content      String?       // Rich text / Markdown body
+  sortOrder    Int           @default(0)
+  isFree       Boolean       @default(false)
+  status       PublishStatus @default(DRAFT)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
-  course       Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  media        Media[]
+  course       Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  media        LessonMedia[]
   notes        Note[]
   progress     LessonProgress[]
 
+  @@index([courseId, status])
   @@map("lessons")
 }
 
-// ─── MEDIA ───────────────────────────────────────────────────────────────────
+// ─── CENTRALIZED MEDIA LIBRARY ───────────────────────────────────────────────
 
-model Media {
-  id          String    @id @default(uuid())
-  lessonId    String
+model MediaAsset {
+  id          String   @id @default(uuid())
   title       String
-  type        String
-  url         String                    // Supabase Storage URL or YouTube link
-  storagePath String?                  // Supabase Storage internal path (for deletion)
+  type        String   // IMAGE, VIDEO, PDF, DOC
+  url         String   // Cloudinary/S3 URL
+  storagePath String?  // Provider path for deletion
   sizeBytes   Int?
   mimeType    String?
-  sortOrder   Int       @default(0)
-  createdAt   DateTime  @default(now())
+  folder      String   @default("/")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  lesson      Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  tags        MediaAssetTag[]
+  lessonMedia LessonMedia[]
+  
+  @@index([folder])
+  @@map("media_assets")
+}
 
-  @@map("media")
+model MediaAssetTag {
+  mediaId String
+  tagId   String
+  media   MediaAsset @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  tag     Tag        @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([mediaId, tagId])
+  @@map("media_asset_tags")
+}
+
+model LessonMedia {
+  id           String     @id @default(uuid())
+  lessonId     String
+  mediaAssetId String
+  sortOrder    Int        @default(0)
+  
+  lesson       Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  mediaAsset   MediaAsset @relation(fields: [mediaAssetId], references: [id], onDelete: Cascade)
+
+  @@map("lesson_media")
 }
 
 // ─── NOTES ───────────────────────────────────────────────────────────────────
@@ -98,8 +199,8 @@ model Note {
   id        String   @id @default(uuid())
   lessonId  String
   title     String
-  content   String   // Markdown or HTML
-  fileUrl   String?  // Optional attached PDF
+  content   String
+  fileUrl   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -108,24 +209,22 @@ model Note {
   @@map("notes")
 }
 
-// ─── ENROLLMENTS ─────────────────────────────────────────────────────────────
+// ─── ENROLLMENTS & PROGRESS ──────────────────────────────────────────────────
 
 model Enrollment {
-  id          String           @id @default(uuid())
+  id          String    @id @default(uuid())
   userId      String
   courseId    String
-  status      String           @default("ACTIVE")
-  enrolledAt  DateTime         @default(now())
+  status      String    @default("ACTIVE")
+  enrolledAt  DateTime  @default(now())
   completedAt DateTime?
 
-  user        User             @relation(fields: [userId], references: [id])
-  course      Course           @relation(fields: [courseId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+  course      Course    @relation(fields: [courseId], references: [id])
 
-  @@unique([userId, courseId])           // One enrollment per student per course
+  @@unique([userId, courseId])
   @@map("enrollments")
 }
-
-// ─── LESSON PROGRESS ─────────────────────────────────────────────────────────
 
 model LessonProgress {
   id          String   @id @default(uuid())
@@ -138,4 +237,204 @@ model LessonProgress {
 
   @@unique([userId, lessonId])
   @@map("lesson_progress")
+}
+
+model Certificate {
+  id           String   @id @default(uuid())
+  certificateId String  @unique // Public unique ID
+  userId       String
+  courseId     String
+  issuedAt     DateTime @default(now())
+  pdfUrl       String?
+
+  user         User     @relation(fields: [userId], references: [id])
+  
+  @@unique([userId, courseId])
+  @@map("certificates")
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  userId    String
+  courseId  String
+  rating    Int      // 1-5
+  comment   String?
+  isApproved Boolean @default(true) // For moderation
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id])
+  course    Course   @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId])
+  @@map("reviews")
+}
+
+// ─── CMS: PAGES & SECTIONS (HOMEPAGE BUILDER) ──────────────────────────────
+
+model Page {
+  id              String   @id @default(uuid())
+  title           String
+  slug            String   @unique
+  status          PublishStatus @default(DRAFT)
+  metaTitle       String?
+  metaDescription String?
+  metaKeywords    String?
+  ogImageUrl      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  sections        PageSection[]
+
+  @@map("cms_pages")
+}
+
+model PageSection {
+  id          String   @id @default(uuid())
+  pageId      String
+  type        String   // HERO, BANNER, CTA, FEATURES, TESTIMONIALS
+  content     String   // JSON containing specific data for the section type
+  sortOrder   Int      @default(0)
+  isHidden    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  page        Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@map("cms_page_sections")
+}
+
+// ─── CMS: BLOGS ─────────────────────────────────────────────────────────────
+
+model Blog {
+  id              String   @id @default(uuid())
+  title           String
+  slug            String   @unique
+  content         String   // Rich Text
+  authorId        String
+  categoryId      String?
+  status          PublishStatus @default(DRAFT)
+  featuredImage   String?
+  metaTitle       String?
+  metaDescription String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  publishedAt     DateTime?
+
+  author          User      @relation(fields: [authorId], references: [id])
+  category        Category? @relation(fields: [categoryId], references: [id])
+  tags            BlogTag[]
+
+  @@map("cms_blogs")
+}
+
+model BlogTag {
+  blogId String
+  tagId  String
+  blog   Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([blogId, tagId])
+  @@map("cms_blog_tags")
+}
+
+// ─── CMS: ANNOUNCEMENTS & FAQS ──────────────────────────────────────────────
+
+model Announcement {
+  id          String   @id @default(uuid())
+  title       String
+  content     String   // Rich Text
+  attachmentUrl String?
+  status      PublishStatus @default(DRAFT)
+  scheduledFor DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("cms_announcements")
+}
+
+model FAQ {
+  id          String   @id @default(uuid())
+  question    String
+  answer      String   // Rich text
+  category    String   // e.g. "General", "Payments"
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("cms_faqs")
+}
+
+model Testimonial {
+  id          String   @id @default(uuid())
+  name        String
+  studentPhoto String?
+  rank        String?
+  achievement String?
+  review      String
+  status      PublishStatus @default(DRAFT)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("cms_testimonials")
+}
+
+// ─── EVENTS & HELPDESK ──────────────────────────────────────────────────────
+
+model Event {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  type        EventType
+  meetingLink String?
+  startsAt    DateTime
+  endsAt      DateTime
+  status      PublishStatus @default(DRAFT)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("events")
+}
+
+model StudentQuery {
+  id          String   @id @default(uuid())
+  userId      String
+  subject     String
+  message     String
+  status      QueryStatus @default(OPEN)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id])
+  replies     QueryReply[]
+
+  @@map("student_queries")
+}
+
+model QueryReply {
+  id          String   @id @default(uuid())
+  queryId     String
+  authorId    String   // Could be user or mentor
+  message     String
+  createdAt   DateTime @default(now())
+
+  query       StudentQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
+
+  @@map("student_query_replies")
+}
+
+// ─── AUDIT LOG ───────────────────────────────────────────────────────────────
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String?
+  action      String   // LOGIN, COURSE_CREATE, etc.
+  details     String?  // JSON context
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+
+  @@index([action, createdAt])
+  @@map("audit_logs")
 }

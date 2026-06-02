@@ -48,6 +48,7 @@ import enrollmentsRoutes from './modules/enrollments/enrollments.routes';
 import mediaRoutes from './modules/media/media.routes';
 import notesRoutes from './modules/notes/notes.routes';
 import debugRoutes from './modules/debug/debug.routes';
+import cmsRoutes from './modules/cms/cms.routes';
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -60,6 +61,7 @@ app.use('/api/lessons', lessonsRoutes);
 app.use('/api/enrollments', enrollmentsRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/notes', notesRoutes);
+app.use('/api/cms', cmsRoutes);
 app.use('/api/debug', debugRoutes);
 
 // 404 handler

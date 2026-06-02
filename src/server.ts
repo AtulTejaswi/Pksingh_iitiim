@@ -24,7 +24,7 @@ const ensureAdminUser = async () => {
       supabaseId: crypto.randomUUID(),
       email,
       fullName: 'PK Singh Admin',
-      role: 'ADMIN',
+      role: 'SUPER_ADMIN',
       passwordHash: hashPassword(password),
     },
   });

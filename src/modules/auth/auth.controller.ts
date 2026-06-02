@@ -165,7 +165,7 @@ export const devLogin = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  const user = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
+  const user = await prisma.user.findFirst({ where: { role: 'SUPER_ADMIN' } });
   if (!user) {
     res.status(404).json({ error: 'No admin user found to impersonate' });
     return;
@@ -191,7 +191,7 @@ export const promoteToAdmin = async (req: AuthRequest, res: Response): Promise<v
   const userId = req.params.userId as string;
   const user = await prisma.user.update({
     where: { id: userId },
-    data: { role: 'ADMIN' },
+    data: { role: 'SUPER_ADMIN' },
   });
   res.json({ message: `${user.email} is now an admin` });
 };
@@ -227,7 +227,7 @@ export const exportUsers = async (req: AuthRequest, res: Response): Promise<void
 // Creates an admin user if none exists. Intended for emergency/first-deploy usage only.
 export const seedAdmin = async (req: Request, res: Response): Promise<void> => {
   try {
-    const existing = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
+    const existing = await prisma.user.findFirst({ where: { role: 'SUPER_ADMIN' } });
     if (existing) {
       res.status(409).json({ error: 'Admin user already exists' });
       return;
@@ -244,7 +244,7 @@ export const seedAdmin = async (req: Request, res: Response): Promise<void> => {
         passwordHash,
         email,
         fullName: 'PK Singh Admin',
-        role: 'ADMIN',
+        role: 'SUPER_ADMIN',
       },
     });
 

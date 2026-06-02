@@ -7,36 +7,34 @@ import { AuthRequest } from '../../middleware/auth.middleware';
 const courseSchema = z.object({
   title: z.string().min(3).max(200),
   description: z.string().min(10),
-  subject: z.enum(['PHYSICS', 'CHEMISTRY', 'MATH']),
-  examTags: z.array(z.enum(['JEE_MAINS','JEE_ADVANCED','NEET','MHT_CET','SAT','AP_PHYSICS','AP_CHEMISTRY','AP_CALCULUS','GENERAL'])),
+  subject: z.string(),
   isFree: z.boolean().optional(),
   thumbnailUrl: z.union([z.string().url(), z.literal('')]).optional(),
-  isPublished: z.boolean().optional(),
+  status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
+  categoryId: z.string().optional(),
 });
 
-// GET /api/courses — public
 export const listCourses = async (req: AuthRequest, res: Response): Promise<void> => {
-  const { subject, examTag, page = '1', limit = '12', includeDrafts = '0' } = req.query;
+  const { subject, categoryId, page = '1', limit = '12', includeDrafts = '0' } = req.query;
 
   const includeDraftsBool = String(includeDrafts) === '1' || String(includeDrafts).toLowerCase() === 'true';
-  const isAdmin = req.user?.role === 'ADMIN';
+  const isAdminOrMentor = req.user?.role === 'SUPER_ADMIN' || req.user?.role === 'MENTOR';
 
   const whereClause: any = {
-    ...(subject && { subject: subject as any }),
-    ...(examTag && { examTags: { contains: examTag as string } }),
+    ...(subject && { subject: subject as string }),
+    ...(categoryId && { categoryId: categoryId as string }),
   };
 
-  if (!includeDraftsBool || !isAdmin) {
-    whereClause.isPublished = true;
+  if (!includeDraftsBool || !isAdminOrMentor) {
+    whereClause.status = 'PUBLISHED';
   }
 
-    // minimal diagnostic retained: returned count
   const courses = await prisma.course.findMany({
     where: whereClause,
     select: {
       id: true, title: true, description: true,
-      subject: true, examTags: true, thumbnailUrl: true, isFree: true,
-      isPublished: true,
+      subject: true, thumbnailUrl: true, isFree: true,
+      status: true, categoryId: true,
       _count: { select: { lessons: true, enrollments: true } },
     },
     skip: (parseInt(page as string) - 1) * parseInt(limit as string),
@@ -44,39 +42,27 @@ export const listCourses = async (req: AuthRequest, res: Response): Promise<void
     orderBy: { sortOrder: 'asc' },
   });
 
-  // lightweight diagnostic: returned count (removed verbose sample log)
-
-  const parsedCourses = courses.map((course) => ({
-    ...course,
-    examTags: course.examTags ? JSON.parse(course.examTags) : [],
-  }));
-
-  res.json({ courses: parsedCourses });
+  res.json({ courses });
 };
 
 export const getCourse = async (req: AuthRequest, res: Response): Promise<void> => {
   const id = req.params.id as string;
-  const isAdmin = req.user?.role === 'ADMIN';
+  const isAdminOrMentor = req.user?.role === 'SUPER_ADMIN' || req.user?.role === 'MENTOR';
   const course = await prisma.course.findUnique({
     where: { id },
     include: {
-      lessons: isAdmin
+      lessons: isAdminOrMentor
         ? {
             orderBy: { sortOrder: 'asc' },
             include: {
-              media: { orderBy: { sortOrder: 'asc' } },
+              media: { orderBy: { sortOrder: 'asc' }, include: { mediaAsset: true } },
               notes: { orderBy: { createdAt: 'asc' } },
             },
           }
         : {
-            where: { isPublished: true },
+            where: { status: 'PUBLISHED' },
             select: {
-              id: true,
-              title: true,
-              isFree: true,
-              sortOrder: true,
-              description: true,
-              isPublished: true,
+              id: true, title: true, isFree: true, sortOrder: true, description: true, status: true,
             },
             orderBy: { sortOrder: 'asc' },
           },
@@ -88,31 +74,21 @@ export const getCourse = async (req: AuthRequest, res: Response): Promise<void> 
     res.status(404).json({ error: 'Course not found' });
     return;
   }
-
-  if (!course.isPublished && !isAdmin) {
+  if (course.status !== 'PUBLISHED' && !isAdminOrMentor) {
     res.status(404).json({ error: 'Course not found' });
     return;
   }
-  
-  res.json({ course: { ...course, examTags: course.examTags ? JSON.parse(course.examTags) : [] } });
+  res.json({ course });
 };
 
 export const getPublicStats = async (_req: Request, res: Response): Promise<void> => {
   const [students, publishedCourses, publishedLessons, enrollments] = await Promise.all([
     prisma.user.count({ where: { role: 'STUDENT' } }),
-    prisma.course.count({ where: { isPublished: true } }),
-    prisma.lesson.count({ where: { isPublished: true } }),
+    prisma.course.count({ where: { status: 'PUBLISHED' } }),
+    prisma.lesson.count({ where: { status: 'PUBLISHED' } }),
     prisma.enrollment.count({ where: { status: 'ACTIVE' } }),
   ]);
-
-  res.json({
-    stats: {
-      students,
-      publishedCourses,
-      publishedLessons,
-      enrollments,
-    },
-  });
+  res.json({ stats: { students, publishedCourses, publishedLessons, enrollments } });
 };
 
 export const getCourseProgress = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -120,28 +96,16 @@ export const getCourseProgress = async (req: AuthRequest, res: Response): Promis
     res.status(401).json({ error: 'Not authenticated' });
     return;
   }
-
   const courseId = req.params.id as string;
-  const course = await prisma.course.findUnique({ where: { id: courseId } });
-  if (!course) {
-    res.status(404).json({ error: 'Course not found' });
-    return;
-  }
-
   const lessons = await prisma.lesson.findMany({
-    where: { courseId, isPublished: true },
+    where: { courseId, status: 'PUBLISHED' },
     select: { id: true, sortOrder: true },
     orderBy: { sortOrder: 'asc' },
   });
-
   const completedRows = await prisma.lessonProgress.findMany({
-    where: {
-      userId: req.user.id,
-      lessonId: { in: lessons.map((l) => l.id) },
-    },
+    where: { userId: req.user.id, lessonId: { in: lessons.map((l) => l.id) } },
     select: { lessonId: true, completedAt: true },
   });
-
   const completedSet = new Set(completedRows.map((r) => r.lessonId));
   const lastIncomplete = lessons.find((l) => !completedSet.has(l.id));
 
@@ -156,23 +120,17 @@ export const getCourseProgress = async (req: AuthRequest, res: Response): Promis
   });
 };
 
-// POST /api/courses — admin only
 export const createCourse = async (req: AuthRequest, res: Response): Promise<void> => {
   const result = courseSchema.safeParse(req.body);
   if (!result.success) {
     res.status(400).json({ error: formatZodError(result.error) });
     return;
   }
-
-  const course = await prisma.course.create({
-    data: {
-      ...result.data,
-      examTags: JSON.stringify(result.data.examTags),
-    },
-  });
-  res.status(201).json({ course: { ...course, examTags: JSON.parse(course.examTags) } });
+  const course = await prisma.course.create({ data: result.data as any });
+  res.status(201).json({ course });
 };
 
+// PATCH architecture & autosave support
 export const updateCourse = async (req: AuthRequest, res: Response): Promise<void> => {
   const id = req.params.id as string;
   const result = courseSchema.partial().safeParse(req.body);
@@ -180,21 +138,8 @@ export const updateCourse = async (req: AuthRequest, res: Response): Promise<voi
     res.status(400).json({ error: formatZodError(result.error) });
     return;
   }
-
-  const { examTags, ...rest } = result.data;
-  const dataToUpdate: Record<string, unknown> = {
-    ...rest,
-  };
-
-  if (examTags !== undefined) {
-    dataToUpdate.examTags = JSON.stringify(examTags);
-  }
-
-  const course = await prisma.course.update({
-    where: { id },
-    data: dataToUpdate as any,
-  });
-  res.json({ course: { ...course, examTags: course.examTags ? JSON.parse(course.examTags) : [] } });
+  const course = await prisma.course.update({ where: { id }, data: result.data as any });
+  res.json({ course });
 };
 
 export const deleteCourse = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -203,58 +148,15 @@ export const deleteCourse = async (req: AuthRequest, res: Response): Promise<voi
   res.json({ message: 'Course deleted successfully' });
 };
 
-export const exportCourses = async (req: AuthRequest, res: Response): Promise<void> => {
-  const { format } = req.query;
-  const courses = await prisma.course.findMany({
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      subject: true,
-      examTags: true,
-      thumbnailUrl: true,
-      isFree: true,
-      isPublished: true,
-      sortOrder: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-    orderBy: { sortOrder: 'asc' },
-  });
-
-  const payload = courses.map((course) => ({
-    ...course,
-    examTags: course.examTags ? JSON.parse(course.examTags) : [],
-  }));
-
-  if (String(format).toLowerCase() === 'csv') {
-    const csvRows = [
-      'id,title,description,subject,examTags,thumbnailUrl,isFree,isPublished,sortOrder,createdAt,updatedAt',
-      ...payload.map((course) =>
-        `${course.id},"${course.title.replace(/"/g, '""')}","${course.description.replace(/"/g, '""')}",${course.subject},"${JSON.stringify(course.examTags).replace(/"/g, '""')}",${course.thumbnailUrl ? '"' + course.thumbnailUrl + '"' : ''},${course.isFree},${course.isPublished},${course.sortOrder},${course.createdAt.toISOString()},${course.updatedAt.toISOString()}`
-      ),
-    ];
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', 'attachment; filename="courses-export.csv"');
-    res.send(csvRows.join('\n'));
-    return;
-  }
-
-  res.json({ courses: payload });
-};
-
 export const togglePublish = async (req: AuthRequest, res: Response): Promise<void> => {
   const id = req.params.id as string;
   const { isPublished } = req.body;
-  
-  if (typeof isPublished !== 'boolean') {
-    res.status(400).json({ error: 'isPublished must be a boolean' });
-    return;
-  }
+  const status = isPublished ? 'PUBLISHED' : 'DRAFT';
+  const course = await prisma.course.update({ where: { id }, data: { status } });
+  res.json({ course });
+};
 
-  const course = await prisma.course.update({
-    where: { id },
-    data: { isPublished },
-  });
-  res.json({ course: { ...course, examTags: course.examTags ? JSON.parse(course.examTags) : [] } });
+export const exportCourses = async (req: AuthRequest, res: Response): Promise<void> => {
+  const courses = await prisma.course.findMany({ orderBy: { sortOrder: 'asc' } });
+  res.json({ courses });
 };
