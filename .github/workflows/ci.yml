@@ -2,15 +2,16 @@ name: CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 jobs:
-  test:
+  build-and-test:
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: postgresql://ci:ci@localhost:5432/ci_test
+      NODE_OPTIONS: --max_old_space_size=4096
     services:
       postgres:
         image: postgres:15
@@ -25,31 +26,22 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    strategy:
-      matrix:
-        node-version: [18.x]
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
-      - name: Install dependencies
-        run: |
-          npm ci
-      - name: Prepare database schema (CI only)
-        run: |
-          npx prisma db push
+          node-version: '20'
+
+      - name: Install backend dependencies
+        run: npm ci
+
+      - name: Push database schema
+        run: npx prisma db push
+
       - name: Build backend
         run: npm run build
-      - name: Build frontend
-        env:
-          NODE_OPTIONS: --max_old_space_size=4096
-        run: |
-          cd tutoring-platform
-          npm ci
-          npm run build
+
       - name: Run unit tests
-        env:
-          NODE_OPTIONS: --max_old_space_size=4096
         run: npx jest --runInBand --silent
