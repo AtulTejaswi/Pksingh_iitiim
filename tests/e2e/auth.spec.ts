@@ -1,7 +1,7 @@
 import { test, expect, request } from '@playwright/test';
 
 test.describe('Auth API E2E', () => {
-  const base = process.env.E2E_API_BASE || 'http://localhost:4000/api';
+  const base = process.env.E2E_API_BASE || 'http://127.0.0.1:4000/api';
 
   test('login returns accessToken and user', async () => {
     const apiContext = await request.newContext();

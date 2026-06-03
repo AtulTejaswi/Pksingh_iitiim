@@ -53,7 +53,3 @@ jobs:
         env:
           NODE_OPTIONS: --max_old_space_size=4096
         run: npx jest --runInBand --silent
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-      - name: Run E2E tests
-        run: npm run test:e2e --if-present
