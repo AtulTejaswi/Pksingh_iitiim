@@ -8,8 +8,12 @@ const hashPassword = (password: string): string => {
 };
 
 async function main() {
-  const email = 'admin@pksingh.com';
-  const password = 'adminpassword123';
+  const email = process.env.ADMIN_EMAIL || 'admin@pksingh.com';
+  const password = process.env.ADMIN_PASSWORD;
+  if (!password) {
+    console.error('Error: ADMIN_PASSWORD environment variable is required.');
+    process.exit(1);
+  }
   
   const existingUser = await prisma.user.findUnique({ where: { email } });
   if (existingUser) {

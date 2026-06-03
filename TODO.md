@@ -16,8 +16,8 @@
 ## New tuning work (this change)
 - [x] Add auth profile “verified” state to avoid role-based redirects before `/auth/me` completes.
 - [x] Make `ProtectedRoute` wait for verified state when `adminOnly` is enabled.
-- [ ] Remove narrow 401 redirect heuristics in `api-client`; redirect more consistently.
-- [ ] Remove hardcoded fallback admin credentials + lock down auto-login.
+- [x] Remove narrow 401 redirect heuristics in `api-client`; redirect more consistently.
+- [x] Remove hardcoded fallback admin credentials + lock down auto-login.
 - [x] Add cross-tab logout sync via `storage` events.
 
 

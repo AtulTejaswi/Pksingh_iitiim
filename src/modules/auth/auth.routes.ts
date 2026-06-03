@@ -8,9 +8,7 @@ const router = Router();
 // Public
 router.post('/register', register);
 router.post('/login', login);
-// Temporary one-time endpoint to seed an admin if none exists
-// Dev-only quick login (local dev only)
-router.post('/dev-login', (req, res) => { return require('./auth.controller').devLogin(req, res); });
+// Dev-only quick login removed
 router.post('/request-reset', requestPasswordReset);
 router.post('/reset-password', resetPassword);
 

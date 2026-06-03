@@ -1,0 +1,393 @@
+From aeb2c011eefcd82a36c56a874cc5383f053102e8 Mon Sep 17 00:00:00 2001
+From: AtulTejaswi <tejaswiatul22@gmail.com>
+Date: Tue, 2 Jun 2026 20:48:35 +0530
+Subject: [PATCH 1/6] chore(lockfile): sync package-lock for npm ci
+
+---
+ package-lock.json | 35 +++++++++++++++++++++++++----------
+ 1 file changed, 25 insertions(+), 10 deletions(-)
+
+diff --git a/package-lock.json b/package-lock.json
+index aa4099c..e9cfcc0 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -70,7 +70,6 @@
+       "integrity": "sha512-RgHBCvtjbOK2gXSNBNIkNoEc9qoVEtau3hj8gEqKQuL3HZAibKarWFEI3Lfm6EYKkLalOh8eSrj9b+ch9H/VBA==",
+       "dev": true,
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "@babel/code-frame": "^7.29.7",
+         "@babel/generator": "^7.29.7",
+@@ -580,6 +579,29 @@
+         "@jridgewell/sourcemap-codec": "^1.4.10"
+       }
+     },
++    "node_modules/@emnapi/core": {
++      "version": "1.10.0",
++      "resolved": "https://registry.npmjs.org/@emnapi/core/-/core-1.10.0.tgz",
++      "integrity": "sha512-yq6OkJ4p82CAfPl0u9mQebQHKPJkY7WrIuk205cTYnYe+k2Z8YBh11FrbRG/H6ihirqcacOgl2BIO8oyMQLeXw==",
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "dependencies": {
++        "@emnapi/wasi-threads": "1.2.1",
++        "tslib": "^2.4.0"
++      }
++    },
++    "node_modules/@emnapi/runtime": {
++      "version": "1.10.0",
++      "resolved": "https://registry.npmjs.org/@emnapi/runtime/-/runtime-1.10.0.tgz",
++      "integrity": "sha512-ewvYlk86xUoGI0zQRNq/mC+16R1QeDlKQy21Ki3oSYXNgLb45GV1P6A0M+/s6nyCuNDqe5VpaY84BzXGwVbwFA==",
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "dependencies": {
++        "tslib": "^2.4.0"
++      }
++    },
+     "node_modules/@emnapi/wasi-threads": {
+       "version": "1.2.1",
+       "resolved": "https://registry.npmjs.org/@emnapi/wasi-threads/-/wasi-threads-1.2.1.tgz",
+@@ -1733,7 +1755,6 @@
+       "integrity": "sha512-O71yZIbAh/PxDMNGns37GHBIfrVkEVyn+AXyIa5dOTfb4/xNvRWV+Vv/NMbNCtODB/pO7vLlF2OTmMVLhmr7Ag==",
+       "dev": true,
+       "license": "Apache-2.0",
+-      "peer": true,
+       "dependencies": {
+         "playwright": "1.60.0"
+       },
+@@ -2166,7 +2187,6 @@
+       "integrity": "sha512-xfrlY7UD5rMJk3ZVJP8BNzS28J36YJg+xp+LPXV1TdWxr8uMH5A860QNxYDGQe/ylDSgjxE52Q9VnO7p75tJxg==",
+       "dev": true,
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "undici-types": ">=7.24.0 <7.24.7"
+       }
+@@ -2895,7 +2915,6 @@
+         }
+       ],
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "baseline-browser-mapping": "^2.10.12",
+         "caniuse-lite": "^1.0.30001782",
+@@ -3702,7 +3721,6 @@
+       "resolved": "https://registry.npmjs.org/express/-/express-5.2.1.tgz",
+       "integrity": "sha512-hIS4idWWai69NezIdRt2xFVofaF4j+6INOpJlVOLDO8zXGpUVEVzIYk12UUi2JzjEzWL3IOAxcTubgz9Po0yXw==",
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "accepts": "^2.0.0",
+         "body-parser": "^2.2.1",
+@@ -4421,7 +4439,6 @@
+       "integrity": "sha512-Yi1jqNC/Oq0N4hBgNH/YvBpP1P57QqundgytzYqy3yqAa7NZPNjSoi4SGbRAXDMdBzNE6xBCi5U7RgfrvMEUVQ==",
+       "dev": true,
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "@jest/core": "30.4.2",
+         "@jest/types": "30.4.1",
+@@ -5933,7 +5950,6 @@
+       "devOptional": true,
+       "hasInstallScript": true,
+       "license": "Apache-2.0",
+-      "peer": true,
+       "dependencies": {
+         "@prisma/engines": "5.22.0"
+       },
+@@ -6151,7 +6167,8 @@
+       "resolved": "https://registry.npmjs.org/scheduler/-/scheduler-0.27.0.tgz",
+       "integrity": "sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q==",
+       "dev": true,
+-      "license": "MIT"
++      "license": "MIT",
++      "peer": true
+     },
+     "node_modules/semver": {
+       "version": "7.8.1",
+@@ -6869,7 +6886,6 @@
+       "integrity": "sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==",
+       "dev": true,
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "@cspotcode/source-map-support": "^0.8.0",
+         "@tsconfig/node10": "^1.0.7",
+@@ -6980,7 +6996,6 @@
+       "integrity": "sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==",
+       "dev": true,
+       "license": "Apache-2.0",
+-      "peer": true,
+       "bin": {
+         "tsc": "bin/tsc",
+         "tsserver": "bin/tsserver"
+--
+2.47.0.windows.2
+
+
+From dd108e31591ff398cb2886d556408ff51293dd44 Mon Sep 17 00:00:00 2001
+From: AtulTejaswi <tejaswiatul22@gmail.com>
+Date: Tue, 2 Jun 2026 20:48:46 +0530
+Subject: [PATCH 2/6] fix(ci): avoid db push during install
+
+---
+ .github/workflows/ci.yml | 3 +--
+ package.json             | 3 ++-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 37a5891..912c359 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -23,7 +23,6 @@ jobs:
+       - name: Install dependencies
+         run: |
+           npm ci
+-          npm run postinstall
+       - name: Build backend
+         run: npm run build
+       - name: Build frontend
+@@ -36,4 +35,4 @@ jobs:
+       - name: Install Playwright browsers
+         run: npx playwright install --with-deps
+       - name: Run E2E tests
+-        run: npm run test:e2e --if-present
+\ No newline at end of file
++        run: npm run test:e2e --if-present
+diff --git a/package.json b/package.json
+index d2dec33..740332a 100644
+--- a/package.json
++++ b/package.json
+@@ -11,7 +11,8 @@
+     "e2e:install": "npx playwright install --with-deps",
+     "test:e2e": "npx playwright test",
+     "seed:sample": "npx ts-node seed_sample_course.ts",
+-    "postinstall": "prisma generate && prisma db push"
++    "postinstall": "prisma generate",
++    "db:push": "prisma db push"
+   },
+   "keywords": [],
+   "author": "",
+--
+2.47.0.windows.2
+
+
+From 8f118b8ae57c8f9d9661cb50b28d4d3024df90a4 Mon Sep 17 00:00:00 2001
+From: AtulTejaswi <tejaswiatul22@gmail.com>
+Date: Tue, 2 Jun 2026 20:48:55 +0530
+Subject: [PATCH 3/6] fix(routes): remove duplicate auth middleware
+
+---
+ src/modules/courses/courses.routes.ts         | 2 +-
+ src/modules/enrollments/enrollments.routes.ts | 4 ++--
+ src/modules/lessons/lessons.routes.ts         | 2 +-
+ src/modules/media/media.routes.ts             | 2 +-
+ src/modules/notes/notes.routes.ts             | 2 +-
+ 5 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/src/modules/courses/courses.routes.ts b/src/modules/courses/courses.routes.ts
+index dffa2b8..bb7c407 100644
+--- a/src/modules/courses/courses.routes.ts
++++ b/src/modules/courses/courses.routes.ts
+@@ -12,7 +12,7 @@ router.get('/', optionalAuthenticate, listCourses);
+ // Admin only routes
+ router.get('/export', authenticate, superAdminOnly, exportCourses);
+ router.post('/', authenticate, superAdminOnly, createCourse);
+-router.get('/:id/progress', authenticate, authenticate, getCourseProgress);
++router.get('/:id/progress', authenticate, getCourseProgress);
+ router.get('/:id', optionalAuthenticate, getCourse);
+ router.put('/:id', authenticate, superAdminOnly, updateCourse);
+ router.delete('/:id', authenticate, superAdminOnly, deleteCourse);
+diff --git a/src/modules/enrollments/enrollments.routes.ts b/src/modules/enrollments/enrollments.routes.ts
+index c60fe13..2411f48 100644
+--- a/src/modules/enrollments/enrollments.routes.ts
++++ b/src/modules/enrollments/enrollments.routes.ts
+@@ -5,8 +5,8 @@ import { superAdminOnly } from '../../middleware/rbac.middleware';
+ 
+ const router = Router();
+ 
+-router.post('/', authenticate, authenticate, enroll);
+-router.get('/my', authenticate, authenticate, getMyEnrollments);
++router.post('/', authenticate, enroll);
++router.get('/my', authenticate, getMyEnrollments);
+ 
+ // Admin
+ router.get('/', authenticate, superAdminOnly, listAllEnrollments);
+diff --git a/src/modules/lessons/lessons.routes.ts b/src/modules/lessons/lessons.routes.ts
+index 50475db..8667548 100644
+--- a/src/modules/lessons/lessons.routes.ts
++++ b/src/modules/lessons/lessons.routes.ts
+@@ -7,7 +7,7 @@ const router = Router();
+ 
+ router.get('/', authenticate, superAdminOnly, listLessons);
+ router.get('/:id', optionalAuthenticate, getLesson);
+-router.post('/:id/progress', authenticate, authenticate, markProgress);
++router.post('/:id/progress', authenticate, markProgress);
+ 
+ router.post('/', authenticate, superAdminOnly, createLesson);
+ router.put('/:id', authenticate, superAdminOnly, updateLesson);
+diff --git a/src/modules/media/media.routes.ts b/src/modules/media/media.routes.ts
+index cadd4c5..2a2a6ac 100644
+--- a/src/modules/media/media.routes.ts
++++ b/src/modules/media/media.routes.ts
+@@ -6,7 +6,7 @@ import { superAdminOnly } from '../../middleware/rbac.middleware';
+ const router = Router();
+ 
+ // Student
+-router.get('/lesson/:lessonId', authenticate, authenticate, getLessonMedia);
++router.get('/lesson/:lessonId', authenticate, getLessonMedia);
+ 
+ // Admin
+ router.post('/upload', authenticate, superAdminOnly, upload.single('file'), uploadMedia);
+diff --git a/src/modules/notes/notes.routes.ts b/src/modules/notes/notes.routes.ts
+index 48f8c23..c5bed0c 100644
+--- a/src/modules/notes/notes.routes.ts
++++ b/src/modules/notes/notes.routes.ts
+@@ -5,7 +5,7 @@ import { superAdminOnly } from '../../middleware/rbac.middleware';
+ 
+ const router = Router();
+ 
+-router.get('/lesson/:lessonId', authenticate, authenticate, getLessonNotes);
++router.get('/lesson/:lessonId', authenticate, getLessonNotes);
+ 
+ router.post('/', authenticate, superAdminOnly, createNote);
+ router.put('/:id', authenticate, superAdminOnly, updateNote);
+--
+2.47.0.windows.2
+
+
+From 35551895a2c402dc202c2c1bb97b9a7eafbc0213 Mon Sep 17 00:00:00 2001
+From: AtulTejaswi <tejaswiatul22@gmail.com>
+Date: Tue, 2 Jun 2026 20:49:04 +0530
+Subject: [PATCH 4/6] fix(security): avoid logging admin password
+
+---
+ src/server.ts | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/src/server.ts b/src/server.ts
+index 373a7bd..d7ab166 100644
+--- a/src/server.ts
++++ b/src/server.ts
+@@ -7,7 +7,12 @@ const PORT = process.env.PORT || 4000;
+ 
+ const ensureAdminUser = async () => {
+   const email = process.env.ADMIN_EMAIL || 'admin@pksingh.com';
+-  const password = process.env.ADMIN_PASSWORD || 'adminpassword123';
++  const isProd = process.env.NODE_ENV === 'production';
++  const password = process.env.ADMIN_PASSWORD || (isProd ? '' : 'adminpassword123');
++  if (!password) {
++    console.warn('ADMIN_PASSWORD is not set. Skipping default admin seeding in production.');
++    return;
++  }
+ 
+   const existing = await prisma.user.findUnique({ where: { email } });
+   if (existing) {
+@@ -29,7 +34,7 @@ const ensureAdminUser = async () => {
+     },
+   });
+ 
+-  console.log(`Created default admin user: ${user.email} with password: ${password}`);
++  console.log(`Created default admin user: ${user.email}`);
+ };
+ 
+ async function startServer() {
+--
+2.47.0.windows.2
+
+
+From c069db77c06a6b1e086ba2df685b63b339d10d76 Mon Sep 17 00:00:00 2001
+From: AtulTejaswi <tejaswiatul22@gmail.com>
+Date: Tue, 2 Jun 2026 20:49:14 +0530
+Subject: [PATCH 5/6] chore: improve gitignore
+
+---
+ .gitignore | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/.gitignore b/.gitignore
+index 20db251..9f5c523 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -8,7 +8,11 @@ uploads/
+ /*.log
+ coverage/
+ /.idea/
+-/*.localnode_modules
++*.local
++*.local.*
++test-results/
++playwright-report/
++prisma/*.db
+ # Keep environment variables out of version control
+ .env
+ 
+--
+2.47.0.windows.2
+
+
+From e59a9ff60fcd2bc7407d831f517d2fa59e625f45 Mon Sep 17 00:00:00 2001
+From: AtulTejaswi <tejaswiatul22@gmail.com>
+Date: Tue, 2 Jun 2026 21:05:23 +0530
+Subject: [PATCH 6/6] fix(ci): add postgres service and run prisma db push
+
+---
+ .github/workflows/ci.yml | 17 +++++++++++++++++
+ render.yaml              |  4 ++--
+ 2 files changed, 19 insertions(+), 2 deletions(-)
+
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 912c359..70ebe41 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -11,6 +11,20 @@ jobs:
+     runs-on: ubuntu-latest
+     env:
+       DATABASE_URL: postgresql://ci:ci@localhost:5432/ci_test
++    services:
++      postgres:
++        image: postgres:15
++        env:
++          POSTGRES_USER: ci
++          POSTGRES_PASSWORD: ci
++          POSTGRES_DB: ci_test
++        ports:
++          - 5432:5432
++        options: >-
++          --health-cmd "pg_isready -U ci -d ci_test"
++          --health-interval 10s
++          --health-timeout 5s
++          --health-retries 5
+     strategy:
+       matrix:
+         node-version: [18.x]
+@@ -23,6 +37,9 @@ jobs:
+       - name: Install dependencies
+         run: |
+           npm ci
++      - name: Prepare database schema (CI only)
++        run: |
++          npx prisma db push
+       - name: Build backend
+         run: npm run build
+       - name: Build frontend
+diff --git a/render.yaml b/render.yaml
+index e93de20..9a8d228 100644
+--- a/render.yaml
++++ b/render.yaml
+@@ -8,8 +8,8 @@ services:
+     envVars:
+       - key: NODE_ENV
+         value: production
+-      - key: DATABASE_URL
+-        value: file:./dev.db
++      # IMPORTANT: Set DATABASE_URL in the Render dashboard (Supabase/Postgres connection string).
++      # Do not commit real credentials to this repo.
+       - key: LOCAL_JWT_SECRET
+         generateValue: true
+       - key: NODE_VERSION
+--
+2.47.0.windows.2
+

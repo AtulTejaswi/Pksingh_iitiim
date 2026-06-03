@@ -156,33 +156,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-// Development helper: issue a token for the seeded admin without a password.
-export const devLogin = async (req: Request, res: Response): Promise<void> => {
-  if (process.env.NODE_ENV === 'production') {
-    res.status(403).json({ error: 'Not allowed in production' });
-    return;
-  }
 
-  const remote = req.ip || req.connection.remoteAddress || '';
-  // Allow only local requests (127.0.0.1 or ::1)
-  if (!remote.includes('127.0.0.1') && !remote.includes('::1') && !req.headers.host?.includes('localhost')) {
-    res.status(403).json({ error: 'Dev login allowed only from localhost' });
-    return;
-  }
-
-  const user = await prisma.user.findFirst({ where: { role: 'SUPER_ADMIN' } });
-  if (!user) {
-    res.status(404).json({ error: 'No admin user found to impersonate' });
-    return;
-  }
-
-  const useSupabase = Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.SUPABASE_JWT_SECRET);
-  const jwtSecret = useSupabase ? process.env.SUPABASE_JWT_SECRET! : process.env.LOCAL_JWT_SECRET || 'local-secret';
-  const jwt = require('jsonwebtoken');
-  const token = jwt.sign({ sub: user.supabaseId, userId: user.id }, jwtSecret, { expiresIn: '7d' });
-
-  res.json({ accessToken: token, user: { id: user.id, email: user.email, role: user.role, fullName: user.fullName } });
-};
 
 export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
   const user = await prisma.user.findUnique({
@@ -228,37 +202,7 @@ export const exportUsers = async (req: AuthRequest, res: Response): Promise<void
   res.json({ users });
 };
 
-// Temporary one-time admin seeding endpoint.
-// Creates an admin user if none exists. Intended for emergency/first-deploy usage only.
-export const seedAdmin = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const existing = await prisma.user.findFirst({ where: { role: 'SUPER_ADMIN' } });
-    if (existing) {
-      res.status(409).json({ error: 'Admin user already exists' });
-      return;
-    }
 
-    const email = 'admin@pksingh.com';
-    const password = 'adminpassword123';
-    const passwordHash = hashPassword(password);
-    const localId = randomUUID();
-
-    const user = await prisma.user.create({
-      data: {
-        supabaseId: localId,
-        passwordHash,
-        email,
-        fullName: 'PK Singh Admin',
-        role: 'SUPER_ADMIN',
-      },
-    });
-
-    res.json({ message: 'Admin created', user: { id: user.id, email: user.email, password } });
-  } catch (err) {
-    console.error('seedAdmin error', err);
-    res.status(500).json({ error: 'Failed to seed admin' });
-  }
-};
 
 export const requestPasswordReset = async (req: Request, res: Response): Promise<void> => {
   const result = resetRequestSchema.safeParse(req.body);

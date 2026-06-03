@@ -51,11 +51,10 @@ apiClient.interceptors.response.use(
         localStorage.removeItem('access_token');
         localStorage.removeItem('user');
         const path = window.location.pathname;
-        const requiresAuth =
-          path.startsWith('/my-courses') ||
-          path.startsWith('/admin');
-        if (hadToken && requiresAuth) {
+        if (path !== '/login' && path !== '/register' && path !== '/') {
           window.location.href = `/login?expired=true&redirect=${encodeURIComponent(path)}`;
+        } else if (path === '/' && hadToken) {
+          window.location.href = `/login?expired=true`;
         }
       }
     }
