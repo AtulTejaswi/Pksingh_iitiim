@@ -43,11 +43,15 @@ jobs:
       - name: Build backend
         run: npm run build
       - name: Build frontend
+        env:
+          NODE_OPTIONS: --max_old_space_size=4096
         run: |
           cd tutoring-platform
           npm ci
           npm run build
       - name: Run unit tests
+        env:
+          NODE_OPTIONS: --max_old_space_size=4096
         run: npm test --silent
       - name: Install Playwright browsers
         run: npx playwright install --with-deps

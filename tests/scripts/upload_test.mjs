@@ -36,7 +36,8 @@ async function uploadFile(token, lessonId, filePath, title) {
 
 (async function run(){
   console.log('Logging in');
-  const loginRes = await fetch(`${base}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'admin@pksingh.com', password: 'adminpassword123' }) });
+  const password = process.env.E2E_ADMIN_PASSWORD || 'adminpassword123';
+  const loginRes = await fetch(`${base}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'admin@pksingh.com', password }) });
   const login = await loginRes.json();
   const token = login.accessToken;
   console.log('token:', !!token);
