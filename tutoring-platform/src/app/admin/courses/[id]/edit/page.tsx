@@ -1,12 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { use } from 'react';
 import CourseBuilder from '@/components/admin/CourseBuilder';
 
-export default function EditCoursePage({ params }: { params: { id: string } }) {
+export default function EditCoursePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id: courseId } = use(params);
   return (
     <div className="w-full text-left">
-      <CourseBuilder courseId={params.id} />
+      <CourseBuilder courseId={courseId} />
     </div>
   );
 }

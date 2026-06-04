@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, use } from 'react';
 import { useGetLesson, useUpdateLesson } from '@/hooks/useLessons';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -10,9 +10,9 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 import { ArrowLeft, Save, Edit3 } from 'lucide-react';
 
-export default function EditLessonPage({ params }: { params: { id: string; lessonId: string } }) {
+export default function EditLessonPage({ params }: { params: Promise<{ id: string; lessonId: string }> }) {
   const router = useRouter();
-  const { id: courseId, lessonId } = params;
+  const { id: courseId, lessonId } = use(params);
 
   const { data: lesson, isLoading } = useGetLesson(lessonId);
   const { mutate: updateLesson, isPending: isUpdating } = useUpdateLesson();

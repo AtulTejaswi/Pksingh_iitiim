@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, use } from 'react';
 import { useGetCourse } from '@/hooks/useCourses';
 import { useDeleteLesson } from '@/hooks/useLessons';
 import Link from 'next/link';
@@ -16,8 +16,8 @@ import {
 } from 'lucide-react';
 import LessonResourcesPanel from '@/components/admin/LessonResourcesPanel';
 
-export default function AdminLessonsPage({ params }: { params: { id: string } }) {
-  const courseId = params.id;
+export default function AdminLessonsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id: courseId } = use(params);
   const { data: course, isLoading } = useGetCourse(courseId);
   const { mutate: deleteLesson, isPending: isDeleting } = useDeleteLesson();
   const [expandedLessonId, setExpandedLessonId] = useState<string | null>(null);

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { use } from 'react';
 import { useCreateLesson } from '@/hooks/useLessons';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -10,9 +10,9 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 import { ArrowLeft, Save, Sparkles } from 'lucide-react';
 
-export default function NewLessonPage({ params }: { params: { id: string } }) {
+export default function NewLessonPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  const courseId = params.id;
+  const { id: courseId } = use(params);
 
   const { mutate: createLesson, isPending } = useCreateLesson();
 
