@@ -12,6 +12,8 @@ services:
         value: file:./prod.db
       - key: LOCAL_JWT_SECRET
         generateValue: true
+      - key: ADMIN_PASSWORD
+        value: adminpassword123
       - key: FRONTEND_URL
         value: https://pksingh.netlify.app
       - key: NODE_VERSION

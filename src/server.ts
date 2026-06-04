@@ -14,15 +14,19 @@ const ensureAdminUser = async () => {
     return;
   }
 
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    console.log('Admin user already exists.');
-    return;
-  }
-
   const hashPassword = (password: string): string => {
     return crypto.scryptSync(password, 'local-salt', 64).toString('hex');
   };
+
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) {
+    await prisma.user.update({
+      where: { email },
+      data: { passwordHash: hashPassword(password) },
+    });
+    console.log(`Updated admin user password: ${email}`);
+    return;
+  }
 
   const user = await prisma.user.create({
     data: {
