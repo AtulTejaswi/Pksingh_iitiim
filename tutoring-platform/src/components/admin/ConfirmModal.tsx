@@ -55,25 +55,25 @@ export default function ConfirmModal({
       onClick={(e) => { if (e.target === e.currentTarget) onCancel(); }}
     >
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
-      <div className="relative w-full max-w-sm rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0f172a] shadow-2xl p-6 z-10">
+      <div className="relative w-full max-w-sm rounded-2xl border border-slate-200 bg-white shadow-2xl p-6 z-10">
         <button
           onClick={onCancel}
-          className="absolute top-3 right-3 p-1 rounded-lg text-gray-500 hover:text-white hover:bg-[rgba(255,255,255,0.05)] transition-colors"
+          className="absolute top-3 right-3 p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
         >
           <X className="w-4 h-4" />
         </button>
-        <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 ${isDanger ? 'bg-red-500/10 text-red-400' : 'bg-yellow-500/10 text-yellow-400'}`}>
+        <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 ${isDanger ? 'bg-red-500/10 text-red-600' : 'bg-yellow-500/10 text-yellow-600'}`}>
           <AlertTriangle className="w-6 h-6" />
         </div>
-        <h3 className="text-lg font-bold text-white text-center mb-2">{title}</h3>
-        {message && <p className="text-sm text-gray-400 text-center mb-2">{message}</p>}
-        {itemName && <p className="text-xs text-gray-500 text-center mb-6 italic">&ldquo;{itemName}&rdquo;</p>}
-        {!message && <p className="text-sm text-gray-400 text-center mb-6">This action cannot be undone.</p>}
+        <h3 className="text-lg font-bold text-slate-900 text-center mb-2">{title}</h3>
+        {message && <p className="text-sm text-slate-500 text-center mb-2">{message}</p>}
+        {itemName && <p className="text-xs text-slate-400 text-center mb-6 italic">&ldquo;{itemName}&rdquo;</p>}
+        {!message && <p className="text-sm text-slate-500 text-center mb-6">This action cannot be undone.</p>}
         <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={onCancel}
             disabled={loading}
-            className="flex-1 px-4 py-2.5 rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.06)] text-gray-300 text-sm font-semibold transition-all disabled:opacity-50"
+            className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-sm font-semibold transition-all disabled:opacity-50"
           >
             {cancelLabel}
           </button>

@@ -16,7 +16,7 @@ export default function AdminQuickLink() {
   return (
     <Link
       href="/admin/dashboard"
-      className="pointer-events-auto inline-flex items-center gap-1.5 rounded-full border border-indigo-500/20 bg-slate-950/95 px-4 py-2 text-indigo-300 shadow-lg shadow-indigo-500/10 transition hover:bg-indigo-950/80 hover:text-white text-sm font-medium"
+      className="pointer-events-auto inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-white px-4 py-2 text-blue-700 shadow-lg shadow-blue-500/10 transition hover:bg-blue-50 hover:text-blue-800 text-sm font-medium"
       aria-label="Admin dashboard"
     >
       <LayoutDashboard className="w-3.5 h-3.5" />
