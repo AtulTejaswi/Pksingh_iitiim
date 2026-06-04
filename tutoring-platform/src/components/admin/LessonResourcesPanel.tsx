@@ -18,8 +18,29 @@ interface LessonResourcesPanelProps {
   lessonTitle: string;
 }
 
+interface MediaAsset {
+  id: string;
+  title: string;
+  type: string;
+  url: string;
+}
+
+interface RawMedia {
+  id: string;
+  lessonId: string;
+  mediaAssetId?: string;
+  mediaAsset?: MediaAsset;
+}
+
 export default function LessonResourcesPanel({ lessonId, courseId, lessonTitle }: LessonResourcesPanelProps) {
   const { data: lesson, isLoading, refetch } = useGetLesson(lessonId);
+
+  const flattenMedia = (item: RawMedia) => ({
+    id: item.id,
+    title: item.mediaAsset?.title ?? '',
+    type: item.mediaAsset?.type ?? '',
+    url: item.mediaAsset?.url ?? '',
+  });
 
   const { mutate: uploadMedia, isPending: isUploading } = useUploadMediaFile();
   const { mutate: addLink, isPending: isAddingLink } = useAddMediaLink();
@@ -120,7 +141,8 @@ export default function LessonResourcesPanel({ lessonId, courseId, lessonTitle }
     return <p className="text-slate-500 text-sm py-4">Loading attachments...</p>;
   }
 
-  const media = lesson?.media ?? [];
+  const rawMedia = (lesson?.media ?? []) as RawMedia[];
+  const media = rawMedia.map(flattenMedia);
   const notes = lesson?.notes ?? [];
 
   return (
