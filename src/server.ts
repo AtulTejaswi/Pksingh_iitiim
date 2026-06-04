@@ -7,11 +7,9 @@ const PORT = process.env.PORT || 4000;
 
 const ensureAdminUser = async () => {
   const email = process.env.ADMIN_EMAIL || 'admin@pksingh.com';
-  const isProd = process.env.NODE_ENV === 'production';
-  const password = process.env.ADMIN_PASSWORD || (isProd ? '' : 'adminpassword123');
-  if (!password) {
-    console.warn('ADMIN_PASSWORD is not set. Skipping default admin seeding in production.');
-    return;
+  const password = process.env.ADMIN_PASSWORD || 'adminpassword123';
+  if (process.env.NODE_ENV === 'production' && !process.env.ADMIN_PASSWORD) {
+    console.warn('ADMIN_PASSWORD not set, using default fallback. Set this env var in production.');
   }
 
   const hashPassword = (password: string): string => {
