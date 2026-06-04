@@ -29,7 +29,7 @@ export interface Lesson {
   content?: string | null;
   sortOrder?: number | null;
   isFree?: boolean;
-  isPublished?: boolean;
+  status?: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
   media?: Media[];
   notes?: Note[];
 }
