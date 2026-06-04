@@ -15,6 +15,7 @@ app.use(cors({
     process.env.FRONTEND_URL || 'http://localhost:3000',
     'http://127.0.0.1:3000',
     'https://pksingh.netlify.app',
+    'https://pksingh-iitiim.vercel.app',
   ],
   credentials: true,
 }));
