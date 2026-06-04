@@ -10,12 +10,12 @@ import { ArrowLeft, BookOpen, Clock, Users, Play, Award, Download, Lock, AlertTr
 
 export default function CourseDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, verified } = useAuth();
   const { id: courseId } = use(params);
 
-  const { data: course, isLoading: isCourseLoading } = useGetCourse(courseId);
+  const { data: course, isLoading: isCourseLoading, isError, refetch } = useGetCourse(courseId);
   const { mutate: enroll, isPending: isEnrolling } = useEnrollCourse();
-  const { data: myEnrollments, isLoading: isEnrollmentsLoading } = useGetMyEnrollments(!!user);
+  const { data: myEnrollments, isLoading: isEnrollmentsLoading } = useGetMyEnrollments(!!user && verified);
 
   const isEnrolled = user
     ? myEnrollments?.some((enrollment) => enrollment.course.id === courseId) || false
@@ -52,10 +52,16 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
     return (
       <div className="text-center py-20 rounded-2xl glass-panel">
         <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-        <p className="text-slate-500 text-lg">Course not found.</p>
-        <Link href="/courses" className="mt-4 inline-flex text-blue-600 hover:text-blue-800 text-sm font-semibold">
-          Back to Courses
-        </Link>
+        <p className="text-slate-500 text-lg">{isError ? 'Failed to load course. Please try again.' : 'Course not found.'}</p>
+        {isError ? (
+          <button onClick={() => refetch()} className="mt-4 inline-flex text-blue-600 hover:text-blue-800 text-sm font-semibold">
+            Try Again
+          </button>
+        ) : (
+          <Link href="/courses" className="mt-4 inline-flex text-blue-600 hover:text-blue-800 text-sm font-semibold">
+            Back to Courses
+          </Link>
+        )}
       </div>
     );
   }

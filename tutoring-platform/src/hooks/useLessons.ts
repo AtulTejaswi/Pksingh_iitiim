@@ -49,8 +49,20 @@ export function useGetLesson(id?: string) {
   return useQuery({
     queryKey: ['lesson', id],
     queryFn: async () => {
-      const response = await apiClient.get<{ lesson: Lesson }>(`/lessons/${id}`);
-      return response.data.lesson;
+      const response = await apiClient.get<{ lesson: any }>(`/lessons/${id}`);
+      const raw = response.data.lesson;
+      if (raw.media) {
+        raw.media = raw.media.map((m: any) => ({
+          id: m.mediaAsset?.id ?? m.id,
+          lessonId: m.lessonId ?? raw.id,
+          title: m.mediaAsset?.title ?? m.title ?? '',
+          type: m.mediaAsset?.type ?? m.type ?? '',
+          url: m.mediaAsset?.url ?? m.url ?? '',
+          sizeBytes: m.mediaAsset?.sizeBytes ?? null,
+          mimeType: m.mediaAsset?.mimeType ?? null,
+        }));
+      }
+      return raw as Lesson;
     },
     enabled: !!id,
     retry: (failureCount, error) => {
