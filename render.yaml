@@ -16,18 +16,3 @@ services:
         value: https://pksingh.netlify.app
       - key: NODE_VERSION
         value: "20.10.0"
-
-  - type: web
-    name: pksingh-frontend
-    env: node
-    plan: free
-    rootDir: tutoring-platform
-    buildCommand: npm ci && npm run build
-    startCommand: npm run start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: NEXT_PUBLIC_API_URL
-        value: https://pksingh-backend.onrender.com/api
-      - key: NODE_VERSION
-        value: "20.10.0"
