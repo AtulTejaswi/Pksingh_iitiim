@@ -9,32 +9,10 @@ datasource db {
 
 // ─── ENUMS ───────────────────────────────────────────────────────────────────
 
-enum Role {
-  SUPER_ADMIN
-  INSTRUCTOR
-  MENTOR
-  STUDENT
-}
-
-enum PublishStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
-}
-
-enum QueryStatus {
-  OPEN
-  IN_PROGRESS
-  RESOLVED
-  CLOSED
-}
-
-enum EventType {
-  LIVE_CLASS
-  WEBINAR
-  WORKSHOP
-  COUNSELING
-}
+// Role is stored as String: SUPER_ADMIN, INSTRUCTOR, MENTOR, STUDENT
+// PublishStatus is stored as String: DRAFT, PUBLISHED, ARCHIVED
+// QueryStatus is stored as String: OPEN, IN_PROGRESS, RESOLVED, CLOSED
+// EventType is stored as String: LIVE_CLASS, WEBINAR, WORKSHOP, COUNSELING
 
 // ─── USERS ───────────────────────────────────────────────────────────────────
 
@@ -44,7 +22,7 @@ model User {
   passwordHash  String?                           // Local development password hash
   email         String   @unique
   fullName      String
-  role          Role     @default(STUDENT)
+  role          String   @default("STUDENT")
   avatarUrl     String?
   country       String?                  // "IN" or "US" for content targeting
   createdAt     DateTime @default(now())
@@ -75,7 +53,7 @@ model Course {
   tags         CourseTag[]
   thumbnailUrl String?
   isFree       Boolean       @default(false)
-  status       PublishStatus @default(DRAFT)
+  status       String   @default("DRAFT")
   sortOrder    Int           @default(0)
   prerequisites String?      // JSON or text
   learningOutcomes String?   // JSON or text
@@ -137,7 +115,7 @@ model Lesson {
   content      String?       // Rich text / Markdown body
   sortOrder    Int           @default(0)
   isFree       Boolean       @default(false)
-  status       PublishStatus @default(DRAFT)
+  status       String   @default("DRAFT")
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
@@ -387,7 +365,7 @@ model Event {
   id          String   @id @default(uuid())
   title       String
   description String?
-  type        EventType
+  type        String
   meetingLink String?
   startsAt    DateTime
   endsAt      DateTime
@@ -403,7 +381,7 @@ model StudentQuery {
   userId      String
   subject     String
   message     String
-  status      QueryStatus @default(OPEN)
+  status      String @default("OPEN")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
