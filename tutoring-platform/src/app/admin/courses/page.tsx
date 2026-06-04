@@ -81,9 +81,9 @@ export default function AdminCoursesPage() {
       result = result.filter((c) => c.title.toLowerCase().includes(q));
     }
 
-    if (filterTab === 'PUBLISHED') result = result.filter((c) => c.isPublished);
-    else if (filterTab === 'DRAFT') result = result.filter((c) => !c.isPublished);
-    else if (filterTab === 'ARCHIVED') result = result.filter((c) => false); // no archived field yet
+    if (filterTab === 'PUBLISHED') result = result.filter((c) => c.status === 'PUBLISHED');
+    else if (filterTab === 'DRAFT') result = result.filter((c) => c.status === 'DRAFT');
+    else if (filterTab === 'ARCHIVED') result = result.filter((c) => c.status === 'ARCHIVED');
 
     if (sort === 'newest') result.sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
     else if (sort === 'oldest') result.sort((a: any, b: any) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime());
@@ -201,12 +201,14 @@ export default function AdminCoursesPage() {
                   <div className="absolute top-2 right-2">
                     <span
                       className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
-                        course.isPublished
+                        course.status === 'PUBLISHED'
                           ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
+                          : course.status === 'ARCHIVED'
+                          ? 'bg-red-500/20 border-red-500/40 text-red-300'
                           : 'bg-yellow-500/20 border-yellow-500/40 text-yellow-300'
                       }`}
                     >
-                      {course.isPublished ? 'Published' : 'Draft'}
+                      {course.status === 'PUBLISHED' ? 'Published' : course.status === 'ARCHIVED' ? 'Archived' : 'Draft'}
                     </span>
                   </div>
                 </div>
@@ -254,6 +256,7 @@ export default function AdminCoursesPage() {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-[rgba(255,255,255,0.08)] hover:bg-[rgba(255,255,255,0.05)] text-gray-300 text-xs font-semibold transition-all"
+                      title="Preview as student"
                     >
                       <Eye className="w-3.5 h-3.5" />
                     </a>

@@ -54,7 +54,7 @@ export default function CoursesCatalog() {
       const matchesSearch =
         course.title.toLowerCase().includes(search.toLowerCase()) ||
         course.description.toLowerCase().includes(search.toLowerCase());
-      return matchesSearch && course.isPublished;
+      return matchesSearch && course.status === 'PUBLISHED';
     }) || [];
 
   return (

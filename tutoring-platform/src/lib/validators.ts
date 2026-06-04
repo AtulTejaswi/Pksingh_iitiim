@@ -33,19 +33,9 @@ export const courseSchema = z.object({
   title: z.string().min(3, 'Course title must be at least 3 characters').max(200),
   description: z.string().min(10, 'Description must be at least 10 characters'),
   subject: z.enum(['PHYSICS', 'CHEMISTRY', 'MATH']),
-  examTags: z.array(z.enum([
-    'JEE_MAINS',
-    'JEE_ADVANCED',
-    'NEET',
-    'MHT_CET',
-    'SAT',
-    'AP_PHYSICS',
-    'AP_CHEMISTRY',
-    'AP_CALCULUS',
-    'GENERAL'
-  ])),
+  examTags: z.array(z.string()).optional(),
   isFree: z.boolean(),
-  isPublished: z.boolean().optional(),
+  status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
   thumbnailUrl: z.string().url('Invalid URL format').optional().or(z.literal('')),
 });
 
@@ -56,7 +46,7 @@ export const lessonSchema = z.object({
   content: z.string().optional(),
   sortOrder: z.number().int().optional(),
   isFree: z.boolean(),
-  isPublished: z.boolean(),
+  status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;

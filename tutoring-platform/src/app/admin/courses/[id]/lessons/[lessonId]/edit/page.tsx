@@ -34,7 +34,7 @@ export default function EditLessonPage({ params }: { params: { id: string; lesso
       setValue('content', lesson.content || '');
       setValue('sortOrder', lesson.sortOrder);
       setValue('isFree', lesson.isFree);
-      setValue('isPublished', lesson.isPublished);
+      setValue('status', lesson.status || 'PUBLISHED');
     }
   }, [lesson, setValue]);
 
@@ -105,7 +105,7 @@ export default function EditLessonPage({ params }: { params: { id: string; lesso
               <label htmlFor="isFree" className="text-gray-300 text-xs font-bold uppercase tracking-wider cursor-pointer">Free Preview</label>
             </div>
             <div className="flex items-center gap-3 mt-4 sm:mt-8">
-              <input type="checkbox" {...register('isPublished')} id="isPublished" className="w-4.5 h-4.5 rounded" />
+              <input type="checkbox" checked={true} id="isPublished" className="w-4.5 h-4.5 rounded" readOnly />
               <label htmlFor="isPublished" className="text-gray-300 text-xs font-bold uppercase tracking-wider cursor-pointer">Published</label>
             </div>
           </div>

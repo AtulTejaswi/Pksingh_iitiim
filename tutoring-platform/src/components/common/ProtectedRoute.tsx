@@ -25,7 +25,7 @@ export default function ProtectedRoute({ children, adminOnly = false }: Protecte
     if (adminOnly) {
       // Wait until /auth/me verification finishes to avoid role-based flicker.
       if (!verified) return;
-      if (user.role !== 'ADMIN') router.push('/');
+      if (user.role !== 'SUPER_ADMIN') router.push('/');
       return;
     }
   }, [user, loading, verified, adminOnly, router]);
@@ -43,7 +43,7 @@ export default function ProtectedRoute({ children, adminOnly = false }: Protecte
     );
   }
 
-  if (!user || (adminOnly && user.role !== 'ADMIN')) {
+  if (!user || (adminOnly && user.role !== 'SUPER_ADMIN')) {
     return (
       <div className="min-h-screen bg-[#0b0f19] flex flex-col items-center justify-center px-4 text-center">
         <div className="max-w-md">

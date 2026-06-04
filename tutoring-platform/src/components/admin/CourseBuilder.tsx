@@ -205,7 +205,7 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
       setExamTags(Array.isArray(existingCourse.examTags) ? existingCourse.examTags : []);
       setThumbnailPreview(existingCourse.thumbnailUrl || '');
       setIsFree(existingCourse.isFree ?? true);
-      setPublishMode(existingCourse.isPublished ? 'publish' : 'draft');
+      setPublishMode(existingCourse.status === 'PUBLISHED' ? 'publish' : 'draft');
     }
   }, [isEdit, existingCourse]);
 
@@ -249,9 +249,9 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
       title: title.trim(),
       description: description.trim(),
       subject: subject as CourseInput['subject'],
-      examTags: examTags as CourseInput['examTags'],
+      examTags: examTags.length > 0 ? examTags : undefined,
       isFree,
-      isPublished: published,
+      status: published ? 'PUBLISHED' : 'DRAFT',
     };
     if (thumbnailPreview && thumbnailPreview.startsWith('http')) {
       payload.thumbnailUrl = thumbnailPreview;
@@ -307,7 +307,7 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
               description: lessonForm.notes || undefined,
               content: lessonForm.notes || undefined,
               isFree: false,
-              isPublished: true,
+              status: 'PUBLISHED' as const,
               sortOrder: lessons.length,
             },
             {

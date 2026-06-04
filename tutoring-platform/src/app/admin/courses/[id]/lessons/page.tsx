@@ -129,7 +129,7 @@ export default function AdminLessonsPage({ params }: { params: { id: string } })
                       <h3 className="text-sm font-bold text-white">{lessonItem.title}</h3>
                       <p className="text-[10px] text-gray-500 mt-1">
                         {lessonItem.isFree ? 'Free preview' : 'Enrolled only'} · {mediaCount} file(s) · {notesCount} note(s)
-                        {!lessonItem.isPublished && ' · Draft'}
+                        {lessonItem.status !== 'PUBLISHED' && ' · Draft'}
                       </p>
                     </div>
                   </button>

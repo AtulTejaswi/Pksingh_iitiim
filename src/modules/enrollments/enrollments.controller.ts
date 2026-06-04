@@ -57,7 +57,7 @@ export const getMyEnrollments = async (req: AuthRequest, res: Response): Promise
   const enriched = await Promise.all(
     enrollments.map(async (enrollment) => {
       const lessons = await prisma.lesson.findMany({
-        where: { courseId: enrollment.courseId, isPublished: true },
+        where: { courseId: enrollment.courseId, status: 'PUBLISHED' },
         select: { id: true, sortOrder: true },
         orderBy: { sortOrder: 'asc' },
       });

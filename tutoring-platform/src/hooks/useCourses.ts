@@ -10,7 +10,7 @@ export interface Course {
   examTags: string[];
   thumbnailUrl: string | null;
   isFree: boolean;
-  isPublished: boolean;
+  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
   _count?: {
     lessons: number;
     enrollments: number;
@@ -19,7 +19,7 @@ export interface Course {
     id: string;
     title: string;
     isFree: boolean;
-    isPublished?: boolean;
+    status?: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
     sortOrder: number;
     description?: string | null;
     media?: { id: string; title: string; type: string; url?: string }[];

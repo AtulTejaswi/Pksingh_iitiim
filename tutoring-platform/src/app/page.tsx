@@ -22,7 +22,7 @@ export default function LandingPage() {
 
   // Pick top 3 published courses as featured
   const featuredCourses = courses
-    ?.filter((course) => course.isPublished)
+    ?.filter((course) => course.status === 'PUBLISHED')
     ?.slice(0, 3) || [];
 
   return (

@@ -12,10 +12,32 @@ const courseSchema = z.object({
   thumbnailUrl: z.union([z.string().url(), z.literal('')]).optional(),
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
   categoryId: z.string().optional(),
+  examTags: z.array(z.string()).optional(),
 });
 
+async function upsertExamTags(courseId: string, examTags: string[]) {
+  await prisma.courseTag.deleteMany({ where: { courseId } });
+  for (const tagName of examTags) {
+    const slug = tagName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const tag = await prisma.tag.upsert({
+      where: { name: tagName },
+      update: {},
+      create: { name: tagName, slug },
+    });
+    await prisma.courseTag.create({ data: { courseId, tagId: tag.id } });
+  }
+}
+
+const courseWithTags = {
+  id: true, title: true, description: true,
+  subject: true, thumbnailUrl: true, isFree: true,
+  status: true, categoryId: true, sortOrder: true, createdAt: true,
+  tags: { select: { tag: { select: { name: true } } } },
+  _count: { select: { lessons: true, enrollments: true } },
+} as const;
+
 export const listCourses = async (req: AuthRequest, res: Response): Promise<void> => {
-  const { subject, categoryId, page = '1', limit = '12', includeDrafts = '0' } = req.query;
+  const { subject, categoryId, examTag, page = '1', limit = '12', includeDrafts = '0' } = req.query;
 
   const includeDraftsBool = String(includeDrafts) === '1' || String(includeDrafts).toLowerCase() === 'true';
   const isAdminOrMentor = req.user?.role === 'SUPER_ADMIN' || req.user?.role === 'MENTOR';
@@ -23,6 +45,7 @@ export const listCourses = async (req: AuthRequest, res: Response): Promise<void
   const whereClause: any = {
     ...(subject && { subject: subject as string }),
     ...(categoryId && { categoryId: categoryId as string }),
+    ...(examTag && { tags: { some: { tag: { name: examTag as string } } } }),
   };
 
   if (!includeDraftsBool || !isAdminOrMentor) {
@@ -31,18 +54,18 @@ export const listCourses = async (req: AuthRequest, res: Response): Promise<void
 
   const courses = await prisma.course.findMany({
     where: whereClause,
-    select: {
-      id: true, title: true, description: true,
-      subject: true, thumbnailUrl: true, isFree: true,
-      status: true, categoryId: true,
-      _count: { select: { lessons: true, enrollments: true } },
-    },
+    select: courseWithTags,
     skip: (parseInt(page as string) - 1) * parseInt(limit as string),
     take: parseInt(limit as string),
     orderBy: { sortOrder: 'asc' },
   });
 
-  res.json({ courses });
+  const mapped = courses.map(({ tags, ...rest }) => ({
+    ...rest,
+    examTags: tags.map((t) => t.tag.name),
+  }));
+
+  res.json({ courses: mapped });
 };
 
 export const getCourse = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -78,7 +101,17 @@ export const getCourse = async (req: AuthRequest, res: Response): Promise<void> 
     res.status(404).json({ error: 'Course not found' });
     return;
   }
-  res.json({ course });
+
+  const tagsData = await prisma.courseTag.findMany({
+    where: { courseId: id },
+    select: { tag: { select: { name: true } } },
+  });
+  const courseWithExamTags = {
+    ...course,
+    examTags: tagsData.map((t) => t.tag.name),
+  };
+
+  res.json({ course: courseWithExamTags });
 };
 
 export const getPublicStats = async (_req: Request, res: Response): Promise<void> => {
@@ -126,11 +159,14 @@ export const createCourse = async (req: AuthRequest, res: Response): Promise<voi
     res.status(400).json({ error: formatZodError(result.error) });
     return;
   }
-  const course = await prisma.course.create({ data: result.data as any });
+  const { examTags, ...courseData } = result.data;
+  const course = await prisma.course.create({ data: courseData as any });
+  if (examTags && examTags.length > 0) {
+    await upsertExamTags(course.id, examTags);
+  }
   res.status(201).json({ course });
 };
 
-// PATCH architecture & autosave support
 export const updateCourse = async (req: AuthRequest, res: Response): Promise<void> => {
   const id = req.params.id as string;
   const result = courseSchema.partial().safeParse(req.body);
@@ -138,7 +174,11 @@ export const updateCourse = async (req: AuthRequest, res: Response): Promise<voi
     res.status(400).json({ error: formatZodError(result.error) });
     return;
   }
-  const course = await prisma.course.update({ where: { id }, data: result.data as any });
+  const { examTags, ...courseData } = result.data;
+  const course = await prisma.course.update({ where: { id }, data: courseData as any });
+  if (examTags) {
+    await upsertExamTags(id, examTags);
+  }
   res.json({ course });
 };
 

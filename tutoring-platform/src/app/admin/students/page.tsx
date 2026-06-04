@@ -12,7 +12,7 @@ export default function AdminStudentsPage() {
   const [courseFilter, setCourseFilter] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string; course: string } | null>(null);
 
-  const { data: courses } = useGetCourses();
+  const { data: courses } = useGetCourses({ includeDrafts: true });
   const { data: enrollments, isLoading } = useGetAllEnrollments(courseFilter || undefined);
   const { mutate: deleteEnrollment, isPending: isDeleting } = useDeleteEnrollment();
   const [isExporting, setIsExporting] = useState(false);

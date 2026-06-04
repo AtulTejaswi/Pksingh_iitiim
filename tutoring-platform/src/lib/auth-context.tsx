@@ -8,7 +8,7 @@ interface UserProfile {
   id: string;
   email: string;
   fullName: string;
-  role: 'ADMIN' | 'STUDENT';
+  role: 'SUPER_ADMIN' | 'INSTRUCTOR' | 'MENTOR' | 'STUDENT';
   country: 'IN' | 'US' | null;
   avatarUrl: string | null;
 }

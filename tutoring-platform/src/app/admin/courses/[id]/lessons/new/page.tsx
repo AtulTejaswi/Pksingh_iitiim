@@ -26,7 +26,7 @@ export default function NewLessonPage({ params }: { params: { id: string } }) {
       courseId,
       sortOrder: 0,
       isFree: false,
-      isPublished: true,
+      status: 'PUBLISHED',
     },
   });
 
@@ -85,7 +85,7 @@ export default function NewLessonPage({ params }: { params: { id: string } }) {
               <label htmlFor="isFree" className="text-gray-300 text-xs font-bold uppercase tracking-wider cursor-pointer">Free Preview</label>
             </div>
             <div className="flex items-center gap-3 mt-4 sm:mt-8">
-              <input type="checkbox" {...register('isPublished')} id="isPublished" className="w-4.5 h-4.5 rounded" />
+              <input type="checkbox" checked={true} id="isPublished" className="w-4.5 h-4.5 rounded" readOnly />
               <label htmlFor="isPublished" className="text-gray-300 text-xs font-bold uppercase tracking-wider cursor-pointer">Published</label>
             </div>
           </div>

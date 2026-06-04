@@ -23,7 +23,7 @@ interface Lesson {
   id: string;
   title: string;
   type: 'video' | 'pdf';
-  isPublished: boolean;
+  status: 'DRAFT' | 'PUBLISHED';
 }
 
 function SortableLesson({ lesson }: { lesson: Lesson }) {
@@ -46,7 +46,7 @@ function SortableLesson({ lesson }: { lesson: Lesson }) {
         <span className="font-medium text-gray-800">{lesson.title}</span>
       </div>
       <div className="flex items-center gap-3">
-        {lesson.isPublished ? (
+        {lesson.status === 'PUBLISHED' ? (
           <span className="text-xs font-medium text-emerald-700 bg-emerald-100 px-2 py-1 rounded-full">Published</span>
         ) : (
           <span className="text-xs font-medium text-gray-600 bg-gray-200 px-2 py-1 rounded-full">Draft</span>
@@ -59,9 +59,9 @@ function SortableLesson({ lesson }: { lesson: Lesson }) {
 
 export default function CourseBuilderPage() {
   const [lessons, setLessons] = useState<Lesson[]>([
-    { id: '1', title: 'Introduction to Mechanics', type: 'video', isPublished: true },
-    { id: '2', title: 'Kinematics Formula Sheet', type: 'pdf', isPublished: true },
-    { id: '3', title: 'Newton Laws', type: 'video', isPublished: false },
+    { id: '1', title: 'Introduction to Mechanics', type: 'video', status: 'PUBLISHED' },
+    { id: '2', title: 'Kinematics Formula Sheet', type: 'pdf', status: 'PUBLISHED' },
+    { id: '3', title: 'Newton Laws', type: 'video', status: 'DRAFT' },
   ]);
 
   const sensors = useSensors(

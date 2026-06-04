@@ -75,7 +75,7 @@ export default function AdminUsersPage() {
                   <td className="px-4 py-3 text-gray-300">{u.country || 'N/A'}</td>
                   <td className="px-4 py-3 text-gray-300">{u.role}</td>
                   <td className="px-4 py-3">
-                    {u.role !== 'ADMIN' ? (
+                    {u.role !== 'SUPER_ADMIN' ? (
                       <button
                         type="button"
                         onClick={() => promote.mutate(u.id, {

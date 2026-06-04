@@ -30,8 +30,8 @@ export default function AdminDashboardPage() {
     if (!courses) return { total: 0, published: 0, drafts: 0, enrollments: 0, lessons: 0 };
     return {
       total: courses.length,
-      published: courses.filter((c) => c.isPublished).length,
-      drafts: courses.filter((c) => !c.isPublished).length,
+      published: courses.filter((c) => c.status === 'PUBLISHED').length,
+      drafts: courses.filter((c) => c.status === 'DRAFT').length,
       enrollments: courses.reduce((sum, c) => sum + (c._count?.enrollments || 0), 0),
       lessons: courses.reduce((sum, c) => sum + (c._count?.lessons || 0), 0),
     };
@@ -178,8 +178,10 @@ export default function AdminDashboardPage() {
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-white truncate">{course.title}</p>
                       <p className="text-[10px] text-gray-500">
-                        {course.isPublished ? (
+                        {course.status === 'PUBLISHED' ? (
                           <span className="text-emerald-400">Published</span>
+                        ) : course.status === 'ARCHIVED' ? (
+                          <span className="text-red-400">Archived</span>
                         ) : (
                           <span className="text-yellow-400">Draft</span>
                         )}
