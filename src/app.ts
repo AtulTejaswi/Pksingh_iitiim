@@ -6,6 +6,9 @@ import path from 'path';
 
 const app = express();
 
+// Trust Render proxy for correct protocol detection
+app.set('trust proxy', 1);
+
 // Security headers
 app.use(helmet());
 

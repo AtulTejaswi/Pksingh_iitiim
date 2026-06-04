@@ -32,7 +32,8 @@ export const uploadMedia = async (req: Request, res: Response): Promise<void> =>
       return;
     }
     const file = req.file;
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const proto = req.get('x-forwarded-proto') || req.protocol;
+    const baseUrl = `${proto}://${req.get('host')}`;
     const fileUrl = `${baseUrl}/uploads/lessons/${file.filename}`;
     const asset = await prisma.mediaAsset.create({
       data: {
