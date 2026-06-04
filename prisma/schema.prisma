@@ -254,7 +254,7 @@ model Page {
   id              String   @id @default(uuid())
   title           String
   slug            String   @unique
-  status          PublishStatus @default(DRAFT)
+  status          String @default("DRAFT")
   metaTitle       String?
   metaDescription String?
   metaKeywords    String?
@@ -291,7 +291,7 @@ model Blog {
   content         String   // Rich Text
   authorId        String
   categoryId      String?
-  status          PublishStatus @default(DRAFT)
+  status          String @default("DRAFT")
   featuredImage   String?
   metaTitle       String?
   metaDescription String?
@@ -323,7 +323,7 @@ model Announcement {
   title       String
   content     String   // Rich Text
   attachmentUrl String?
-  status      PublishStatus @default(DRAFT)
+  status      String @default("DRAFT")
   scheduledFor DateTime?
   expiresAt   DateTime?
   createdAt   DateTime @default(now())
@@ -352,7 +352,7 @@ model Testimonial {
   rank        String?
   achievement String?
   review      String
-  status      PublishStatus @default(DRAFT)
+  status      String @default("DRAFT")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -369,7 +369,7 @@ model Event {
   meetingLink String?
   startsAt    DateTime
   endsAt      DateTime
-  status      PublishStatus @default(DRAFT)
+  status      String @default("DRAFT")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
