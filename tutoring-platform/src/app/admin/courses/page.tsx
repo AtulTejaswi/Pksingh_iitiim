@@ -10,9 +10,9 @@ import ConfirmModal from '@/components/admin/ConfirmModal';
 import ImageWithFallback from '@/components/admin/ImageWithFallback';
 
 const SUBJECT_COLORS: Record<string, string> = {
-  PHYSICS: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-  CHEMISTRY: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  MATH: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+  PHYSICS: 'bg-blue-100 text-blue-600 border-blue-200',
+  CHEMISTRY: 'bg-emerald-100 text-emerald-600 border-emerald-200',
+  MATH: 'bg-orange-100 text-orange-600 border-orange-200',
 };
 
 const SUBJECT_LABELS: Record<string, string> = {
@@ -99,15 +99,15 @@ export default function AdminCoursesPage() {
     <div className="w-full text-left">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">All Courses</h1>
-          <p className="text-gray-400 text-sm mt-0.5">{courses?.length || 0} total courses</p>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">All Courses</h1>
+          <p className="text-slate-500 text-sm mt-0.5">{courses?.length || 0} total courses</p>
         </div>
         <div className="flex flex-wrap gap-3 items-center">
           <button
             type="button"
             onClick={handleExportCourses}
             disabled={isExporting}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-indigo-500/20 bg-[rgba(255,255,255,0.03)] text-indigo-100 text-sm font-semibold hover:bg-indigo-500/10 transition-all disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 text-sm font-semibold hover:bg-blue-100 transition-all disabled:opacity-50"
           >
             <Download className="w-4 h-4" /> {isExporting ? 'Exporting...' : 'Export CSV'}
           </button>
@@ -123,13 +123,13 @@ export default function AdminCoursesPage() {
       {/* Search + Filters */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
             placeholder="Search courses by title..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 rounded-lg border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] focus:border-indigo-500/50 text-white text-sm outline-none transition-all placeholder:text-gray-600"
+            className="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 bg-white focus:border-blue-500 text-slate-900 text-sm outline-none transition-all placeholder:text-slate-400"
           />
         </div>
         <div className="flex gap-2 overflow-x-auto">
@@ -139,8 +139,8 @@ export default function AdminCoursesPage() {
               onClick={() => setFilterTab(tab)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
                 filterTab === tab
-                  ? 'bg-indigo-500/10 text-indigo-300 border border-indigo-500/30'
-                  : 'text-gray-400 hover:text-white border border-transparent'
+                  ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                  : 'text-slate-500 hover:text-slate-800 border border-transparent'
               }`}
             >
               {tab === 'ALL' ? 'All' : tab.charAt(0) + tab.slice(1).toLowerCase()}
@@ -150,12 +150,12 @@ export default function AdminCoursesPage() {
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value as SortKey)}
-          className="px-3 py-2 rounded-lg border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] text-gray-300 text-xs outline-none cursor-pointer"
+          className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 text-xs outline-none cursor-pointer"
         >
-          <option value="newest" className="bg-[#0b0f19]">Newest First</option>
-          <option value="oldest" className="bg-[#0b0f19]">Oldest First</option>
-          <option value="az" className="bg-[#0b0f19]">A–Z</option>
-          <option value="za" className="bg-[#0b0f19]">Z–A</option>
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+          <option value="az">A–Z</option>
+          <option value="za">Z–A</option>
         </select>
       </div>
 
@@ -163,14 +163,14 @@ export default function AdminCoursesPage() {
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="h-56 rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] animate-pulse" />
+            <div key={i} className="h-56 rounded-xl border border-slate-200 bg-slate-100 animate-pulse" />
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16 rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)]">
-          <BookOpen className="w-12 h-12 text-gray-500 mx-auto mb-4 opacity-50" />
-          <h3 className="text-lg font-bold text-white mb-2">No courses found</h3>
-          <p className="text-gray-400 text-sm max-w-sm mx-auto mb-6">
+        <div className="text-center py-16 rounded-xl border border-slate-200 bg-white">
+          <BookOpen className="w-12 h-12 text-slate-400 mx-auto mb-4 opacity-50" />
+          <h3 className="text-lg font-bold text-slate-900 mb-2">No courses found</h3>
+          <p className="text-slate-500 text-sm max-w-sm mx-auto mb-6">
             Try a different filter or add your first course.
           </p>
           <Link
@@ -188,7 +188,7 @@ export default function AdminCoursesPage() {
             return (
               <div
                 key={course.id}
-                className="rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] hover:border-[rgba(255,255,255,0.12)] transition-all overflow-hidden group"
+                className="rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition-all overflow-hidden group shadow-sm"
               >
                 {/* Thumbnail */}
                 <div className="relative h-36 w-full">
@@ -202,10 +202,10 @@ export default function AdminCoursesPage() {
                     <span
                       className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
                         course.status === 'PUBLISHED'
-                          ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
+                          ? 'bg-emerald-100 border-emerald-200 text-emerald-700'
                           : course.status === 'ARCHIVED'
-                          ? 'bg-red-500/20 border-red-500/40 text-red-300'
-                          : 'bg-yellow-500/20 border-yellow-500/40 text-yellow-300'
+                          ? 'bg-red-100 border-red-200 text-red-700'
+                          : 'bg-yellow-100 border-yellow-200 text-yellow-700'
                       }`}
                     >
                       {course.status === 'PUBLISHED' ? 'Published' : course.status === 'ARCHIVED' ? 'Archived' : 'Draft'}
@@ -215,38 +215,38 @@ export default function AdminCoursesPage() {
 
                 {/* Content */}
                 <div className="p-4">
-                  <h3 className="text-sm font-bold text-white leading-snug line-clamp-2 mb-2">{course.title}</h3>
+                  <h3 className="text-sm font-bold text-slate-900 leading-snug line-clamp-2 mb-2">{course.title}</h3>
                   <div className="flex flex-wrap gap-1.5 mb-3">
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${SUBJECT_COLORS[course.subject] || 'bg-gray-500/10 text-gray-400 border-gray-500/20'}`}>
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${SUBJECT_COLORS[course.subject] || 'bg-slate-100 text-slate-500 border-slate-200'}`}>
                       {SUBJECT_LABELS[course.subject] || course.subject}
                     </span>
                     {examTags.slice(0, 2).map((tag: string) => (
-                      <span key={tag} className="px-2 py-0.5 rounded text-[10px] font-medium bg-indigo-500/5 text-indigo-300 border border-indigo-500/10">
+                      <span key={tag} className="px-2 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-700 border border-blue-200">
                         {tag.replace(/_/g, ' ')}
                       </span>
                     ))}
                     {examTags.length > 2 && (
-                      <span className="text-[10px] text-gray-500">+{examTags.length - 2}</span>
+                      <span className="text-[10px] text-slate-400">+{examTags.length - 2}</span>
                     )}
                   </div>
 
                   {/* Meta */}
-                  <div className="flex items-center gap-3 text-[10px] text-gray-500 mb-3">
+                  <div className="flex items-center gap-3 text-[10px] text-slate-400 mb-3">
                     <span>{course._count?.lessons || 0} lessons</span>
                     <span>{course._count?.enrollments || 0} students</span>
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2 pt-3 border-t border-[rgba(255,255,255,0.04)]">
+                  <div className="flex items-center gap-2 pt-3 border-t border-slate-100">
                     <Link
                       href={`/admin/courses/${course.id}/lessons`}
-                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 text-xs font-semibold transition-all"
+                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold transition-all"
                     >
                       <BookOpen className="w-3.5 h-3.5" /> Content
                     </Link>
                     <Link
                       href={`/admin/courses/${course.id}/edit`}
-                      className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-[rgba(255,255,255,0.08)] hover:bg-[rgba(255,255,255,0.05)] text-gray-300 text-xs font-semibold transition-all"
+                      className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-semibold transition-all"
                       title="Edit course settings"
                     >
                       <Edit3 className="w-3.5 h-3.5" />
@@ -255,14 +255,14 @@ export default function AdminCoursesPage() {
                       href={`/courses/${course.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-[rgba(255,255,255,0.08)] hover:bg-[rgba(255,255,255,0.05)] text-gray-300 text-xs font-semibold transition-all"
+                      className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-semibold transition-all"
                       title="Preview as student"
                     >
                       <Eye className="w-3.5 h-3.5" />
                     </a>
                     <button
                       onClick={() => setDeleteTarget({ id: course.id, title: course.title })}
-                      className="flex items-center justify-center px-3 py-2 rounded-lg border border-red-500/20 bg-red-500/5 hover:bg-red-500/15 text-red-400 text-xs font-semibold transition-all"
+                      className="flex items-center justify-center px-3 py-2 rounded-lg border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold transition-all"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>

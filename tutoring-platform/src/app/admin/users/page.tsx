@@ -39,8 +39,8 @@ export default function AdminUsersPage() {
     <div className="w-full text-left">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-white">User Management</h1>
-          <p className="text-gray-400 text-sm">Promote, demote, and export registered users.</p>
+          <h1 className="text-3xl font-bold text-slate-900">User Management</h1>
+          <p className="text-slate-500 text-sm">Promote, demote, and export registered users.</p>
         </div>
         <button
           type="button"
@@ -53,11 +53,11 @@ export default function AdminUsersPage() {
       </div>
 
       {isLoading ? (
-        <div className="text-gray-400">Loading users...</div>
+        <div className="text-slate-500">Loading users...</div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)]">
-          <table className="min-w-full divide-y divide-[rgba(255,255,255,0.06)]">
-            <thead className="bg-[rgba(255,255,255,0.02)] text-left text-xs uppercase tracking-wider text-gray-400">
+        <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <table className="min-w-full divide-y divide-slate-100">
+            <thead className="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500">
               <tr>
                 <th className="px-4 py-3">Name / Email</th>
                 <th className="px-4 py-3">Country</th>
@@ -65,15 +65,15 @@ export default function AdminUsersPage() {
                 <th className="px-4 py-3">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[rgba(255,255,255,0.06)] text-sm text-white">
+            <tbody className="divide-y divide-slate-100 text-sm text-slate-900">
               {users?.map((u: any) => (
                 <tr key={u.id}>
                   <td className="px-4 py-3">
                     <div className="font-semibold">{u.fullName || u.email}</div>
-                    <div className="text-xs text-gray-500">{u.email}</div>
+                    <div className="text-xs text-slate-400">{u.email}</div>
                   </td>
-                  <td className="px-4 py-3 text-gray-300">{u.country || 'N/A'}</td>
-                  <td className="px-4 py-3 text-gray-300">{u.role}</td>
+                  <td className="px-4 py-3 text-slate-600">{u.country || 'N/A'}</td>
+                  <td className="px-4 py-3 text-slate-600">{u.role}</td>
                   <td className="px-4 py-3">
                     {u.role !== 'SUPER_ADMIN' ? (
                       <button

@@ -33,14 +33,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <ProtectedRoute adminOnly={true}>
-      <div className="min-h-screen bg-[#0b0f19] flex flex-col">
+      <div className="min-h-screen bg-slate-50 flex flex-col">
         {/* Top Navbar */}
-        <header className="sticky top-0 z-30 border-b border-[rgba(255,255,255,0.06)] bg-[#070a12]/90 backdrop-blur-md">
+        <header className="sticky top-0 z-30 border-b border-slate-200 bg-white">
           <div className="flex items-center justify-between px-4 sm:px-6 h-14">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="lg:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-[rgba(255,255,255,0.05)] transition-colors"
+                className="lg:hidden p-2 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors"
                 aria-label="Toggle sidebar"
               >
                 {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -49,22 +49,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-500 to-sky-400 flex items-center justify-center shadow-md shadow-indigo-500/25">
                   <span className="font-bold text-white text-sm">P</span>
                 </div>
-                <span className="font-bold text-base tracking-tight text-white hidden sm:block">
-                  PK <span className="text-indigo-400">Admin</span>
+                <span className="font-bold text-base tracking-tight text-slate-800 hidden sm:block">
+                  PK <span className="text-indigo-600">Admin</span>
                 </span>
               </Link>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-xs text-gray-500 hidden md:block">{today}</span>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
+              <span className="text-xs text-slate-400 hidden md:block">{today}</span>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200">
                 <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-600 to-pink-500 flex items-center justify-center">
                   <span className="text-white text-[9px] font-bold uppercase">{user?.fullName?.[0] || 'A'}</span>
                 </div>
-                <span className="text-xs text-gray-300 hidden sm:block truncate max-w-[120px]">{user?.email}</span>
+                <span className="text-xs text-slate-700 hidden sm:block truncate max-w-[120px]">{user?.email}</span>
               </div>
               <button
                 onClick={handleLogout}
-                className="p-2 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
+                className="p-2 rounded-lg text-red-500 hover:bg-red-50 transition-colors"
                 title="Logout"
               >
                 <LogOut className="w-4 h-4" />
@@ -77,14 +77,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {/* Sidebar Overlay (mobile) */}
           {sidebarOpen && (
             <div
-              className="fixed inset-0 z-20 bg-black/50 lg:hidden"
+              className="fixed inset-0 z-20 bg-black/30 lg:hidden"
               onClick={closeSidebar}
             />
           )}
 
           {/* Sidebar */}
           <aside
-            className={`fixed lg:sticky top-14 lg:top-14 left-0 z-20 w-60 h-[calc(100vh-3.5rem)] border-r border-[rgba(255,255,255,0.06)] bg-[#070a12]/95 backdrop-blur-md flex flex-col justify-between p-4 transition-transform duration-200 ${
+            className={`fixed lg:sticky top-14 lg:top-14 left-0 z-20 w-60 h-[calc(100vh-3.5rem)] border-r border-slate-200 bg-white flex flex-col justify-between p-4 transition-transform duration-200 ${
               sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
             }`}
           >
@@ -99,22 +99,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     onClick={closeSidebar}
                     className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all ${
                       isActive
-                        ? 'border-indigo-500/50 bg-indigo-500/10 text-white'
-                        : 'border-transparent text-gray-400 hover:text-white hover:bg-[rgba(255,255,255,0.02)]'
+                        ? 'border-blue-200 bg-blue-50 text-blue-700'
+                        : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100'
                     }`}
                   >
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-indigo-400' : 'text-gray-400'}`} />
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
                     {item.label}
                   </Link>
                 );
               })}
             </nav>
 
-            <div className="space-y-3 pt-4 border-t border-[rgba(255,255,255,0.06)]">
+            <div className="space-y-3 pt-4 border-t border-slate-200">
               <Link
                 href="/"
                 onClick={closeSidebar}
-                className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-[rgba(255,255,255,0.02)] text-xs font-semibold transition-all"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 text-xs font-semibold transition-all"
               >
                 <ArrowLeft className="w-4 h-4" />
                 View Site
@@ -125,8 +125,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <span className="text-white text-[9px] font-bold uppercase">{user?.fullName?.[0] || 'A'}</span>
                   </div>
                   <div className="overflow-hidden">
-                    <p className="text-white text-xs font-semibold truncate">{user?.fullName || 'Admin'}</p>
-                    <span className="text-[9px] text-gray-500 block truncate">{user?.email || ''}</span>
+                    <p className="text-slate-800 text-xs font-semibold truncate">{user?.fullName || 'Admin'}</p>
+                    <span className="text-[9px] text-slate-400 block truncate">{user?.email || ''}</span>
                   </div>
                 </div>
               </div>

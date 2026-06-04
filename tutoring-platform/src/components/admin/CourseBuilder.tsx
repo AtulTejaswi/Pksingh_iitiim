@@ -83,29 +83,29 @@ function SortableLessonCard({
   };
 
   return (
-    <div className="rounded-lg border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] overflow-hidden">
-      <div ref={setNodeRef} style={style} className="flex items-center gap-3 p-3 hover:bg-[rgba(255,255,255,0.04)] transition-colors group relative">
-        <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-1 text-gray-500 hover:text-gray-300 transition-colors">
+    <div className="rounded-lg border border-slate-200 bg-white overflow-hidden shadow-sm">
+      <div ref={setNodeRef} style={style} className="flex items-center gap-3 p-3 hover:bg-slate-50 transition-colors group relative">
+        <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-1 text-slate-400 hover:text-slate-600 transition-colors">
           <GripVertical className="w-4 h-4" />
         </button>
-        <div className="w-7 h-7 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold shrink-0">
+        <div className="w-7 h-7 rounded-lg bg-blue-100 border border-blue-200 text-blue-600 flex items-center justify-center text-xs font-bold shrink-0">
           {index + 1}
         </div>
         <div className="flex-1 min-w-0 cursor-pointer" onPointerDown={(e) => { e.stopPropagation(); onToggleExpand(); }}>
-          <p className="text-sm font-semibold text-white truncate">{lesson.title}</p>
-          <div className="flex items-center gap-3 text-[10px] text-gray-500 mt-0.5">
+          <p className="text-sm font-semibold text-slate-900 truncate">{lesson.title}</p>
+          <div className="flex items-center gap-3 text-[10px] text-slate-500 mt-0.5">
             {lesson.duration && <span>{lesson.duration} min</span>}
             {lesson.videoUrl && <span className="truncate max-w-[120px]">{lesson.videoUrl}</span>}
           </div>
         </div>
         <div className="flex items-center gap-1 shrink-0">
-          <button onPointerDown={(e) => { e.stopPropagation(); onEdit(lesson); }} className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-[rgba(255,255,255,0.05)] transition-all opacity-0 group-hover:opacity-100">
+          <button onPointerDown={(e) => { e.stopPropagation(); onEdit(lesson); }} className="p-1.5 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-all opacity-0 group-hover:opacity-100">
             <Edit3 className="w-3.5 h-3.5" />
           </button>
-          <button onPointerDown={(e) => { e.stopPropagation(); onDelete(lesson.id); }} className="p-1.5 rounded-lg text-red-400 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100">
+          <button onPointerDown={(e) => { e.stopPropagation(); onDelete(lesson.id); }} className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100">
             <Trash2 className="w-3.5 h-3.5" />
           </button>
-          <button onPointerDown={(e) => { e.stopPropagation(); onToggleExpand(); }} className="p-1.5 rounded-lg text-gray-400 hover:text-white transition-all">
+          <button onPointerDown={(e) => { e.stopPropagation(); onToggleExpand(); }} className="p-1.5 rounded-lg text-slate-400 hover:text-slate-800 transition-all">
             {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </button>
         </div>
@@ -134,8 +134,6 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // If this builder is mounted for /admin/courses/:id/edit, we must never
-  // fall back into “create course” mode.
   const courseIdResolved = courseId ?? null;
   const isEdit = courseIdResolved !== null;
 
@@ -244,11 +242,11 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
     return Object.keys(errs).length === 0;
   };
 
-  const buildCoursePayload = (published: boolean): CourseInput => {
-    const payload: CourseInput = {
+  const buildCoursePayload = (published: boolean): any => {
+    const payload: any = {
       title: title.trim(),
       description: description.trim(),
-      subject: subject as CourseInput['subject'],
+      subject: subject as any,
       examTags: examTags.length > 0 ? examTags : undefined,
       isFree,
       status: published ? 'PUBLISHED' : 'DRAFT',
@@ -407,7 +405,6 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
     const courseData = buildCoursePayload(publishMode === 'publish');
 
     try {
-      // Strictly use PUT for edit routes.
       if (isEdit) {
         const id = courseIdResolved;
         if (!id) {
@@ -443,8 +440,8 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
   if (isEdit && loadingCourse) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center">
-        <div className="w-10 h-10 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />
-        <p className="mt-4 text-gray-400 font-medium">Loading course...</p>
+        <div className="w-10 h-10 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+        <p className="mt-4 text-slate-500 font-medium">Loading course...</p>
       </div>
     );
   }
@@ -459,17 +456,17 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
                 step === s.num
                   ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20'
                   : step > s.num
-                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                  : 'bg-[rgba(255,255,255,0.05)] text-gray-500 border border-[rgba(255,255,255,0.08)]'
+                  ? 'bg-emerald-100 text-emerald-600 border border-emerald-200'
+                  : 'bg-slate-100 text-slate-500 border border-slate-200'
               }`}
             >
               {step > s.num ? <Check className="w-4 h-4" /> : s.num}
             </div>
-            <span className={`text-xs font-semibold hidden sm:block ${step === s.num ? 'text-white' : 'text-gray-500'}`}>
+            <span className={`text-xs font-semibold hidden sm:block ${step === s.num ? 'text-indigo-600' : 'text-slate-500'}`}>
               {s.label}
             </span>
           </div>
-          {s.num < 4 && <div className={`w-8 h-px ${step > s.num ? 'bg-emerald-500/50' : 'bg-[rgba(255,255,255,0.08)]'}`} />}
+          {s.num < 4 && <div className={`w-8 h-px ${step > s.num ? 'bg-emerald-400' : 'bg-slate-200'}`} />}
         </React.Fragment>
       ))}
     </div>
@@ -482,11 +479,11 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
       {/* Step 1: Basic Info */}
       {step === 1 && (
         <div className="space-y-6">
-          <h2 className="text-xl font-bold text-white">Basic Information</h2>
+          <h2 className="text-xl font-bold text-slate-900">Basic Information</h2>
 
           <div>
-            <label className="block text-gray-300 text-xs font-semibold uppercase tracking-wider mb-2">
-              Course Title <span className="text-red-400">*</span>
+            <label className="block text-slate-700 text-xs font-semibold uppercase tracking-wider mb-2">
+              Course Title <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -494,14 +491,14 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
               onChange={(e) => setTitle(e.target.value)}
               onBlur={() => { if (!title.trim()) setErrors((e) => ({ ...e, title: 'Course title is required' })); else setErrors((e) => { const { title, ...rest } = e; return rest; }); }}
               placeholder="e.g. JEE Physics — Electrostatics Masterclass"
-              className={`w-full px-4 py-2.5 rounded-xl border text-sm outline-none transition-all placeholder:text-gray-600 bg-[rgba(255,255,255,0.03)] focus:border-indigo-500/50 text-white ${errors.title ? 'border-red-500/50' : 'border-[rgba(255,255,255,0.08)]'}`}
+              className={`w-full px-4 py-2.5 rounded-xl border text-sm outline-none transition-all placeholder:text-slate-400 bg-white focus:border-blue-500 text-slate-900 ${errors.title ? 'border-red-400' : 'border-slate-200'}`}
             />
-            {errors.title && <p className="text-red-400 text-[10px] font-medium mt-1">{errors.title}</p>}
+            {errors.title && <p className="text-red-600 text-[10px] font-medium mt-1">{errors.title}</p>}
           </div>
 
           <div>
-            <label className="block text-gray-300 text-xs font-semibold uppercase tracking-wider mb-2">
-              Short Description <span className="text-red-400">*</span>
+            <label className="block text-slate-700 text-xs font-semibold uppercase tracking-wider mb-2">
+              Short Description <span className="text-red-500">*</span>
             </label>
             <textarea
               value={description}
@@ -510,17 +507,17 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
               rows={4}
               maxLength={2000}
               placeholder="Brief overview of what this course covers (at least 10 characters)..."
-              className={`w-full px-4 py-2.5 rounded-xl border text-sm outline-none transition-all placeholder:text-gray-600 bg-[rgba(255,255,255,0.03)] focus:border-indigo-500/50 text-white resize-none ${errors.description ? 'border-red-500/50' : 'border-[rgba(255,255,255,0.08)]'}`}
+              className={`w-full px-4 py-2.5 rounded-xl border text-sm outline-none transition-all placeholder:text-slate-400 bg-white focus:border-blue-500 text-slate-900 resize-none ${errors.description ? 'border-red-400' : 'border-slate-200'}`}
             />
             <div className="flex justify-between mt-1">
-              {errors.description && <p className="text-red-400 text-[10px] font-medium">{errors.description}</p>}
-              <span className="text-[10px] text-gray-500 ml-auto">{description.length}/2000</span>
+              {errors.description && <p className="text-red-600 text-[10px] font-medium">{errors.description}</p>}
+              <span className="text-[10px] text-slate-400 ml-auto">{description.length}/2000</span>
             </div>
           </div>
 
           <div>
-            <label className="block text-gray-300 text-xs font-semibold uppercase tracking-wider mb-3">
-              Subject <span className="text-red-400">*</span>
+            <label className="block text-slate-700 text-xs font-semibold uppercase tracking-wider mb-3">
+              Subject <span className="text-red-500">*</span>
             </label>
             <div className="grid grid-cols-3 gap-3">
               {SUBJECTS.map((s) => (
@@ -530,8 +527,8 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
                   onClick={() => { setSubject(s.value); setErrors((e) => { const { subject, ...rest } = e; return rest; }); }}
                   className={`p-4 rounded-xl border text-center transition-all ${
                     subject === s.value
-                      ? 'border-indigo-500/50 bg-indigo-500/10 text-white'
-                      : 'border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] text-gray-400 hover:text-white hover:border-[rgba(255,255,255,0.12)]'
+                      ? 'border-blue-400 bg-blue-50 text-blue-700'
+                      : 'border-slate-200 bg-white text-slate-500 hover:text-slate-800 hover:border-slate-300'
                   }`}
                 >
                   <span className="text-2xl block mb-1">{s.icon}</span>
@@ -539,12 +536,12 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
                 </button>
               ))}
             </div>
-            {errors.subject && <p className="text-red-400 text-[10px] font-medium mt-1">{errors.subject}</p>}
+            {errors.subject && <p className="text-red-600 text-[10px] font-medium mt-1">{errors.subject}</p>}
           </div>
 
           <div>
-            <label className="block text-gray-300 text-xs font-semibold uppercase tracking-wider mb-3">
-              Target Exams <span className="text-red-400">*</span>
+            <label className="block text-slate-700 text-xs font-semibold uppercase tracking-wider mb-3">
+              Target Exams <span className="text-red-500">*</span>
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {EXAMS.map((exam) => {
@@ -561,8 +558,8 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
                     }}
                     className={`px-3 py-2 rounded-lg border text-xs font-semibold transition-all text-left ${
                       isSelected
-                        ? 'border-indigo-500 bg-indigo-500/10 text-white'
-                        : 'border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] text-gray-400 hover:text-white'
+                        ? 'border-blue-400 bg-blue-50 text-blue-700'
+                        : 'border-slate-200 bg-white text-slate-500 hover:text-slate-800'
                     }`}
                   >
                     {exam.label}
@@ -570,11 +567,11 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
                 );
               })}
             </div>
-            {errors.examTags && <p className="text-red-400 text-[10px] font-medium mt-1">{errors.examTags}</p>}
+            {errors.examTags && <p className="text-red-600 text-[10px] font-medium mt-1">{errors.examTags}</p>}
           </div>
 
           <div>
-            <label className="block text-gray-300 text-xs font-semibold uppercase tracking-wider mb-3">
+            <label className="block text-slate-700 text-xs font-semibold uppercase tracking-wider mb-3">
               Difficulty Level
             </label>
             <div className="flex gap-3">
@@ -585,8 +582,8 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
                   onClick={() => setDifficulty(d.value)}
                   className={`flex-1 p-3 rounded-xl border text-center transition-all ${
                     difficulty === d.value
-                      ? 'border-indigo-500/50 bg-indigo-500/10 text-white'
-                      : 'border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] text-gray-400 hover:text-white'
+                      ? 'border-blue-400 bg-blue-50 text-blue-700'
+                      : 'border-slate-200 bg-white text-slate-500 hover:text-slate-800'
                   }`}
                 >
                   <span className="text-lg block mb-0.5">{d.icon}</span>
@@ -601,14 +598,14 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
       {/* Step 2: Media */}
       {step === 2 && (
         <div className="space-y-6">
-          <h2 className="text-xl font-bold text-white">Media</h2>
+          <h2 className="text-xl font-bold text-slate-900">Media</h2>
 
           <div>
-            <label className="block text-gray-300 text-xs font-semibold uppercase tracking-wider mb-2">
+            <label className="block text-slate-700 text-xs font-semibold uppercase tracking-wider mb-2">
               Thumbnail Image
             </label>
             <div
-              className="border-2 border-dashed border-[rgba(255,255,255,0.08)] rounded-xl p-6 text-center hover:border-indigo-500/30 transition-all cursor-pointer relative"
+              className="border-2 border-dashed border-slate-200 rounded-xl p-6 text-center hover:border-blue-400 transition-all cursor-pointer relative"
               onClick={() => document.getElementById('thumbnail-upload')?.click()}
             >
               {thumbnailPreview ? (
@@ -624,9 +621,9 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
                 </div>
               ) : (
                 <div>
-                  <Upload className="w-8 h-8 text-gray-500 mx-auto mb-2" />
-                  <p className="text-sm text-gray-400 font-medium">Drop an image or click to browse</p>
-                  <p className="text-[10px] text-gray-500 mt-1">JPG / PNG under 2MB</p>
+                  <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                  <p className="text-sm text-slate-500 font-medium">Drop an image or click to browse</p>
+                  <p className="text-[10px] text-slate-400 mt-1">JPG / PNG under 2MB</p>
                 </div>
               )}
               <input
@@ -640,7 +637,7 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
           </div>
 
           <div>
-            <label className="block text-gray-300 text-xs font-semibold uppercase tracking-wider mb-2">
+            <label className="block text-slate-700 text-xs font-semibold uppercase tracking-wider mb-2">
               Preview Video URL (YouTube or Google Drive)
             </label>
             <input
@@ -648,10 +645,10 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
               value={previewVideoUrl}
               onChange={(e) => setPreviewVideoUrl(e.target.value)}
               placeholder="https://youtube.com/watch?v=..."
-              className="w-full px-4 py-2.5 rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] focus:border-indigo-500/50 text-white text-sm outline-none transition-all placeholder:text-gray-600"
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:border-blue-500 text-slate-900 text-sm outline-none transition-all placeholder:text-slate-400"
             />
             {isYouTubeUrl(previewVideoUrl) && getYouTubeEmbedUrl(previewVideoUrl) && (
-              <div className="mt-3 aspect-video rounded-xl overflow-hidden border border-[rgba(255,255,255,0.06)]">
+              <div className="mt-3 aspect-video rounded-xl overflow-hidden border border-slate-200">
                 <iframe
                   src={getYouTubeEmbedUrl(previewVideoUrl)!}
                   className="w-full h-full"
@@ -663,7 +660,7 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
           </div>
 
           <div>
-            <label className="block text-gray-300 text-xs font-semibold uppercase tracking-wider mb-2">
+            <label className="block text-slate-700 text-xs font-semibold uppercase tracking-wider mb-2">
               Total Duration
             </label>
             <div className="flex gap-3">
@@ -674,7 +671,7 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
                   onChange={(e) => setHours(e.target.value)}
                   placeholder="Hours"
                   min="0"
-                  className="w-full px-4 py-2.5 rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] focus:border-indigo-500/50 text-white text-sm outline-none transition-all placeholder:text-gray-600"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:border-blue-500 text-slate-900 text-sm outline-none transition-all placeholder:text-slate-400"
                 />
               </div>
               <div className="flex-1">
@@ -685,32 +682,32 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
                   placeholder="Minutes"
                   min="0"
                   max="59"
-                  className="w-full px-4 py-2.5 rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] focus:border-indigo-500/50 text-white text-sm outline-none transition-all placeholder:text-gray-600"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:border-blue-500 text-slate-900 text-sm outline-none transition-all placeholder:text-slate-400"
                 />
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 p-4 rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)]">
+          <div className="flex items-center gap-4 p-4 rounded-xl border border-slate-200 bg-white">
             <label className="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" checked={isFree} onChange={(e) => setIsFree(e.target.checked)} className="sr-only peer" />
-              <div className="w-10 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600" />
+              <div className="w-10 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600" />
             </label>
             <div>
-              <p className="text-sm font-semibold text-white">Free Course</p>
-              <p className="text-[10px] text-gray-500">Toggle off to set a price</p>
+              <p className="text-sm font-semibold text-slate-900">Free Course</p>
+              <p className="text-[10px] text-slate-500">Toggle off to set a price</p>
             </div>
             {!isFree && (
               <div className="ml-auto">
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₹</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₹</span>
                   <input
                     type="number"
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
                     placeholder="499"
                     min="0"
-                    className="w-28 pl-7 pr-3 py-2 rounded-lg border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] text-white text-sm outline-none"
+                    className="w-28 pl-7 pr-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 text-sm outline-none"
                   />
                 </div>
               </div>
@@ -723,19 +720,19 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
       {step === 3 && (
         <div className="space-y-6">
           {courseId && (
-            <div className="p-4 rounded-xl border border-sky-500/30 bg-sky-500/10">
-              <p className="text-sm text-sky-100">
+            <div className="p-4 rounded-xl border border-sky-200 bg-sky-50">
+              <p className="text-sm text-sky-800">
                 You can now expand any lesson to upload PDFs, attach MP4 videos, and add notes inline.
               </p>
             </div>
           )}
           {!courseId && (
-            <p className="text-amber-300 text-sm p-3 rounded-lg border border-amber-500/30 bg-amber-500/10">
+            <p className="text-amber-700 text-sm p-3 rounded-lg border border-amber-200 bg-amber-50">
               Complete Step 1 and save the course before adding lessons.
             </p>
           )}
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-white">Curriculum — Lessons</h2>
+            <h2 className="text-xl font-bold text-slate-900">Curriculum — Lessons</h2>
             {!showAddLesson && (
               <button
                 type="button"
@@ -748,8 +745,8 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
           </div>
 
           {lessons.length === 0 && !showAddLesson && (
-            <div className="text-center py-12 rounded-xl border border-[rgba(255,255,255,0.06)]">
-              <p className="text-gray-500 text-sm mb-4">No lessons yet. Start building your curriculum.</p>
+            <div className="text-center py-12 rounded-xl border border-slate-200 bg-white">
+              <p className="text-slate-500 text-sm mb-4">No lessons yet. Start building your curriculum.</p>
               <button
                 type="button"
                 onClick={() => { setEditingLesson(null); setLessonForm({ title: '', videoUrl: '', duration: '', notes: '' }); setShowAddLesson(true); }}
@@ -780,49 +777,49 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
           </DndContext>
 
           {showAddLesson && (
-            <div className="p-4 rounded-xl border border-indigo-500/30 bg-indigo-500/5 space-y-4">
-              <h3 className="text-sm font-bold text-white">{editingLesson ? 'Edit Lesson' : 'Add New Lesson'}</h3>
+            <div className="p-4 rounded-xl border border-blue-200 bg-blue-50 space-y-4">
+              <h3 className="text-sm font-bold text-slate-900">{editingLesson ? 'Edit Lesson' : 'Add New Lesson'}</h3>
               <div>
-                <label className="block text-gray-400 text-xs font-semibold mb-1">Lesson Title <span className="text-red-400">*</span></label>
+                <label className="block text-slate-600 text-xs font-semibold mb-1">Lesson Title <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   value={lessonForm.title}
                   onChange={(e) => setLessonForm((f) => ({ ...f, title: e.target.value }))}
                   placeholder="e.g. Introduction to Electrostatics"
-                  className={`w-full px-3 py-2 rounded-lg border text-sm outline-none bg-[rgba(255,255,255,0.03)] text-white ${errors.lessonTitle ? 'border-red-500/50' : 'border-[rgba(255,255,255,0.08)]'}`}
+                  className={`w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white text-slate-900 ${errors.lessonTitle ? 'border-red-400' : 'border-slate-200'}`}
                 />
-                {errors.lessonTitle && <p className="text-red-400 text-[10px] mt-1">{errors.lessonTitle}</p>}
+                {errors.lessonTitle && <p className="text-red-600 text-[10px] mt-1">{errors.lessonTitle}</p>}
               </div>
               <div>
-                <label className="block text-gray-400 text-xs font-semibold mb-1">Video URL</label>
+                <label className="block text-slate-600 text-xs font-semibold mb-1">Video URL</label>
                 <input
                   type="text"
                   value={lessonForm.videoUrl}
                   onChange={(e) => setLessonForm((f) => ({ ...f, videoUrl: e.target.value }))}
                   placeholder="YouTube or Google Drive link"
-                  className="w-full px-3 py-2 rounded-lg border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] text-white text-sm outline-none"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 text-sm outline-none"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-gray-400 text-xs font-semibold mb-1">Duration (mins)</label>
+                  <label className="block text-slate-600 text-xs font-semibold mb-1">Duration (mins)</label>
                   <input
                     type="number"
                     value={lessonForm.duration}
                     onChange={(e) => setLessonForm((f) => ({ ...f, duration: e.target.value }))}
                     placeholder="45"
-                    className="w-full px-3 py-2 rounded-lg border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] text-white text-sm outline-none"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 text-sm outline-none"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-gray-400 text-xs font-semibold mb-1">Notes</label>
+                <label className="block text-slate-600 text-xs font-semibold mb-1">Notes</label>
                 <textarea
                   value={lessonForm.notes}
                   onChange={(e) => setLessonForm((f) => ({ ...f, notes: e.target.value }))}
                   rows={2}
                   placeholder="Optional notes or description..."
-                  className="w-full px-3 py-2 rounded-lg border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] text-white text-sm outline-none resize-none"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 text-sm outline-none resize-none"
                 />
               </div>
               <div className="flex items-center gap-3">
@@ -838,7 +835,7 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
                 <button
                   type="button"
                   onClick={() => { setShowAddLesson(false); setEditingLesson(null); setLessonForm({ title: '', videoUrl: '', duration: '', notes: '' }); }}
-                  className="px-4 py-2 rounded-lg border border-[rgba(255,255,255,0.08)] text-gray-400 text-xs font-semibold hover:text-white transition-all"
+                  className="px-4 py-2 rounded-lg border border-slate-200 text-slate-500 text-xs font-semibold hover:text-slate-800 transition-all"
                 >
                   Cancel
                 </button>
@@ -851,36 +848,36 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
       {/* Step 4: Review & Publish */}
       {step === 4 && (
         <div className="space-y-6">
-          <h2 className="text-xl font-bold text-white">Review & Publish</h2>
+          <h2 className="text-xl font-bold text-slate-900">Review & Publish</h2>
 
           {/* Preview Card */}
-          <div className="p-5 rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] space-y-4">
+          <div className="p-5 rounded-xl border border-slate-200 bg-white shadow-sm space-y-4">
             <div className="flex items-start gap-4">
               {thumbnailPreview ? (
                 <img src={thumbnailPreview} alt="" className="w-20 h-20 rounded-lg object-cover shrink-0" />
               ) : (
-                <div className="w-20 h-20 rounded-lg bg-gradient-to-br from-indigo-600 to-blue-500 flex items-center justify-center shrink-0">
+                <div className="w-20 h-20 rounded-lg bg-gradient-to-br from-blue-600 to-violet-600 flex items-center justify-center shrink-0">
                   <span className="text-white font-bold text-lg">{title.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}</span>
                 </div>
               )}
               <div className="min-w-0">
-                <h3 className="text-base font-bold text-white">{title || 'Untitled Course'}</h3>
-                <p className="text-xs text-gray-400 mt-1 line-clamp-2">{description || 'No description'}</p>
+                <h3 className="text-base font-bold text-slate-900">{title || 'Untitled Course'}</h3>
+                <p className="text-xs text-slate-500 mt-1 line-clamp-2">{description || 'No description'}</p>
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   {subject && (
-                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-100 text-blue-600 border border-blue-200">
                       {SUBJECTS.find((s) => s.value === subject)?.label || subject}
                     </span>
                   )}
                   {examTags.slice(0, 3).map((tag) => (
-                    <span key={tag} className="px-2 py-0.5 rounded text-[10px] bg-[rgba(255,255,255,0.05)] text-gray-300">
+                    <span key={tag} className="px-2 py-0.5 rounded text-[10px] bg-slate-100 text-slate-600">
                       {tag.replace(/_/g, ' ')}
                     </span>
                   ))}
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-4 text-xs text-gray-500 pt-3 border-t border-[rgba(255,255,255,0.04)]">
+            <div className="flex items-center gap-4 text-xs text-slate-500 pt-3 border-t border-slate-100">
               <span>{lessons.length} lessons</span>
               <span>{isFree ? 'Free' : `₹${price || '0'}`}</span>
               {difficulty && <span>{DIFFICULTIES.find((d) => d.value === difficulty)?.label || difficulty}</span>}
@@ -889,48 +886,48 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
 
           {/* Status Toggle */}
           <div>
-            <label className="block text-gray-300 text-xs font-semibold uppercase tracking-wider mb-3">Status</label>
+            <label className="block text-slate-700 text-xs font-semibold uppercase tracking-wider mb-3">Status</label>
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setPublishMode('draft')}
                 className={`flex-1 p-4 rounded-xl border text-center transition-all ${
                   publishMode === 'draft'
-                    ? 'border-yellow-500/50 bg-yellow-500/10 text-white'
-                    : 'border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] text-gray-400'
+                    ? 'border-yellow-400 bg-yellow-50 text-slate-900'
+                    : 'border-slate-200 bg-white text-slate-500'
                 }`}
               >
                 <span className="text-lg block mb-1">📝</span>
                 <span className="text-sm font-bold">Save as Draft</span>
-                <p className="text-[10px] text-gray-500 mt-0.5">Not visible to students</p>
+                <p className="text-[10px] text-slate-400 mt-0.5">Not visible to students</p>
               </button>
               <button
                 type="button"
                 onClick={() => setPublishMode('publish')}
                 className={`flex-1 p-4 rounded-xl border text-center transition-all ${
                   publishMode === 'publish'
-                    ? 'border-emerald-500/50 bg-emerald-500/10 text-white'
-                    : 'border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] text-gray-400'
+                    ? 'border-emerald-400 bg-emerald-50 text-slate-900'
+                    : 'border-slate-200 bg-white text-slate-500'
                 }`}
               >
                 <span className="text-lg block mb-1">🚀</span>
                 <span className="text-sm font-bold">Publish Now</span>
-                <p className="text-[10px] text-gray-500 mt-0.5">Visible to all students</p>
+                <p className="text-[10px] text-slate-400 mt-0.5">Visible to all students</p>
               </button>
             </div>
           </div>
 
           {/* Enrollment Type */}
           <div>
-            <label className="block text-gray-300 text-xs font-semibold uppercase tracking-wider mb-3">Enrollment</label>
+            <label className="block text-slate-700 text-xs font-semibold uppercase tracking-wider mb-3">Enrollment</label>
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setEnrollmentType('open')}
                 className={`flex-1 p-3 rounded-xl border text-center transition-all ${
                   enrollmentType === 'open'
-                    ? 'border-indigo-500/50 bg-indigo-500/10 text-white'
-                    : 'border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] text-gray-400'
+                    ? 'border-blue-400 bg-blue-50 text-blue-700'
+                    : 'border-slate-200 bg-white text-slate-500'
                 }`}
               >
                 <span className="text-sm font-semibold">Open to All</span>
@@ -940,8 +937,8 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
                 onClick={() => setEnrollmentType('signup')}
                 className={`flex-1 p-3 rounded-xl border text-center transition-all ${
                   enrollmentType === 'signup'
-                    ? 'border-indigo-500/50 bg-indigo-500/10 text-white'
-                    : 'border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] text-gray-400'
+                    ? 'border-blue-400 bg-blue-50 text-blue-700'
+                    : 'border-slate-200 bg-white text-slate-500'
                 }`}
               >
                 <span className="text-sm font-semibold">Requires Free Sign-Up</span>
@@ -952,13 +949,13 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
       )}
 
       {/* Navigation Buttons */}
-      <div className="flex items-center justify-between mt-8 pt-6 border-t border-[rgba(255,255,255,0.06)]">
+      <div className="flex items-center justify-between mt-8 pt-6 border-t border-slate-200">
         <div>
           {step > 1 ? (
             <button
               type="button"
               onClick={handleBack}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-[rgba(255,255,255,0.08)] text-gray-300 text-sm font-semibold hover:text-white hover:bg-[rgba(255,255,255,0.03)] transition-all"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:text-slate-800 hover:bg-slate-50 transition-all"
             >
               <ArrowLeft className="w-4 h-4" /> Back
             </button>
@@ -966,7 +963,7 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
             <button
               type="button"
               onClick={() => router.push('/admin/courses')}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-gray-500 text-sm font-semibold hover:text-gray-300 transition-all"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-slate-400 text-sm font-semibold hover:text-slate-600 transition-all"
             >
               <ArrowLeft className="w-4 h-4" /> Back to Courses
             </button>
@@ -1009,7 +1006,7 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
             <button
               type="button"
               onClick={() => setStep(3)}
-              className="px-4 py-2.5 rounded-xl text-gray-400 text-sm font-semibold hover:text-gray-300 transition-all"
+              className="px-4 py-2.5 rounded-xl text-slate-400 text-sm font-semibold hover:text-slate-600 transition-all"
             >
               Back to Edit
             </button>
@@ -1036,7 +1033,7 @@ export default function CourseBuilder({ courseId }: { courseId?: string }) {
     <Suspense
       fallback={
         <div className="min-h-[40vh] flex items-center justify-center">
-          <div className="w-10 h-10 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />
+          <div className="w-10 h-10 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
         </div>
       }
     >

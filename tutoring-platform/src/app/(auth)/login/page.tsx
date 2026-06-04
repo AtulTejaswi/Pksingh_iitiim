@@ -39,7 +39,7 @@ export default function LoginPage() {
       const custom = postLoginPath();
       if (custom) {
         router.push(custom);
-      } else if (user.role === 'ADMIN') {
+      } else if (user.role === 'SUPER_ADMIN') {
         router.push('/admin/dashboard');
       } else {
         router.push('/my-courses');
@@ -55,8 +55,6 @@ export default function LoginPage() {
     }
   }, [user, router]);
 
-  // Auto-login helper: if ?adminQuick=1 is present, attempt to sign in using
-  // environment-provided admin creds, falling back to the user's provided ones.
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
@@ -68,7 +66,7 @@ export default function LoginPage() {
           const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@pksingh.com';
           const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'adminpassword123';
           const profile = await login({ email: adminEmail, password: adminPassword });
-          if (profile.role === 'ADMIN') {
+          if (profile.role === 'SUPER_ADMIN') {
             router.push('/admin/dashboard');
           } else {
             router.push('/my-courses');
@@ -88,7 +86,7 @@ export default function LoginPage() {
       const custom = postLoginPath();
       if (custom) {
         router.push(custom);
-      } else if (profile.role === 'ADMIN') {
+      } else if (profile.role === 'SUPER_ADMIN') {
         router.push('/admin/dashboard');
       } else {
         router.push('/my-courses');
@@ -100,14 +98,14 @@ export default function LoginPage() {
 
 return (
   <Suspense fallback={null}>
-<div className="min-h-screen bg-[#0b0f19] flex flex-col items-center justify-center px-4 relative">
-      <div className="max-w-md w-full card p-8 relative overflow-hidden">
+<div className="min-h-screen bg-gradient-to-b from-blue-50 to-slate-50 flex flex-col items-center justify-center px-4 relative">
+      <div className="max-w-md w-full bg-white shadow-md border border-slate-200 rounded-xl p-8 relative overflow-hidden">
         {/* Glow accent bar */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-sky-400"></div>
 
         <div className="text-center mb-8">
-          <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mx-auto mb-4 text-indigo-400 shadow-md">
-            <LogIn className="w-6 h-6 animate-pulse" />
+          <div className="w-12 h-12 rounded-xl bg-blue-100 border border-blue-200 flex items-center justify-center mx-auto mb-4 text-blue-600 shadow-md">
+            <LogIn className="w-6 h-6" />
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold high-contrast">Sign In</h2>
           <p className="muted text-xs sm:text-sm mt-2 leading-relaxed">
@@ -117,9 +115,16 @@ return (
 
         {/* Error Message */}
         {errorMsg && (
-          <div className="flex items-start gap-3 p-3 rounded-lg border border-red-500/20 bg-red-500/10 text-red-300 text-xs mb-6">
+          <div className="flex items-start gap-3 p-3 rounded-lg border border-red-200 bg-red-50 text-red-700 text-xs mb-6">
             <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
             <p>{errorMsg}</p>
+          </div>
+        )}
+
+        {/* Success Message */}
+        {successMsg && (
+          <div className="flex items-start gap-3 p-3 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 text-xs mb-6">
+            <p>{successMsg}</p>
           </div>
         )}
 
@@ -128,16 +133,16 @@ return (
           <div>
             <label className="form-label">Email Address</label>
             <div className="relative">
-              <Mail className="absolute left-3.5 top-3 w-4 h-4 text-[color:var(--text-muted)]" />
+              <Mail className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
               <input
                 type="email"
                 {...register('email')}
                 placeholder="email@example.com"
-                className="input-dark pl-10 pr-4 py-2.5 rounded-xl text-sm outline-none placeholder:text-[color:var(--text-muted)]"
+                className="pl-10 pr-4 py-2.5 rounded-xl text-sm outline-none"
               />
             </div>
             {errors.email && (
-              <p className="text-red-400 text-[10px] font-medium mt-1">{errors.email.message}</p>
+              <p className="text-red-600 text-[10px] font-medium mt-1">{errors.email.message}</p>
             )}
           </div>
 
@@ -145,28 +150,28 @@ return (
           <div>
             <div className="flex justify-between items-center mb-2">
               <label className="form-label">Password</label>
-              <Link href="/forgot-password" className="text-xs text-indigo-400 hover:text-white transition-colors">
+              <Link href="/forgot-password" className="text-xs text-blue-600 hover:text-blue-800 transition-colors">
                 Forgot password?
               </Link>
             </div>
             <div className="relative">
-              <Key className="absolute left-3.5 top-3 w-4 h-4 text-[color:var(--text-muted)]" />
+              <Key className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
               <input
                 type="password"
                 {...register('password')}
                 placeholder="••••••••"
-                className="input-dark pl-10 pr-4 py-2.5 rounded-xl text-sm outline-none placeholder:text-[color:var(--text-muted)]"
+                className="pl-10 pr-4 py-2.5 rounded-xl text-sm outline-none"
               />
             </div>
             {errors.password && (
-              <p className="text-red-400 text-[10px] font-medium mt-1">{errors.password.message}</p>
+              <p className="text-red-600 text-[10px] font-medium mt-1">{errors.password.message}</p>
             )}
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3 rounded-xl glow-button bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm tracking-wide shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-bold text-sm tracking-wide shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? (
               <>
@@ -179,9 +184,9 @@ return (
           </button>
         </form>
 
-        <p className="text-center text-xs text-gray-400 mt-6 leading-relaxed">
+        <p className="text-center text-xs text-slate-500 mt-6 leading-relaxed">
           Don't have an account?{' '}
-          <Link href="/signup" className="text-indigo-400 hover:text-white font-semibold transition-colors">
+          <Link href="/signup" className="text-blue-600 hover:text-blue-800 font-semibold transition-colors">
             Enroll Free
           </Link>
         </p>

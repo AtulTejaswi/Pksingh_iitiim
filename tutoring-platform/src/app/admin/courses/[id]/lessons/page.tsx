@@ -42,8 +42,8 @@ export default function AdminLessonsPage({ params }: { params: { id: string } })
   if (isLoading) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center">
-        <div className="w-10 h-10 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />
-        <p className="mt-4 text-gray-400 font-medium">Loading syllabus...</p>
+        <div className="w-10 h-10 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+        <p className="mt-4 text-slate-500 font-medium">Loading syllabus...</p>
       </div>
     );
   }
@@ -51,8 +51,8 @@ export default function AdminLessonsPage({ params }: { params: { id: string } })
   if (!course) {
     return (
       <div className="text-center py-20 rounded-2xl glass-panel">
-        <p className="text-gray-400 text-lg">Course not found.</p>
-        <Link href="/admin/courses" className="mt-4 inline-block text-indigo-400 hover:text-white">
+        <p className="text-slate-500 text-lg">Course not found.</p>
+        <Link href="/admin/courses" className="mt-4 inline-block text-blue-600 hover:text-blue-800">
           Back to courses
         </Link>
       </div>
@@ -65,36 +65,36 @@ export default function AdminLessonsPage({ params }: { params: { id: string } })
     <div className="w-full text-left">
       <Link
         href="/admin/courses"
-        className="text-gray-400 hover:text-white flex items-center gap-1.5 text-sm mb-6 transition-colors w-fit"
+        className="text-slate-500 hover:text-slate-800 flex items-center gap-1.5 text-sm mb-6 transition-colors w-fit"
       >
         <ArrowLeft className="w-4 h-4" /> Back to courses
       </Link>
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <span className="px-2 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-bold uppercase">
+          <span className="px-2 py-0.5 rounded bg-blue-100 border border-blue-200 text-blue-600 text-[10px] font-bold uppercase">
             {course.subject}
           </span>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mt-2">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-2">
             Course content: {course.title}
           </h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <p className="text-slate-500 text-sm mt-1">
             Add lessons, then expand each lesson to upload PDFs, videos, YouTube links, and notes.
           </p>
         </div>
         <Link
           href={`/admin/courses/${courseId}/lessons/new`}
-          className="glow-button px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 shrink-0"
+          className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 shrink-0"
         >
           <Plus className="w-4 h-4" /> Add lesson
         </Link>
       </div>
 
       {lessons.length === 0 ? (
-        <div className="text-center py-20 rounded-2xl glass-panel max-w-2xl mx-auto">
-          <BookOpen className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-white mb-2">No lessons yet</h3>
-          <p className="text-gray-400 text-sm max-w-sm mx-auto mb-8">
+        <div className="text-center py-20 rounded-2xl border border-slate-200 bg-white max-w-2xl mx-auto">
+          <BookOpen className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+          <h3 className="text-lg font-bold text-slate-900 mb-2">No lessons yet</h3>
+          <p className="text-slate-500 text-sm max-w-sm mx-auto mb-8">
             Create your first lesson, then expand it to attach lecture videos, PDF worksheets, and notes.
           </p>
           <Link
@@ -114,7 +114,7 @@ export default function AdminLessonsPage({ params }: { params: { id: string } })
             return (
               <div
                 key={lessonItem.id}
-                className="rounded-2xl glass-panel overflow-hidden border border-[rgba(255,255,255,0.06)]"
+                className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden"
               >
                 <div className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <button
@@ -122,14 +122,14 @@ export default function AdminLessonsPage({ params }: { params: { id: string } })
                     onClick={() => setExpandedLessonId(isExpanded ? null : lessonItem.id)}
                     className="flex items-center gap-4 text-left flex-1"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-xs">
+                    <div className="w-8 h-8 rounded-lg bg-blue-100 border border-blue-200 text-blue-600 flex items-center justify-center font-bold text-xs">
                       {idx + 1}
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-white">{lessonItem.title}</h3>
-                      <p className="text-[10px] text-gray-500 mt-1">
-                        {lessonItem.isFree ? 'Free preview' : 'Enrolled only'} · {mediaCount} file(s) · {notesCount} note(s)
-                        {lessonItem.status !== 'PUBLISHED' && ' · Draft'}
+                      <h3 className="text-sm font-bold text-slate-900">{lessonItem.title}</h3>
+                      <p className="text-[10px] text-slate-500 mt-1">
+                        {lessonItem.isFree ? 'Free preview' : 'Enrolled only'} &middot; {mediaCount} file(s) &middot; {notesCount} note(s)
+                        {lessonItem.status !== 'PUBLISHED' && ' &middot; Draft'}
                       </p>
                     </div>
                   </button>
@@ -137,7 +137,7 @@ export default function AdminLessonsPage({ params }: { params: { id: string } })
                   <div className="flex items-center gap-2 self-end sm:self-center">
                     <Link
                       href={`/admin/courses/${courseId}/lessons/${lessonItem.id}/edit`}
-                      className="p-2 rounded-lg border border-[rgba(255,255,255,0.06)] text-gray-300 hover:text-white"
+                      className="p-2 rounded-lg border border-slate-200 text-slate-500 hover:text-slate-800"
                       title="Edit lesson details"
                     >
                       <Edit3 className="w-4 h-4" />
@@ -146,14 +146,14 @@ export default function AdminLessonsPage({ params }: { params: { id: string } })
                       type="button"
                       onClick={() => handleDeleteLesson(lessonItem.id, lessonItem.title)}
                       disabled={isDeleting}
-                      className="p-2 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10"
+                      className="p-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                     <button
                       type="button"
                       onClick={() => setExpandedLessonId(isExpanded ? null : lessonItem.id)}
-                      className="p-2 rounded-lg border border-[rgba(255,255,255,0.06)] text-gray-400"
+                      className="p-2 rounded-lg border border-slate-200 text-slate-400"
                     >
                       {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </button>

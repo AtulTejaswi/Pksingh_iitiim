@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 export default function SiteFooter({ className = '' }: { className?: string }) {
   return (
-    <footer className={`w-full border-t border-slate-800/50 bg-slate-950/95 py-12 ${className}`}>
+    <footer className={`w-full border-t border-slate-800/50 bg-slate-800 py-12 ${className}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-slate-400">
         <div className="flex flex-col items-center md:items-start gap-4">
           <Image 
