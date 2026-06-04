@@ -32,7 +32,8 @@ export const uploadMedia = async (req: Request, res: Response): Promise<void> =>
       return;
     }
     const file = req.file;
-    const fileUrl = `/uploads/lessons/${file.filename}`;
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const fileUrl = `${baseUrl}/uploads/lessons/${file.filename}`;
     const asset = await prisma.mediaAsset.create({
       data: {
         title: title || file.originalname,
@@ -86,7 +87,12 @@ export const updateMedia = async (req: Request, res: Response): Promise<void> =>
 
 export const deleteMedia = async (req: Request, res: Response): Promise<void> => {
   const id = req.params.id as string;
-  await prisma.mediaAsset.delete({ where: { id } });
+  const link = await prisma.lessonMedia.findUnique({ where: { id } });
+  if (!link) {
+    res.status(404).json({ error: 'Media link not found' });
+    return;
+  }
+  await prisma.mediaAsset.delete({ where: { id: link.mediaAssetId } });
   res.json({ message: 'Media deleted' });
 };
 

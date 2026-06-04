@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
         source: '/api/:path*',
         destination: 'https://pksingh-backend.onrender.com/api/:path*',
       },
+      {
+        source: '/uploads/:path*',
+        destination: 'https://pksingh-backend.onrender.com/uploads/:path*',
+      },
     ];
   },
 };
