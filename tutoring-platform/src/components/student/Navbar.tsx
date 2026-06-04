@@ -18,7 +18,7 @@ export default function Navbar() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-3">
               <img 
-                src="/images/pk_sir_logo.svg" 
+                src="/images/pk_sir_logo.jpg" 
                 alt="PK Singh Logo" 
                 className="w-[140px] h-auto rounded-lg bg-[#0B1A34] px-2 py-1"
               />

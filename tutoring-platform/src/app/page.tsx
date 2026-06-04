@@ -113,7 +113,7 @@ export default function LandingPage() {
                   <p className="text-xs text-slate-400 uppercase tracking-[0.3em]">IIT • IIM • Author</p>
                 </div>
                 <div className="ml-auto">
-                  <Image src="/images/pk_sir_logo.svg" alt="Brand Logo" width={80} height={24} className="w-[80px] h-auto rounded bg-[#0B1A34] px-1.5 py-1 opacity-90" />
+                  <Image src="/images/pk_sir_logo.jpg" alt="Brand Logo" width={80} height={24} className="w-[80px] h-auto rounded bg-[#0B1A34] px-1.5 py-1 opacity-90" />
                 </div>
               </div>
               <div className="rounded-[1.75rem] border border-slate-700/70 bg-slate-900/80 p-6">

@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   description:
     'PK Singh is an IIT + IIM alumnus, mentor, bestselling author, and educator for JEE, NEET, SAT, CAT and GMAT aspirants.',
   icons: {
-    icon: '/images/pk_sir_logo.svg',
+    icon: '/images/pk_sir_logo.jpg',
   },
   openGraph: {
     title: 'PK Singh | Mentor, Author, IITian',
@@ -34,13 +34,13 @@ export const metadata: Metadata = {
     siteName: 'PK Singh',
     locale: 'en_IN',
     type: 'website',
-    images: [{ url: '/images/pk_sir_logo.svg', width: 1200, height: 630, alt: 'PK Singh Logo' }],
+    images: [{ url: '/images/pk_sir_logo.jpg', width: 1200, height: 630, alt: 'PK Singh Logo' }],
   },
   twitter: {
     card: 'summary',
     title: 'PK Singh | Mentor, Author, IITian',
     description: 'Premium exam mentorship from an IIT + IIM alumnus and bestselling author.',
-    images: ['/images/pk_sir_logo.svg'],
+    images: ['/images/pk_sir_logo.jpg'],
   },
 };
 

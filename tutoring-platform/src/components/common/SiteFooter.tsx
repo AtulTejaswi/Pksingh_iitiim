@@ -7,7 +7,7 @@ export default function SiteFooter({ className = '' }: { className?: string }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-slate-400">
         <div className="flex flex-col items-center md:items-start gap-4">
           <Image 
-            src="/images/pk_sir_logo.svg" 
+            src="/images/pk_sir_logo.jpg" 
             alt="PK Singh Logo" 
             width={100} 
             height={30} 
