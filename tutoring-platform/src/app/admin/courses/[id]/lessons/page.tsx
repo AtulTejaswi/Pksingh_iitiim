@@ -82,12 +82,20 @@ export default function AdminLessonsPage({ params }: { params: { id: string } })
             Add lessons, then expand each lesson to upload PDFs, videos, YouTube links, and notes.
           </p>
         </div>
-        <Link
-          href={`/admin/courses/${courseId}/lessons/new`}
-          className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 shrink-0"
-        >
-          <Plus className="w-4 h-4" /> Add lesson
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href={`/admin/courses/${courseId}/edit`}
+            className="text-xs text-slate-500 hover:text-slate-800 underline underline-offset-2"
+          >
+            Course settings
+          </Link>
+          <Link
+            href={`/admin/courses/${courseId}/lessons/new`}
+            className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 shrink-0"
+          >
+            <Plus className="w-4 h-4" /> Add lesson
+          </Link>
+        </div>
       </div>
 
       {lessons.length === 0 ? (

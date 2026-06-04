@@ -241,15 +241,9 @@ export default function AdminCoursesPage() {
                     <Link
                       href={`/admin/courses/${course.id}/lessons`}
                       className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold transition-all"
+                      title="Manage lessons, PDFs, videos, and notes"
                     >
-                      <BookOpen className="w-3.5 h-3.5" /> Content
-                    </Link>
-                    <Link
-                      href={`/admin/courses/${course.id}/edit`}
-                      className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-semibold transition-all"
-                      title="Edit course settings"
-                    >
-                      <Edit3 className="w-3.5 h-3.5" />
+                      <BookOpen className="w-3.5 h-3.5" /> Manage Content
                     </Link>
                     <a
                       href={`/courses/${course.id}`}
