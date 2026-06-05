@@ -2,8 +2,14 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// Use PostgreSQL everywhere — it is persistent and works the same in dev and prod.
+// For local dev: run `docker compose up -d` (see docker-compose.yml) to start a local
+// PostgreSQL, then `npx prisma db push` to create the schema.
+// For production on Render: a free PostgreSQL database is auto-provisioned via
+// render.yaml. Do not switch back to SQLite — Render's filesystem is ephemeral
+// and SQLite data is wiped on every restart.
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

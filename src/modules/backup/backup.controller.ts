@@ -1,9 +1,11 @@
 import { Request, Response } from 'express';
 import { prisma } from '../../config/db';
+import { supabase } from '../../config/supabase';
 import fs from 'fs';
 import path from 'path';
 
 const BACKUPS_DIR = path.join(process.cwd(), 'backups');
+const SUPABASE_BACKUP_BUCKET = 'backups';
 
 function ensureDir() {
   if (!fs.existsSync(BACKUPS_DIR)) {
@@ -162,25 +164,92 @@ async function importAllData(data: BackupData): Promise<void> {
   }
 }
 
+async function uploadToSupabaseStorage(filename: string, content: string): Promise<boolean> {
+  if (!supabase) return false;
+  try {
+    const { error } = await supabase.storage
+      .from(SUPABASE_BACKUP_BUCKET)
+      .upload(filename, content, {
+        contentType: 'application/json',
+        upsert: true,
+      });
+    if (error) {
+      console.warn('Supabase backup upload failed:', error.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn('Supabase backup upload error:', err);
+    return false;
+  }
+}
+
+async function downloadFromSupabaseStorage(filename: string): Promise<string | null> {
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase.storage
+      .from(SUPABASE_BACKUP_BUCKET)
+      .download(filename);
+    if (error || !data) return null;
+    return await data.text();
+  } catch {
+    return null;
+  }
+}
+
+async function listSupabaseBackups(): Promise<string[]> {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase.storage
+      .from(SUPABASE_BACKUP_BUCKET)
+      .list('', { limit: 1000 });
+    if (error || !data) return [];
+    return data.map(f => f.name).filter(n => n.endsWith('.json')).sort().reverse();
+  } catch {
+    return [];
+  }
+}
+
 export async function autoBackup(): Promise<string | null> {
   try {
     const count = await prisma.course.count();
     if (count === 0) return null;
     const data = await exportAllData();
-    const filePath = backupFilePath();
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
-    return filePath;
+    const json = JSON.stringify(data, null, 2);
+    const filename = path.basename(backupFilePath());
+    fs.writeFileSync(path.join(BACKUPS_DIR, filename), json, 'utf-8');
+    await uploadToSupabaseStorage(filename, json);
+    return path.join(BACKUPS_DIR, filename);
   } catch {
     return null;
   }
 }
 
 export async function tryAutoRestore(): Promise<boolean> {
-  const files = listBackupFiles();
-  if (files.length === 0) return false;
-
   const existingCourses = await prisma.course.count();
   if (existingCourses > 0) return false;
+
+  // Try Supabase Storage first (persistent)
+  const remoteFiles = await listSupabaseBackups();
+  if (remoteFiles.length > 0) {
+    const content = await downloadFromSupabaseStorage(remoteFiles[0]);
+    if (content) {
+      try {
+        const data = JSON.parse(content) as BackupData;
+        if (data.courses && data.courses.length > 0) {
+          await importAllData(data);
+          console.log(`Auto-restored from Supabase backup: ${remoteFiles[0]} (${data.courses.length} courses)`);
+          return true;
+        }
+      } catch (err) {
+        console.error('Supabase auto-restore failed:', err);
+      }
+    }
+  }
+
+  // Fallback to local file (only useful on same container instance)
+  const files = listBackupFiles();
+  if (files.length === 0) return false;
 
   const latest = files[0];
   try {
@@ -189,7 +258,7 @@ export async function tryAutoRestore(): Promise<boolean> {
     if (!data.courses || data.courses.length === 0) return false;
 
     await importAllData(data);
-    console.log(`Auto-restored from backup: ${latest} (${data.courses.length} courses)`);
+    console.log(`Auto-restored from local backup: ${latest} (${data.courses.length} courses)`);
     return true;
   } catch (err) {
     console.error('Auto-restore failed:', err);
@@ -200,9 +269,16 @@ export async function tryAutoRestore(): Promise<boolean> {
 export const exportBackup = async (_req: Request, res: Response) => {
   try {
     const data = await exportAllData();
-    const filePath = backupFilePath();
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
-    res.json({ success: true, message: 'Backup exported', file: path.basename(filePath) });
+    const json = JSON.stringify(data, null, 2);
+    const filename = path.basename(backupFilePath());
+    fs.writeFileSync(path.join(BACKUPS_DIR, filename), json, 'utf-8');
+    const uploaded = await uploadToSupabaseStorage(filename, json);
+    res.json({
+      success: true,
+      message: uploaded ? 'Backup exported (local + Supabase Storage)' : 'Backup exported (local only)',
+      file: filename,
+      cloud: uploaded,
+    });
   } catch (err: any) {
     res.status(500).json({ error: err.message || 'Export failed' });
   }
