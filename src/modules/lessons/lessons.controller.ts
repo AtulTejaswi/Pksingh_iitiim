@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../../config/db';
 import { AuthRequest } from '../../middleware/auth.middleware';
+import { autoBackup } from '../backup/backup.controller';
 
 export const listLessons = async (req: AuthRequest, res: Response): Promise<void> => {
   const { courseId } = req.query;
@@ -56,6 +57,7 @@ export const createLesson = async (req: AuthRequest, res: Response): Promise<voi
   const lesson = await prisma.lesson.create({
     data: { courseId, title, description, content, isFree, status: status || 'DRAFT', sortOrder },
   });
+  autoBackup();
   res.status(201).json({ lesson });
 };
 
@@ -65,12 +67,14 @@ export const updateLesson = async (req: AuthRequest, res: Response): Promise<voi
     where: { id },
     data: req.body,
   });
+  autoBackup();
   res.json({ lesson });
 };
 
 export const deleteLesson = async (req: AuthRequest, res: Response): Promise<void> => {
   const id = req.params.id as string;
   await prisma.lesson.delete({ where: { id } });
+  autoBackup();
   res.json({ message: 'Lesson deleted successfully' });
 };
 

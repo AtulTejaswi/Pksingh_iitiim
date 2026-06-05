@@ -3,6 +3,7 @@ import { prisma } from '../../config/db';
 import { z } from 'zod';
 import { formatZodError } from '../../utils/formatZodError';
 import { AuthRequest } from '../../middleware/auth.middleware';
+import { autoBackup } from '../backup/backup.controller';
 
 const courseSchema = z.object({
   title: z.string().min(3).max(200),
@@ -164,6 +165,7 @@ export const createCourse = async (req: AuthRequest, res: Response): Promise<voi
   if (examTags && examTags.length > 0) {
     await upsertExamTags(course.id, examTags);
   }
+  autoBackup();
   res.status(201).json({ course });
 };
 
@@ -179,12 +181,14 @@ export const updateCourse = async (req: AuthRequest, res: Response): Promise<voi
   if (examTags) {
     await upsertExamTags(id, examTags);
   }
+  autoBackup();
   res.json({ course });
 };
 
 export const deleteCourse = async (req: AuthRequest, res: Response): Promise<void> => {
   const id = req.params.id as string;
   await prisma.course.delete({ where: { id } });
+  autoBackup();
   res.json({ message: 'Course deleted successfully' });
 };
 

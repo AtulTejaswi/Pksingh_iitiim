@@ -53,6 +53,7 @@ import mediaRoutes from './modules/media/media.routes';
 import notesRoutes from './modules/notes/notes.routes';
 import debugRoutes from './modules/debug/debug.routes';
 import cmsRoutes from './modules/cms/cms.routes';
+import backupRoutes from './modules/backup/backup.routes';
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -67,6 +68,7 @@ app.use('/api/media', mediaRoutes);
 app.use('/api/notes', notesRoutes);
 app.use('/api/cms', cmsRoutes);
 app.use('/api/debug', debugRoutes);
+app.use('/api/backup', backupRoutes);
 
 // 404 handler
 app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
