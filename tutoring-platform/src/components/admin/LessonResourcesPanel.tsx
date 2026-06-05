@@ -18,29 +18,17 @@ interface LessonResourcesPanelProps {
   lessonTitle: string;
 }
 
-interface MediaAsset {
+interface MediaItem {
   id: string;
   title: string;
   type: string;
   url: string;
 }
 
-interface RawMedia {
-  id: string;
-  lessonId: string;
-  mediaAssetId?: string;
-  mediaAsset?: MediaAsset;
-}
-
 export default function LessonResourcesPanel({ lessonId, courseId, lessonTitle }: LessonResourcesPanelProps) {
   const { data: lesson, isLoading, refetch } = useGetLesson(lessonId);
 
-  const flattenMedia = (item: RawMedia) => ({
-    id: item.id,
-    title: item.mediaAsset?.title ?? '',
-    type: item.mediaAsset?.type ?? '',
-    url: item.mediaAsset?.url ?? '',
-  });
+  const media = lesson?.media ?? [];
 
   const { mutate: uploadMedia, isPending: isUploading } = useUploadMediaFile();
   const { mutate: addLink, isPending: isAddingLink } = useAddMediaLink();
@@ -141,8 +129,7 @@ export default function LessonResourcesPanel({ lessonId, courseId, lessonTitle }
     return <p className="text-slate-500 text-sm py-4">Loading attachments...</p>;
   }
 
-  const rawMedia = (lesson?.media ?? []) as RawMedia[];
-  const media = rawMedia.map(flattenMedia);
+
   const notes = lesson?.notes ?? [];
 
   return (
@@ -243,12 +230,16 @@ export default function LessonResourcesPanel({ lessonId, courseId, lessonTitle }
               className="flex items-center justify-between gap-2 p-3 rounded-lg border border-slate-200 bg-white text-sm shadow-sm"
             >
               <div className="min-w-0 flex-1">
-                <p className="text-slate-800 truncate font-medium">{item.title}</p>
-                <p className="text-[10px] text-slate-500 uppercase">{item.type.replace('_', ' ')}</p>
+                <p className="text-slate-800 truncate font-medium">
+                  {(item as MediaItem).title || 'Untitled'}
+                </p>
+                <p className="text-[10px] text-slate-500 uppercase">
+                  {((item as MediaItem).type || 'UNKNOWN').replace(/_/g, ' ')}
+                </p>
               </div>
               <div className="flex items-center gap-1 shrink-0">
                 <a
-                  href={item.url}
+                  href={(item as MediaItem).url || '#'}
                   target="_blank"
                   rel="noreferrer"
                   className="p-1.5 text-sky-600 hover:text-sky-800"

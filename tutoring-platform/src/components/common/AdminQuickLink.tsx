@@ -9,7 +9,7 @@ import { LayoutDashboard } from 'lucide-react';
 export default function AdminQuickLink() {
   const { user, loading } = useAuth();
 
-  if (loading || !user || user.role !== 'ADMIN') {
+  if (loading || !user || (user.role !== 'SUPER_ADMIN' && user.role !== 'MENTOR')) {
     return null;
   }
 

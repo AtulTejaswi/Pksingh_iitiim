@@ -33,10 +33,12 @@ function lessonPath(courseId: string, lessonId: string, mode: LessonPlayerMode) 
 }
 
 function getYoutubeEmbedUrl(url: string) {
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#&?]*).*/;
-  const match = url.match(regExp);
-  if (match && match[2].length === 11) {
-    return `https://www.youtube.com/embed/${match[2]}`;
+  if (url.includes('drive.google.com')) {
+    return url.replace(/\/view.*$/, '/preview');
+  }
+  const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
+  if (match && match[1]) {
+    return `https://www.youtube.com/embed/${match[1]}`;
   }
   return url;
 }
@@ -94,7 +96,7 @@ export default function LessonPlayer({ courseId, lessonId, mode }: LessonPlayerP
       ? course.lessons?.[currentIdx + 1]
       : null;
 
-  const videoResource = lesson.media?.find((m) => m.type === 'VIDEO' || m.type === 'YOUTUBE_LINK');
+  const videoResource = lesson.media?.find((m) => m.type === 'VIDEO' || m.type === 'YOUTUBE_LINK' || m.type === 'EXTERNAL_LINK');
 
   const canOpenLesson = (l: { id: string; isFree?: boolean }) => {
     if (mode === 'enrolled') return true;
@@ -120,7 +122,7 @@ export default function LessonPlayer({ courseId, lessonId, mode }: LessonPlayerP
         <div className="lg:col-span-8 space-y-6">
           {videoResource ? (
             <div className="aspect-video w-full rounded-2xl overflow-hidden bg-black border border-slate-200 shadow-lg">
-              {videoResource.type === 'YOUTUBE_LINK' ? (
+              {videoResource.type === 'YOUTUBE_LINK' || videoResource.url.includes('youtube.com') || videoResource.url.includes('youtu.be') || videoResource.url.includes('drive.google.com') || (videoResource.type === 'EXTERNAL_LINK' && !videoResource.url.match(/\.(mp4|webm|ogg)$/i)) ? (
                 <iframe
                   src={getYoutubeEmbedUrl(videoResource.url)}
                   title={videoResource.title}

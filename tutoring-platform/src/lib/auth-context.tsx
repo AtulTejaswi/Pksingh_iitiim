@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { apiClient } from './api-client';
 import { LoginInput, SignupInput } from './validators';
 
@@ -32,15 +32,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [verified, setVerified] = useState(false);
 
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('user');
     setUser(null);
     setVerified(false);
-  };
+  }, []);
 
 
-  const fetchProfile = async (opts?: { setLoading?: boolean }) => {
+  const fetchProfile = useCallback(async (opts?: { setLoading?: boolean }) => {
     const shouldSetLoading = opts?.setLoading ?? true;
     if (shouldSetLoading) setLoading(true);
 
@@ -48,15 +48,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await apiClient.get('/auth/me');
       setUser(response.data);
       setVerified(true);
-    } catch (error) {
-      console.error('Failed to fetch profile', error);
+    } catch {
       logout();
-      setVerified(false);
     } finally {
       if (shouldSetLoading) setLoading(false);
     }
-  };
+  }, [logout]);
 
+
+  const refreshUser = useCallback(async () => {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      await fetchProfile({ setLoading: false });
+    } else {
+      logout();
+    }
+  }, [fetchProfile, logout]);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -69,8 +76,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // We may show cached data immediately, but we still don't consider the
-      // profile “verified” until /auth/me succeeds or fails.
       if (stored) {
         try {
           const parsed = JSON.parse(stored) as UserProfile;
@@ -79,19 +84,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // ignore parse errors and fall through
         }
 
-        // Start verification in background.
         setLoading(false);
         fetchProfile({ setLoading: false }).catch(() => {});
         return;
       }
 
-      // No cache: block initial load until /auth/me resolves.
       await fetchProfile({ setLoading: true });
     };
 
     const onStorage = (e: StorageEvent) => {
       if (e.key === 'access_token' || e.key === 'user') {
-        // Re-sync state when another tab logs in/out.
         refreshUser().catch(() => {});
       }
     };
@@ -99,7 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     window.addEventListener('storage', onStorage);
     initAuth();
     return () => window.removeEventListener('storage', onStorage);
-  }, []);
+  }, [refreshUser, fetchProfile]);
 
 
   const login = async (credentials: LoginInput) => {
@@ -161,18 +163,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
     }
   };
-
-  // logout is declared above
-
-  const refreshUser = async () => {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      await fetchProfile({ setLoading: false });
-    } else {
-      logout();
-    }
-  };
-
 
   return (
     <AuthContext.Provider

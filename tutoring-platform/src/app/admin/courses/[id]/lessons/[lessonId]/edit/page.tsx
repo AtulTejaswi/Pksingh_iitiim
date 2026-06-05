@@ -32,8 +32,8 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
       setValue('title', lesson.title);
       setValue('description', lesson.description || '');
       setValue('content', lesson.content || '');
-      setValue('sortOrder', lesson.sortOrder);
-      setValue('isFree', lesson.isFree);
+      setValue('sortOrder', lesson.sortOrder ?? undefined);
+      setValue('isFree', lesson.isFree ?? false);
       setValue('status', lesson.status || 'PUBLISHED');
     }
   }, [lesson, setValue]);
@@ -46,7 +46,7 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
           toast.success('Lecture module updated successfully!');
           router.push(`/admin/courses/${courseId}/lessons`);
         },
-        onError: (err: any) => {
+        onError: (err: { response?: { data?: { error?: string } } }) => {
           toast.error(err.response?.data?.error || 'Failed to update lesson');
         },
       }

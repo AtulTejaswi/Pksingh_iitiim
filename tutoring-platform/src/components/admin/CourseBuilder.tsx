@@ -429,11 +429,12 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
 
 
   const isYouTubeUrl = (url: string) => {
-    return url.includes('youtube.com/watch') || url.includes('youtu.be/');
+    return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('drive.google.com');
   };
 
   const getYouTubeEmbedUrl = (url: string) => {
-    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+    if (url.includes('drive.google.com')) return url.replace(/\/view.*$/, '/preview');
+    const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
     return match ? `https://www.youtube.com/embed/${match[1]}` : null;
   };
 

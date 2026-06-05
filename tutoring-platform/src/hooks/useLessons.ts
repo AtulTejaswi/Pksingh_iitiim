@@ -12,6 +12,25 @@ export interface Media {
   mimeType: string | null;
 }
 
+interface RawMediaEntry {
+  id: string;
+  lessonId?: string;
+  mediaAssetId?: string;
+  mediaAsset?: {
+    id?: string;
+    title?: string;
+    type?: string;
+    url?: string;
+    sizeBytes?: number | null;
+    mimeType?: string | null;
+  };
+  title?: string;
+  type?: string;
+  url?: string;
+  sizeBytes?: number | null;
+  mimeType?: string | null;
+}
+
 export interface Note {
   id: string;
   lessonId: string;
@@ -49,20 +68,23 @@ export function useGetLesson(id?: string) {
   return useQuery({
     queryKey: ['lesson', id],
     queryFn: async () => {
-      const response = await apiClient.get<{ lesson: any }>(`/lessons/${id}`);
+      const response = await apiClient.get<{ lesson: Lesson & { media?: RawMediaEntry[] } }>(`/lessons/${id}`);
       const raw = response.data.lesson;
-      if (raw.media) {
-        raw.media = raw.media.map((m: any) => ({
-          id: m.mediaAsset?.id ?? m.id,
+      if (!raw.media) return raw as unknown as Lesson;
+
+      return {
+        ...raw,
+        media: raw.media.map((m: RawMediaEntry) => ({
+          id: m.id,
+          mediaAssetId: m.mediaAsset?.id ?? m.mediaAssetId,
           lessonId: m.lessonId ?? raw.id,
           title: m.mediaAsset?.title ?? m.title ?? '',
           type: m.mediaAsset?.type ?? m.type ?? '',
           url: m.mediaAsset?.url ?? m.url ?? '',
           sizeBytes: m.mediaAsset?.sizeBytes ?? null,
           mimeType: m.mediaAsset?.mimeType ?? null,
-        }));
-      }
-      return raw as Lesson;
+        })),
+      } as unknown as Lesson;
     },
     enabled: !!id,
     retry: (failureCount, error) => {
@@ -80,9 +102,9 @@ export function useCreateLesson() {
       const r = await apiClient.post<{ lesson: Lesson }>('/lessons', data);
       return r.data.lesson;
     },
-    onSuccess: (_data, variables) => {
-      qc.invalidateQueries({ queryKey: ['lessons', (variables as any).courseId] });
-      qc.invalidateQueries({ queryKey: ['course', (variables as any).courseId] });
+    onSuccess: (_data, variables: { courseId?: string }) => {
+      qc.invalidateQueries({ queryKey: ['lessons', variables.courseId] });
+      qc.invalidateQueries({ queryKey: ['course', variables.courseId] });
     },
   });
 }
@@ -108,9 +130,9 @@ export function useDeleteLesson() {
     mutationFn: async ({ id, courseId }: { id: string; courseId?: string }) => {
       await apiClient.delete(`/lessons/${id}`);
     },
-    onSuccess: (_data, variables: any) => {
-      qc.invalidateQueries({ queryKey: ['lessons', variables?.courseId] });
-      if (variables?.courseId) qc.invalidateQueries({ queryKey: ['course', variables.courseId] });
+    onSuccess: (_data, variables: { courseId?: string }) => {
+      qc.invalidateQueries({ queryKey: ['lessons', variables.courseId] });
+      if (variables.courseId) qc.invalidateQueries({ queryKey: ['course', variables.courseId] });
     },
   });
 }
