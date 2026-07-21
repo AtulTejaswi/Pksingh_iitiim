@@ -11,7 +11,7 @@
   --surface: #FFFFFF;
   --surface-2: #F1F5F9;
   --surface-3: #E2E8F0;
-  --accent-grad: linear-gradient(135deg, #2563EB, #7C3AED);
+  --accent-grad: linear-gradient(135deg, #2563EB, #F97316);
   --text-primary: #0F172A;
   --text-secondary: #334155;
   --text-muted: #64748B;
@@ -19,7 +19,7 @@
   --borders-strong: #CBD5E1;
   --card-shadow: 0 1px 3px rgba(15,23,42,0.08), 0 1px 2px rgba(15,23,42,0.06);
   --elevated-shadow: 0 10px 30px rgba(15,23,42,0.10), 0 4px 10px rgba(15,23,42,0.07);
-  --focus: rgba(37,99,235,0.15);
+  --focus: rgba(249,115,22,0.15);
   --radius: 0.625rem;
   --transition-fast: 180ms;
   --transition-medium: 260ms;
@@ -31,7 +31,7 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.488 0.243 264.376);
+  --primary: oklch(0.66 0.22 55);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -42,15 +42,15 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.488 0.243 264.376);
+  --ring: oklch(0.66 0.22 55);
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary: oklch(0.66 0.22 55);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.488 0.243 264.376);
+  --sidebar-ring: oklch(0.66 0.22 55);
 }
 
 @theme inline {
@@ -147,13 +147,13 @@ p, li, span, a, label {
 .subject-card:hover {
   transform: translateY(-6px) scale(1.01);
   box-shadow: var(--elevated-shadow);
-  border-color: #BFDBFE;
+  border-color: #FED7AA;
 }
 
 .feature-card { background: var(--surface); border-radius: 12px; padding: 1rem; border: 1px solid var(--borders); }
 
 .hero-bg {
-  background: linear-gradient(180deg, #EFF6FF 0%, #F8FAFC 100%);
+  background: linear-gradient(180deg, #FFF7ED 0%, #F8FAFC 100%);
 }
 
 .hero-card {
@@ -180,10 +180,10 @@ p, li, span, a, label {
 .btn-primary {
   background: var(--accent-grad);
   color: #FFFFFF;
-  box-shadow: 0 4px 14px rgba(37,99,235,0.25);
+  box-shadow: 0 4px 14px rgba(37,99,235,0.20);
 }
 
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37,99,235,0.30); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(249,115,22,0.20); }
 
 .btn-ghost {
   background: transparent;
@@ -206,8 +206,8 @@ p, li, span, a, label {
 
 .input-dark:focus, input:focus, textarea:focus {
   outline: none;
-  border-color: #2563EB;
-  box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+  border-color: #F97316;
+  box-shadow: 0 0 0 3px rgba(249,115,22,0.12);
 }
 
 input::placeholder, textarea::placeholder { color: #94A3B8; }

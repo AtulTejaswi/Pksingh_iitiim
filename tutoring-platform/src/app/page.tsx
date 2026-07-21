@@ -31,13 +31,13 @@ export default function LandingPage() {
 
       {/* Decorative Blur Orbs */}
       <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-400/10 blur-[120px] pointer-events-none animate-pulse-slow"></div>
-      <div className="absolute top-[40%] right-[-10%] w-[40%] h-[40%] rounded-full bg-violet-400/08 blur-[120px] pointer-events-none animate-float"></div>
+      <div className="absolute top-[40%] right-[-10%] w-[40%] h-[40%] rounded-full bg-orange-400/08 blur-[120px] pointer-events-none animate-float"></div>
 
       {/* Hero Section */}
       <section id="home" className="relative pt-24 pb-14 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full hero-bg overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute -left-10 top-8 h-56 w-56 rounded-full bg-blue-300/15 blur-3xl animate-float"></div>
-          <div className="absolute right-0 top-28 h-72 w-72 rounded-full bg-violet-300/08 blur-3xl animate-pulse-slow"></div>
+          <div className="absolute right-0 top-28 h-72 w-72 rounded-full bg-orange-300/08 blur-3xl animate-pulse-slow"></div>
           <div className="absolute left-1/2 top-12 text-[5rem] font-black text-slate-200/30 select-none">∑</div>
           <div className="absolute right-10 bottom-10 text-[6rem] font-black text-slate-200/25 select-none">π</div>
         </div>
@@ -61,7 +61,7 @@ export default function LandingPage() {
                 23+ years of mentorship
               </span>
               <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-slate-700">
-                <Target className="w-4 h-4 text-violet-500" />
+                <Target className="w-4 h-4 text-orange-500" />
                 IIT + IIM curriculum alignment
               </span>
               <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-slate-700">
@@ -73,7 +73,7 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row gap-4 mb-10">
               <Link
                 href="/courses"
-                className="glow-button inline-flex items-center justify-center gap-2 rounded-3xl bg-gradient-to-r from-blue-600 to-violet-600 px-8 py-4 text-sm font-semibold text-white transition-all duration-300 hover:shadow-2xl hover:scale-105 hover:from-blue-500 hover:to-violet-500"
+                className="glow-button inline-flex items-center justify-center gap-2 rounded-3xl bg-gradient-to-r from-blue-600 to-orange-600 px-8 py-4 text-sm font-semibold text-white transition-all duration-300 hover:shadow-2xl hover:scale-105 hover:from-blue-500 hover:to-orange-500"
               >
                 Explore Courses
                 <ChevronRight className="w-4 h-4" />
@@ -139,7 +139,7 @@ export default function LandingPage() {
 
       {/* Stats Section */}
       <section className="relative py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto overflow-hidden rounded-[2rem] bg-gradient-to-r from-blue-600 to-violet-700 text-white shadow-2xl">
+        <div className="max-w-7xl mx-auto overflow-hidden rounded-[2rem] bg-gradient-to-r from-blue-600 to-orange-700 text-white shadow-2xl">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.18),transparent_25%),radial-gradient(circle_at_bottom_right,rgba(129,140,248,0.16),transparent_20%)]"></div>
           <div className="relative grid gap-6 p-8 md:grid-cols-4">
             <div className="icon-card relative overflow-hidden rounded-[1.75rem] border border-white/20 bg-white/10 p-6 backdrop-blur-md">
@@ -152,7 +152,7 @@ export default function LandingPage() {
               <p className="mt-3 text-sm text-slate-100/90 uppercase tracking-[0.24em]">Learners enrolled</p>
             </div>
             <div className="icon-card relative overflow-hidden rounded-[1.75rem] border border-white/20 bg-white/10 p-6 backdrop-blur-md">
-              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-indigo-300/15 text-indigo-200">
+              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-blue-300/15 text-blue-200">
                 <Zap className="w-6 h-6" />
               </div>
               <p className="text-4xl font-extrabold text-white">
@@ -187,7 +187,7 @@ export default function LandingPage() {
           Personal guidance from PK Singh — IIT + IIM alumnus, bestselling author, and mentor focused on exam-winning strategies.
         </p>
         <div>
-          <Link href="/courses" className="inline-flex px-6 py-3 rounded-3xl bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-semibold transition shadow-lg">
+          <Link href="/courses" className="inline-flex px-6 py-3 rounded-3xl bg-gradient-to-r from-blue-600 to-orange-600 hover:from-blue-500 hover:to-orange-500 text-white font-semibold transition shadow-lg">
             Explore Courses
           </Link>
         </div>
@@ -196,7 +196,7 @@ export default function LandingPage() {
       {/* How It Works */}
       <section id="how" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-16 border-t border-slate-100">
         <div className="text-center mb-12">
-          <p className="text-sm uppercase tracking-[0.35em] text-violet-600 font-semibold mb-4">How It Works</p>
+          <p className="text-sm uppercase tracking-[0.35em] text-orange-600 font-semibold mb-4">How It Works</p>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900">Simple steps to start your high-impact preparation</h2>
         </div>
 
@@ -239,14 +239,14 @@ export default function LandingPage() {
             href="/courses?subject=PHYSICS"
             className="p-6 rounded-2xl subject-card group"
           >
-            <div className="w-12 h-12 rounded-xl bg-purple-100 border border-purple-200 flex items-center justify-center text-purple-600 mb-6 group-hover:scale-110 transition-transform">
+            <div className="w-12 h-12 rounded-xl bg-orange-100 border border-orange-200 flex items-center justify-center text-orange-600 mb-6 group-hover:scale-110 transition-transform">
               <Target className="w-6 h-6 animate-pulse" />
             </div>
             <h3 className="text-xl font-bold text-slate-900 mb-2">Physics</h3>
             <p className="text-slate-500 text-sm leading-relaxed mb-4">
               Explore mechanics, electrodynamics, optics, and wave theory with crystal clear visual derivations.
             </p>
-            <span className="text-purple-600 text-xs font-semibold tracking-wider uppercase inline-flex items-center gap-1 mt-auto">
+            <span className="text-orange-600 text-xs font-semibold tracking-wider uppercase inline-flex items-center gap-1 mt-auto">
               Explore physics courses <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
             </span>
           </Link>
@@ -332,7 +332,7 @@ export default function LandingPage() {
                 className="rounded-[2rem] border border-slate-200 bg-white shadow-sm hover:-translate-y-1 transition-transform duration-300 overflow-hidden flex flex-col group justify-between"
               >
                 {/* Course card banner with customized gradients */}
-                <div className="h-40 bg-gradient-to-br from-blue-600 to-violet-600 relative p-6 flex flex-col justify-between">
+                <div className="h-40 bg-gradient-to-br from-blue-600 to-orange-600 relative p-6 flex flex-col justify-between">
                   <span className="self-start px-2.5 py-1 rounded-full bg-white/20 border border-white/30 text-white text-[10px] font-bold uppercase tracking-wider">
                     {course.subject}
                   </span>
