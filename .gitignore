@@ -17,3 +17,5 @@ prisma/*.db
 .env
 
 /src/generated/prisma
+backups/
+*.log
