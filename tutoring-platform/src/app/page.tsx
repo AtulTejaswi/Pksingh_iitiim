@@ -153,6 +153,22 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Infinite Marquee Engagement Loop */}
+      <section className="border-y border-slate-200 bg-white py-4 overflow-hidden relative">
+        <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
+        <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
+        <div className="animate-marquee flex items-center gap-12 px-4">
+          {[1, 2, 3, 4, 5].map((_, i) => (
+            <React.Fragment key={i}>
+              <span className="flex items-center gap-2 text-sm font-semibold text-slate-600 whitespace-nowrap"><Target className="w-4 h-4 text-orange-500" /> 10,000+ Students Mentored</span>
+              <span className="flex items-center gap-2 text-sm font-semibold text-slate-600 whitespace-nowrap"><Award className="w-4 h-4 text-blue-500" /> #1 Bestselling Author</span>
+              <span className="flex items-center gap-2 text-sm font-semibold text-slate-600 whitespace-nowrap"><Zap className="w-4 h-4 text-emerald-500" /> IIT & IIM Alumni Network</span>
+              <span className="flex items-center gap-2 text-sm font-extrabold text-blue-800 whitespace-nowrap bg-blue-50 px-3 py-1 rounded-full">"Focus on effort, not the outcome."</span>
+            </React.Fragment>
+          ))}
+        </div>
+      </section>
+
       {/* Stats Section */}
       <section className="relative py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-blue-900 via-blue-700 to-orange-700 text-white shadow-2xl relative">
@@ -198,6 +214,35 @@ export default function LandingPage() {
             <Link href="/courses" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-white text-blue-700 font-bold transition-all duration-300 hover:shadow-xl hover:scale-105 hover:bg-blue-50 shadow-lg">
               Explore Courses <ChevronRight className="w-4 h-4" />
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Ancient Wisdom Parallax Section */}
+      <section className="relative py-28 px-4 sm:px-6 lg:px-8 bg-slate-900 text-white overflow-hidden bg-fixed bg-center bg-cover" style={{ backgroundImage: 'radial-gradient(circle at center, #1E3A8A, #0F172A)' }}>
+        <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px]"></div>
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-[120px] animate-pulse-glow pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-orange-500/20 rounded-full blur-[120px] animate-float pointer-events-none"></div>
+        
+        <div className="relative max-w-4xl mx-auto text-center z-10">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-blue-200 text-xs font-bold uppercase tracking-[0.3em] mb-12">Ancient Wisdom for Modern Success</span>
+          
+          <div className="space-y-16">
+            <div className="group cursor-default">
+              <p className="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight text-white mb-6 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-orange-400 transition-all duration-500">
+                "There is only one single-pointed determination; many-branched and endless are the thoughts of the indecisive."
+              </p>
+              <p className="text-slate-400 text-lg uppercase tracking-widest font-semibold">— Bhagavad Gita (2.41)</p>
+            </div>
+            
+            <div className="w-24 h-px bg-gradient-to-r from-transparent via-slate-500 to-transparent mx-auto opacity-50"></div>
+            
+            <div className="group cursor-default">
+              <p className="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight text-white mb-6 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-orange-400 transition-all duration-500">
+                "A person with faith, dedication, and self-control attains wisdom."
+              </p>
+              <p className="text-slate-400 text-lg uppercase tracking-widest font-semibold">— Bhagavad Gita (4.39)</p>
+            </div>
           </div>
         </div>
       </section>
@@ -399,6 +444,16 @@ export default function LandingPage() {
       </section>
 
       <SiteFooter />
+
+      {/* Sticky Bottom Engagement Bar */}
+      <div className="fixed bottom-6 left-0 right-0 z-50 px-4 pointer-events-none flex justify-center">
+        <div className="pointer-events-auto bg-slate-900/90 backdrop-blur-md border border-slate-700/50 rounded-full px-6 py-3 shadow-2xl flex items-center gap-4 sm:gap-6 animate-slide-up hover:bg-slate-900 transition-all">
+          <span className="hidden sm:inline text-white/90 text-sm font-medium">Ready to start your journey?</span>
+          <Link href="/courses" className="btn bg-gradient-to-r from-blue-500 to-orange-500 text-white border-none py-2 px-6 rounded-full text-sm hover:scale-105 shadow-[0_0_15px_rgba(249,115,22,0.4)]">
+            Explore Courses Now
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
