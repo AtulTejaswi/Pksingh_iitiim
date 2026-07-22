@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Testimonials from '@/components/common/Testimonials';
 import Navbar from '@/components/student/Navbar';
 import { useGetCourses, useGetPublicStats } from '@/hooks/useCourses';
-import { BookOpen, GraduationCap, Award, CheckCircle2, ChevronRight, Zap, Target } from 'lucide-react';
+import { BookOpen, GraduationCap, Award, CheckCircle2, ChevronRight, Zap, Target, Search, Flame } from 'lucide-react';
 import SiteFooter from '@/components/common/SiteFooter';
 
 function formatStat(value: number, fallback: string): string {
@@ -84,6 +84,21 @@ export default function LandingPage() {
               </Link>
             </div>
 
+            {/* Interactive Search Bar */}
+            <div className="relative max-w-xl group">
+              <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+              </div>
+              <input 
+                type="text" 
+                placeholder="What do you want to learn today? (e.g. Physics, JEE)" 
+                className="w-full pl-12 pr-32 py-4 rounded-full border border-slate-200 bg-white/80 backdrop-blur-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all text-slate-800"
+              />
+              <button className="absolute inset-y-1.5 right-1.5 px-6 rounded-full bg-slate-900 text-white font-semibold text-sm hover:bg-slate-800 transition-colors">
+                Search
+              </button>
+            </div>
+
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="rounded-2xl bg-white/60 backdrop-blur-sm border border-slate-200/60 p-6 text-center shadow-sm hover:shadow-md hover:bg-white/80 transition-all duration-300">
                 <p className="text-3xl font-bold gradient-text">23+</p>
@@ -143,20 +158,28 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-blue-900 via-blue-700 to-orange-700 text-white shadow-2xl relative">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.2),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(249,115,22,0.15),transparent_40%)]"></div>
           <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-white/05 to-transparent"></div>
-          <div className="relative grid gap-5 p-10 md:grid-cols-4">
+          <div className="relative grid gap-5 p-10 md:grid-cols-4 grid-rows-[auto]">
             {[
-              { icon: BookOpen, value: formatStat(stats?.enrollments ?? stats?.students ?? 0, 'Growing'), label: 'Learners enrolled', color: 'from-sky-400/20 to-sky-500/10 text-sky-200' },
-              { icon: Zap, value: formatStat(stats?.publishedCourses ?? 0, 'New'), label: 'Published courses', color: 'from-blue-400/20 to-blue-500/10 text-blue-200' },
-              { icon: Award, value: formatStat(stats?.publishedLessons ?? 0, 'Adding soon'), label: 'Lesson modules', color: 'from-emerald-400/20 to-emerald-500/10 text-emerald-200' },
-              { icon: Target, value: '100%', label: 'Free Resources', color: 'from-orange-400/20 to-orange-500/10 text-orange-200' },
-            ].map((item) => (
-              <div key={item.label} className="group relative overflow-hidden rounded-2xl border border-white/15 bg-white/08 p-7 backdrop-blur-md hover:bg-white/12 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-                <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: `radial-gradient(circle at top right, rgba(255,255,255,0.1), transparent 60%)` }}></div>
-                <div className={`relative mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${item.color}`}>
+              { icon: BookOpen, value: formatStat(stats?.enrollments ?? stats?.students ?? 0, 'Growing'), label: 'Learners enrolled', color: 'from-sky-400/20 to-sky-500/10 text-sky-200', span: 'md:col-span-2 md:row-span-2' },
+              { icon: Flame, value: formatStat(stats?.publishedCourses ?? 0, 'New'), label: 'Active Streaks', color: 'from-orange-400/20 to-red-500/10 text-orange-200', span: 'md:col-span-1 md:row-span-1' },
+              { icon: Award, value: formatStat(stats?.publishedLessons ?? 0, 'Adding soon'), label: 'Lesson modules', color: 'from-emerald-400/20 to-emerald-500/10 text-emerald-200', span: 'md:col-span-1 md:row-span-1' },
+              { icon: Target, value: '100%', label: 'Free Resources', color: 'from-blue-400/20 to-blue-500/10 text-blue-200', span: 'md:col-span-2 md:row-span-1' },
+            ].map((item, i) => (
+              <div key={item.label} className={`group relative overflow-hidden rounded-3xl border border-white/15 bg-white/05 p-7 backdrop-blur-md hover:bg-white/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] ${item.span}`}>
+                <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: `radial-gradient(circle at top right, rgba(255,255,255,0.08), transparent 60%)` }}></div>
+                
+                {/* Gamified visual for larger bento cards */}
+                {i === 0 && (
+                  <div className="absolute right-0 bottom-0 w-32 h-32 bg-sky-500/20 blur-3xl rounded-full"></div>
+                )}
+                
+                <div className={`relative mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${item.color} shadow-inner`}>
                   <item.icon className="w-6 h-6" />
                 </div>
-                <p className="relative text-3xl font-extrabold text-white tracking-tight">{item.value}</p>
-                <p className="relative mt-2 text-xs text-white/80 uppercase tracking-[0.24em] font-medium">{item.label}</p>
+                <div className="relative mt-auto">
+                  <p className="text-4xl font-black text-white tracking-tight">{item.value}</p>
+                  <p className="mt-2 text-xs text-white/70 uppercase tracking-[0.2em] font-bold">{item.label}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -285,7 +308,7 @@ export default function LandingPage() {
             {featuredCourses.map((course) => (
               <div
                 key={course.id}
-                className="rounded-3xl border border-slate-200 bg-white shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col group"
+                className="rounded-3xl border border-slate-200 bg-white shadow-sm hover:shadow-2xl hover:-translate-y-2 hover:border-blue-300 transition-all duration-500 overflow-hidden flex flex-col group cursor-pointer"
               >
                 <div className="h-44 bg-gradient-to-br from-blue-600 via-blue-700 to-orange-700 relative p-6 flex flex-col justify-between">
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_50%)]"></div>
@@ -317,9 +340,12 @@ export default function LandingPage() {
 
                   <Link
                     href={`/courses/${course.id}`}
-                    className="w-full py-3 rounded-full bg-gradient-to-r from-blue-50 to-orange-50 border border-blue-200/50 hover:from-blue-100 hover:to-orange-100 text-blue-700 text-center text-sm font-bold tracking-wide transition-all duration-300 block hover:shadow-md"
+                    className="w-full py-3 rounded-full bg-slate-100 border border-slate-200 group-hover:bg-slate-900 group-hover:text-white group-hover:border-slate-900 text-slate-700 text-center text-sm font-bold tracking-wide transition-all duration-300 block relative overflow-hidden"
                   >
-                    View Details
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                      View Details
+                      <ChevronRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                    </span>
                   </Link>
                 </div>
               </div>
