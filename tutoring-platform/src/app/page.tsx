@@ -26,44 +26,43 @@ export default function LandingPage() {
     ?.slice(0, 3) || [];
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 text-slate-900">
+    <div className="flex flex-col min-h-screen bg-white text-slate-900">
       <Navbar />
 
       {/* Hero Section */}
       <section id="home" className="relative min-h-[90vh] flex items-center pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full hero-bg overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-20 -left-20 h-[500px] w-[500px] rounded-full bg-gradient-to-br from-blue-500/20 to-orange-500/10 blur-[100px] animate-pulse-glow"></div>
-          <div className="absolute top-1/3 -right-20 h-[400px] w-[400px] rounded-full bg-gradient-to-br from-orange-400/20 to-blue-500/10 blur-[100px] animate-float-reverse"></div>
-          <div className="absolute bottom-0 left-1/3 h-[300px] w-[300px] rounded-full bg-gradient-to-br from-blue-400/15 to-transparent blur-[80px] animate-float"></div>
-          <div className="absolute right-1/4 top-10 h-[200px] w-[200px] rounded-full bg-gradient-to-br from-blue-400/10 to-transparent blur-[60px] animate-pulse-glow"></div>
+          <div className="absolute -top-20 -left-20 h-[500px] w-[500px] rounded-full bg-amber-100/40 blur-[120px]"></div>
+          <div className="absolute top-1/3 -right-20 h-[400px] w-[400px] rounded-full bg-slate-100/60 blur-[120px]"></div>
+          <div className="absolute bottom-0 left-1/3 h-[300px] w-[300px] rounded-full bg-amber-50/50 blur-[100px]"></div>
         </div>
 
         <div className="relative grid gap-16 xl:grid-cols-[1.1fr_0.9fr] items-center w-full">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/70 backdrop-blur-md border border-blue-100 px-5 py-2 text-sm font-bold text-blue-700 uppercase tracking-[0.25em] mb-8 shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-orange-500 animate-pulse"></span>
+            <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 border border-amber-200 px-5 py-2 text-sm font-bold text-amber-800 uppercase tracking-[0.25em] mb-8">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
               Premium Mentorship
             </div>
 
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] mb-8 text-slate-900 animate-slide-up">
               Premium mentorship for<br />
-              <span className="gradient-text">top rank outcomes</span>
+              <span className="text-amber-600">top rank outcomes</span>
             </h1>
-            <p className="text-slate-600 text-lg sm:text-xl max-w-2xl leading-[1.75] mb-10">
+            <p className="text-slate-700 text-lg sm:text-xl max-w-2xl leading-[1.8] mb-10">
               Learn Physics, Chemistry, Math and exam strategy from an IIT + IIM alumnus, bestselling author and global consultant. Every course is built for clarity, confidence and accelerated exam performance.
             </p>
 
-            <div className="flex flex-wrap gap-3 text-sm text-slate-600 mb-10">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/60 backdrop-blur-sm border border-slate-200/60 px-4 py-2 text-slate-700 shadow-sm">
-                <BookOpen className="w-4 h-4 text-blue-500" />
+            <div className="flex flex-wrap gap-3 text-sm mb-10">
+              <span className="inline-flex items-center gap-2 rounded-full bg-slate-50 border border-slate-200 px-4 py-2 text-slate-800 font-medium">
+                <BookOpen className="w-4 h-4 text-slate-600" />
                 23+ years of mentorship
               </span>
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/60 backdrop-blur-sm border border-slate-200/60 px-4 py-2 text-slate-700 shadow-sm">
-                <Target className="w-4 h-4 text-orange-500" />
+              <span className="inline-flex items-center gap-2 rounded-full bg-slate-50 border border-slate-200 px-4 py-2 text-slate-800 font-medium">
+                <Target className="w-4 h-4 text-amber-600" />
                 IIT + IIM curriculum
               </span>
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/60 backdrop-blur-sm border border-slate-200/60 px-4 py-2 text-slate-700 shadow-sm">
-                <Award className="w-4 h-4 text-emerald-500" />
+              <span className="inline-flex items-center gap-2 rounded-full bg-slate-50 border border-slate-200 px-4 py-2 text-slate-800 font-medium">
+                <Award className="w-4 h-4 text-emerald-600" />
                 Proven exam strategies
               </span>
             </div>
@@ -71,14 +70,14 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
               <Link
                 href="/courses"
-                className="btn btn-primary px-10 py-4.5 text-sm font-bold"
+                className="btn btn-primary px-10 py-4 text-sm font-bold"
               >
                 Explore Courses
                 <ChevronRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/signup"
-                className="btn btn-ghost px-10 py-4.5 text-sm font-bold"
+                className="btn btn-ghost px-10 py-4 text-sm font-bold"
               >
                 Join Free Now
               </Link>
@@ -92,7 +91,7 @@ export default function LandingPage() {
               <input 
                 type="text" 
                 placeholder="What do you want to learn today? (e.g. Physics, JEE)" 
-                className="w-full pl-12 pr-32 py-4 rounded-full border border-slate-200 bg-white/80 backdrop-blur-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all text-slate-800"
+                className="w-full pl-12 pr-32 py-4 rounded-full border-2 border-slate-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all text-slate-900 placeholder:text-slate-400"
               />
               <button className="absolute inset-y-1.5 right-1.5 px-6 rounded-full bg-slate-900 text-white font-semibold text-sm hover:bg-slate-800 transition-colors">
                 Search
@@ -100,17 +99,17 @@ export default function LandingPage() {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-3">
-              <div className="rounded-2xl bg-white/60 backdrop-blur-sm border border-slate-200/60 p-6 text-center shadow-sm hover:shadow-md hover:bg-white/80 transition-all duration-300">
-                <p className="text-3xl font-bold gradient-text">23+</p>
-                <p className="text-sm text-slate-500 mt-2">Years of experience</p>
+              <div className="rounded-2xl bg-slate-50 border border-slate-200 p-6 text-center hover:shadow-md hover:border-slate-300 transition-all duration-300">
+                <p className="text-3xl font-bold text-slate-900">23+</p>
+                <p className="text-sm text-slate-600 mt-2">Years of experience</p>
               </div>
-              <div className="rounded-2xl bg-white/60 backdrop-blur-sm border border-slate-200/60 p-6 text-center shadow-sm hover:shadow-md hover:bg-white/80 transition-all duration-300">
-                <p className="text-3xl font-bold gradient-text">Bestselling</p>
-                <p className="text-sm text-slate-500 mt-2">UK & USA books</p>
+              <div className="rounded-2xl bg-slate-50 border border-slate-200 p-6 text-center hover:shadow-md hover:border-slate-300 transition-all duration-300">
+                <p className="text-3xl font-bold text-slate-900">Bestselling</p>
+                <p className="text-sm text-slate-600 mt-2">UK & USA books</p>
               </div>
-              <div className="rounded-2xl bg-white/60 backdrop-blur-sm border border-slate-200/60 p-6 text-center shadow-sm hover:shadow-md hover:bg-white/80 transition-all duration-300">
-                <p className="text-3xl font-bold gradient-text">Global</p>
-                <p className="text-sm text-slate-500 mt-2">Consulting exposure</p>
+              <div className="rounded-2xl bg-slate-50 border border-slate-200 p-6 text-center hover:shadow-md hover:border-slate-300 transition-all duration-300">
+                <p className="text-3xl font-bold text-slate-900">Global</p>
+                <p className="text-sm text-slate-600 mt-2">Consulting exposure</p>
               </div>
             </div>
           </div>
@@ -129,9 +128,9 @@ export default function LandingPage() {
                   <Image src="/images/pk_sir_logo.jpg" alt="Brand Logo" width={80} height={24} className="w-[80px] h-auto rounded-lg bg-white/80 px-1.5 py-1" />
                 </div>
               </div>
-              <div className="rounded-2xl bg-gradient-to-br from-blue-50 to-orange-50 border border-blue-100/50 p-6">
-                <p className="text-xs uppercase tracking-[0.3em] text-blue-600 font-bold mb-3">High-impact mentorship</p>
-                <p className="text-slate-600 text-sm leading-relaxed">One-to-one guidance, exam-ready routines, and strategically designed learning plans for maximum progress.</p>
+              <div className="rounded-2xl bg-amber-50 border border-amber-100 p-6">
+                <p className="text-xs uppercase tracking-[0.3em] text-amber-700 font-bold mb-3">High-impact mentorship</p>
+                <p className="text-slate-700 text-sm leading-relaxed">One-to-one guidance, exam-ready routines, and strategically designed learning plans for maximum progress.</p>
               </div>
               <div className="grid gap-3">
                 {[
@@ -141,10 +140,10 @@ export default function LandingPage() {
                 ].map((item, i) => (
                   <div key={item.title} className="rounded-2xl bg-white/80 border border-slate-200/60 p-5 hover:bg-white hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group">
                     <div className="flex items-center gap-3 mb-1.5">
-                      <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-orange-500 text-white text-xs font-bold flex items-center justify-center">{i + 1}</span>
+                      <span className="w-7 h-7 rounded-lg bg-slate-900 text-white text-xs font-bold flex items-center justify-center">{i + 1}</span>
                       <p className="text-sm font-bold text-slate-800">{item.title}</p>
                     </div>
-                    <p className="text-slate-500 text-sm leading-relaxed ml-10">{item.description}</p>
+                    <p className="text-slate-600 text-sm leading-relaxed ml-10">{item.description}</p>
                   </div>
                 ))}
               </div>
@@ -160,10 +159,10 @@ export default function LandingPage() {
         <div className="animate-marquee flex items-center gap-12 px-4">
           {[1, 2, 3, 4, 5].map((_, i) => (
             <React.Fragment key={i}>
-              <span className="flex items-center gap-2 text-sm font-semibold text-slate-600 whitespace-nowrap"><Target className="w-4 h-4 text-orange-500" /> 10,000+ Students Mentored</span>
-              <span className="flex items-center gap-2 text-sm font-semibold text-slate-600 whitespace-nowrap"><Award className="w-4 h-4 text-blue-500" /> #1 Bestselling Author</span>
-              <span className="flex items-center gap-2 text-sm font-semibold text-slate-600 whitespace-nowrap"><Zap className="w-4 h-4 text-emerald-500" /> IIT & IIM Alumni Network</span>
-              <span className="flex items-center gap-2 text-sm font-extrabold text-blue-800 whitespace-nowrap bg-blue-50 px-3 py-1 rounded-full">"Focus on effort, not the outcome."</span>
+              <span className="flex items-center gap-2 text-sm font-semibold text-slate-700 whitespace-nowrap"><Target className="w-4 h-4 text-amber-600" /> 10,000+ Students Mentored</span>
+              <span className="flex items-center gap-2 text-sm font-semibold text-slate-700 whitespace-nowrap"><Award className="w-4 h-4 text-slate-600" /> #1 Bestselling Author</span>
+              <span className="flex items-center gap-2 text-sm font-semibold text-slate-700 whitespace-nowrap"><Zap className="w-4 h-4 text-emerald-600" /> IIT & IIM Alumni Network</span>
+              <span className="flex items-center gap-2 text-sm font-bold text-amber-800 whitespace-nowrap bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">"Focus on effort, not the outcome."</span>
             </React.Fragment>
           ))}
         </div>
@@ -171,9 +170,9 @@ export default function LandingPage() {
 
       {/* Stats Section */}
       <section className="relative py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-blue-900 via-blue-700 to-orange-700 text-white shadow-2xl relative">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.2),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(249,115,22,0.15),transparent_40%)]"></div>
-          <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-white/05 to-transparent"></div>
+        <div className="max-w-7xl mx-auto overflow-hidden rounded-[2.5rem] bg-slate-900 text-white shadow-2xl relative">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(217,119,6,0.08),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(148,163,184,0.08),transparent_40%)]"></div>
+          <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-white/03 to-transparent"></div>
           <div className="relative grid gap-5 p-10 md:grid-cols-4 grid-rows-[auto]">
             {[
               { icon: BookOpen, value: formatStat(stats?.enrollments ?? stats?.students ?? 0, 'Growing'), label: 'Learners enrolled', color: 'from-sky-400/20 to-sky-500/10 text-sky-200', span: 'md:col-span-2 md:row-span-2' },
@@ -204,14 +203,14 @@ export default function LandingPage() {
 
       {/* Short mid-page mentor blurb */}
       <section id="about" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-12">
-        <div className="rounded-[2.5rem] bg-gradient-to-br from-blue-700 to-orange-600 p-10 sm:p-14 text-white relative overflow-hidden shadow-2xl">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.15),transparent_40%)] animate-pulse-glow"></div>
+        <div className="rounded-[2.5rem] bg-slate-900 p-10 sm:p-14 text-white relative overflow-hidden shadow-2xl">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(217,119,6,0.1),transparent_40%)]"></div>
           <div className="relative">
-            <span className="inline-block px-3 py-1 rounded-full bg-white/15 border border-white/20 text-white/90 text-xs font-bold uppercase tracking-[0.3em] mb-5">About the Mentor</span>
-            <p className="text-2xl sm:text-3xl font-bold leading-[1.3] mb-8 max-w-3xl">
+            <span className="inline-block px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold uppercase tracking-[0.3em] mb-5">About the Mentor</span>
+            <p className="text-2xl sm:text-3xl font-bold leading-[1.3] mb-8 max-w-3xl text-white">
               Personal guidance from PK Singh — IIT + IIM alumnus, bestselling author, and mentor focused on exam-winning strategies.
             </p>
-            <Link href="/courses" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-white text-blue-700 font-bold transition-all duration-300 hover:shadow-xl hover:scale-105 hover:bg-blue-50 shadow-lg">
+            <Link href="/courses" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-amber-500 text-white font-bold transition-all duration-300 hover:bg-amber-600 hover:shadow-xl shadow-lg">
               Explore Courses <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
@@ -219,29 +218,28 @@ export default function LandingPage() {
       </section>
 
       {/* Ancient Wisdom Parallax Section */}
-      <section className="relative py-28 px-4 sm:px-6 lg:px-8 bg-slate-900 text-white overflow-hidden bg-fixed bg-center bg-cover" style={{ backgroundImage: 'radial-gradient(circle at center, #1E3A8A, #0F172A)' }}>
-        <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px]"></div>
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-[120px] animate-pulse-glow pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-orange-500/20 rounded-full blur-[120px] animate-float pointer-events-none"></div>
+      <section className="relative py-28 px-4 sm:px-6 lg:px-8 bg-amber-50 overflow-hidden">
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-amber-100/60 rounded-full blur-[100px] pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-slate-100/60 rounded-full blur-[100px] pointer-events-none"></div>
         
         <div className="relative max-w-4xl mx-auto text-center z-10">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-blue-200 text-xs font-bold uppercase tracking-[0.3em] mb-12">Ancient Wisdom for Modern Success</span>
+          <span className="inline-block px-4 py-1.5 rounded-full bg-amber-100 border border-amber-200 text-amber-800 text-xs font-bold uppercase tracking-[0.3em] mb-12">Ancient Wisdom for Modern Success</span>
           
           <div className="space-y-16">
             <div className="group cursor-default">
-              <p className="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight text-white mb-6 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-orange-400 transition-all duration-500">
+              <p className="text-2xl sm:text-3xl lg:text-4xl font-extrabold leading-tight text-slate-900 mb-6 transition-all duration-500">
                 "There is only one single-pointed determination; many-branched and endless are the thoughts of the indecisive."
               </p>
-              <p className="text-slate-400 text-lg uppercase tracking-widest font-semibold">— Bhagavad Gita (2.41)</p>
+              <p className="text-amber-700 text-base uppercase tracking-widest font-semibold">— Bhagavad Gita (2.41)</p>
             </div>
             
-            <div className="w-24 h-px bg-gradient-to-r from-transparent via-slate-500 to-transparent mx-auto opacity-50"></div>
+            <div className="w-24 h-px bg-gradient-to-r from-transparent via-amber-300 to-transparent mx-auto"></div>
             
             <div className="group cursor-default">
-              <p className="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight text-white mb-6 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-orange-400 transition-all duration-500">
+              <p className="text-2xl sm:text-3xl lg:text-4xl font-extrabold leading-tight text-slate-900 mb-6 transition-all duration-500">
                 "A person with faith, dedication, and self-control attains wisdom."
               </p>
-              <p className="text-slate-400 text-lg uppercase tracking-widest font-semibold">— Bhagavad Gita (4.39)</p>
+              <p className="text-amber-700 text-base uppercase tracking-widest font-semibold">— Bhagavad Gita (4.39)</p>
             </div>
           </div>
         </div>
@@ -250,8 +248,8 @@ export default function LandingPage() {
       {/* How It Works */}
       <section id="how" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20">
         <div className="text-center mb-14">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-orange-50 border border-orange-200 text-orange-600 text-xs font-bold uppercase tracking-[0.3em] mb-5">How It Works</span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">Simple steps to start your <span className="gradient-text">high-impact</span> preparation</h2>
+          <span className="inline-block px-4 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold uppercase tracking-[0.3em] mb-5">How It Works</span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">Simple steps to start your <span className="text-amber-600">high-impact</span> preparation</h2>
         </div>
 
         <div className="grid gap-8 md:grid-cols-3">
@@ -265,7 +263,7 @@ export default function LandingPage() {
                 <item.icon className="w-6 h-6" />
               </div>
               <h3 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h3>
-              <p className="text-slate-500 text-sm leading-relaxed">{item.desc}</p>
+              <p className="text-slate-600 text-sm leading-relaxed">{item.desc}</p>
               <div className="mt-6 w-12 h-1 rounded-full bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: `linear-gradient(90deg, ${item.gradient.includes('blue') ? '#3B82F6' : item.gradient.includes('orange') ? '#F97316' : '#10B981'}, transparent)` }}></div>
             </div>
           ))}
@@ -277,10 +275,10 @@ export default function LandingPage() {
       {/* Browse by Subject shortcuts */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20">
         <div className="text-center mb-14">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight">
-            Master Your Core <span className="gradient-text">Subjects</span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900">
+            Master Your Core <span className="text-amber-600">Subjects</span>
           </h2>
-          <p className="text-slate-500 mt-4 text-lg max-w-xl mx-auto">Specialized courses designed for each discipline with real exam alignment</p>
+          <p className="text-slate-600 mt-4 text-lg max-w-xl mx-auto">Specialized courses designed for each discipline with real exam alignment</p>
         </div>
         
         <div className="grid md:grid-cols-3 gap-8">
@@ -298,7 +296,7 @@ export default function LandingPage() {
                 <item.icon className="w-7 h-7" />
               </div>
               <h3 className="text-2xl font-bold text-slate-900 mb-3">{item.title}</h3>
-              <p className="text-slate-500 text-sm leading-relaxed mb-6">{item.desc}</p>
+              <p className="text-slate-600 text-sm leading-relaxed mb-6">{item.desc}</p>
               <span className={`${item.text} text-xs font-bold tracking-wider uppercase inline-flex items-center gap-1.5 group`}>
                 Explore {item.title.toLowerCase()} courses 
                 <span className="w-5 h-5 rounded-full bg-current flex items-center justify-center text-white transition-transform group-hover:translate-x-1">
@@ -314,11 +312,11 @@ export default function LandingPage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20">
         <div className="flex flex-col sm:flex-row items-end justify-between gap-4 mb-14">
           <div>
-            <span className="inline-block px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-600 text-xs font-bold uppercase tracking-[0.3em] mb-4">Featured</span>
+            <span className="inline-block px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold uppercase tracking-[0.3em] mb-4">Featured</span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
-              Featured <span className="gradient-text">Courses</span>
+              Featured <span className="text-amber-600">Courses</span>
             </h2>
-            <p className="text-slate-500 mt-2">Hand-picked interactive courses to kickstart your preparation</p>
+            <p className="text-slate-600 mt-2">Hand-picked interactive courses to kickstart your preparation</p>
           </div>
           <Link
             href="/courses"
@@ -345,8 +343,8 @@ export default function LandingPage() {
         ) : featuredCourses.length === 0 ? (
           <div className="text-center py-20 rounded-3xl bg-white border border-slate-200 shadow-sm">
             <BookOpen className="w-14 h-14 text-slate-300 mx-auto mb-4" />
-            <p className="text-slate-500 text-lg font-semibold">No courses have been published yet.</p>
-            <p className="text-slate-400 text-sm mt-1">Check back later or register as admin to add new courses!</p>
+            <p className="text-slate-600 text-lg font-semibold">No courses have been published yet.</p>
+            <p className="text-slate-500 text-sm mt-1">Check back later or register as admin to add new courses!</p>
           </div>
         ) : (
           <div className="grid md:grid-cols-3 gap-8">
@@ -355,7 +353,7 @@ export default function LandingPage() {
                 key={course.id}
                 className="rounded-3xl border border-slate-200 bg-white shadow-sm hover:shadow-2xl hover:-translate-y-2 hover:border-blue-300 transition-all duration-500 overflow-hidden flex flex-col group cursor-pointer"
               >
-                <div className="h-44 bg-gradient-to-br from-blue-600 via-blue-700 to-orange-700 relative p-6 flex flex-col justify-between">
+                <div className="h-44 bg-slate-900 relative p-6 flex flex-col justify-between">
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_50%)]"></div>
                   <span className="relative self-start px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white text-[10px] font-bold uppercase tracking-wider">
                     {course.subject}
@@ -368,7 +366,7 @@ export default function LandingPage() {
                 </div>
 
                 <div className="p-6 flex-1 flex flex-col justify-between">
-                  <p className="text-slate-500 text-sm leading-relaxed mb-6 line-clamp-3">
+                  <p className="text-slate-600 text-sm leading-relaxed mb-6 line-clamp-3">
                     {course.description}
                   </p>
 
@@ -403,16 +401,16 @@ export default function LandingPage() {
       <section id="mentor-profile" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20">
         <div className="grid gap-10 xl:grid-cols-[0.7fr_0.3fr] items-start">
           <div className="rounded-3xl p-8 sm:p-10 bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-300">
-            <span className="inline-block px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-600 text-xs font-bold uppercase tracking-[0.3em] mb-5">About</span>
-            <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-5 tracking-tight">PK Singh — <span className="gradient-text">Mentor & Author</span></h3>
-            <p className="text-slate-600 leading-relaxed mb-4 text-lg">
+            <span className="inline-block px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold uppercase tracking-[0.3em] mb-5">About</span>
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-5 tracking-tight">PK Singh — <span className="text-amber-600">Mentor & Author</span></h3>
+            <p className="text-slate-700 leading-relaxed mb-4 text-lg">
               PK Singh blends deep technical mastery with practical exam strategy. An IIT + IIM alumnus, bestselling author and experienced mentor, he focuses on clarity, speed and exam-specific problem solving to help ambitious students secure top ranks.
             </p>
-            <p className="text-slate-500 leading-relaxed">
+            <p className="text-slate-600 leading-relaxed">
               Over 23 years of professional leadership and 6+ years teaching; authored books for UK/USA audiences and consulted with global institutions. His teaching emphasizes core understanding, memory anchors and exam-smart practice.
             </p>
             <div className="mt-8 flex items-center gap-4">
-              <Link href="/mentor-journey" className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-blue-600 to-orange-600 text-white font-bold text-sm transition-all duration-300 hover:shadow-xl hover:scale-105 shadow-md">
+              <Link href="/mentor-journey" className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-slate-900 text-white font-bold text-sm transition-all duration-300 hover:bg-slate-800 hover:shadow-lg shadow-md">
                 Mentor's Journey <ChevronRight className="w-4 h-4" />
               </Link>
               <Link href="/courses" className="inline-flex items-center gap-2 px-8 py-3 rounded-full border border-slate-300 text-slate-700 font-bold text-sm transition-all duration-300 hover:bg-slate-50 hover:shadow-md">
@@ -425,7 +423,7 @@ export default function LandingPage() {
             <div className="w-36 h-36 rounded-full overflow-hidden mb-5 border-4 border-white shadow-lg">
               <Image src="/images/pk-singh.svg" alt="PK Singh" width={160} height={160} className="object-cover" />
             </div>
-            <h4 className="text-sm uppercase text-blue-600 font-bold tracking-[0.24em] mb-4">Snapshot</h4>
+            <h4 className="text-sm uppercase text-amber-700 font-bold tracking-[0.24em] mb-4">Snapshot</h4>
             <ul className="text-slate-700 text-sm space-y-3 text-center w-full">
               {[
                 { label: 'Credentials', value: 'IIT alumnus; IIM Calcutta MBA' },
@@ -447,9 +445,9 @@ export default function LandingPage() {
 
       {/* Sticky Bottom Engagement Bar */}
       <div className="fixed bottom-6 left-0 right-0 z-50 px-4 pointer-events-none flex justify-center">
-        <div className="pointer-events-auto bg-slate-900/90 backdrop-blur-md border border-slate-700/50 rounded-full px-6 py-3 shadow-2xl flex items-center gap-4 sm:gap-6 animate-slide-up hover:bg-slate-900 transition-all">
-          <span className="hidden sm:inline text-white/90 text-sm font-medium">Ready to start your journey?</span>
-          <Link href="/courses" className="btn bg-gradient-to-r from-blue-500 to-orange-500 text-white border-none py-2 px-6 rounded-full text-sm hover:scale-105 shadow-[0_0_15px_rgba(249,115,22,0.4)]">
+        <div className="pointer-events-auto bg-slate-900 backdrop-blur-md border border-slate-700 rounded-full px-6 py-3 shadow-2xl flex items-center gap-4 sm:gap-6 animate-slide-up transition-all">
+          <span className="hidden sm:inline text-white text-sm font-medium">Ready to start your journey?</span>
+          <Link href="/courses" className="btn bg-amber-500 text-white border-none py-2 px-6 rounded-full text-sm font-bold hover:bg-amber-600 transition-colors">
             Explore Courses Now
           </Link>
         </div>
