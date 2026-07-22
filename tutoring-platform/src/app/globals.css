@@ -6,7 +6,6 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Light EdTech Design Tokens */
   --bg: #F8FAFC;
   --surface: #FFFFFF;
   --surface-2: #F1F5F9;
@@ -106,9 +105,9 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.01em;
 }
 
-h1 { font-size: clamp(1.6rem, 2.5vw, 2.6rem); }
-h2 { font-size: clamp(1.35rem, 2.1vw, 2rem); }
-h3 { font-size: clamp(1.15rem, 1.6vw, 1.4rem); }
+h1 { font-size: clamp(2rem, 3.5vw, 3.2rem); line-height: 1.15; }
+h2 { font-size: clamp(1.5rem, 2.4vw, 2.2rem); }
+h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
 
 p, li, span, a, label {
   color: var(--text-secondary);
@@ -153,15 +152,18 @@ p, li, span, a, label {
 .feature-card { background: var(--surface); border-radius: 12px; padding: 1rem; border: 1px solid var(--borders); }
 
 .hero-bg {
-  background: linear-gradient(180deg, #FFF7ED 0%, #F8FAFC 100%);
+  background: linear-gradient(160deg, #FFF7ED 0%, #EFF6FF 40%, #F8FAFC 100%);
+  position: relative;
 }
 
 .hero-card {
-  background: var(--surface);
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   padding: 2rem;
-  border-radius: 16px;
-  border: 1px solid var(--borders);
-  box-shadow: var(--elevated-shadow);
+  border-radius: 32px;
+  border: 1px solid rgba(226,232,240,0.5);
+  box-shadow: 0 20px 60px rgba(15,23,42,0.08), 0 8px 20px rgba(15,23,42,0.06);
 }
 
 /* Buttons */
