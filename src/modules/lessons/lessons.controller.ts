@@ -29,7 +29,12 @@ export const getLesson = async (req: AuthRequest, res: Response): Promise<void> 
     res.status(404).json({ error: 'Lesson not found' });
     return;
   }
-  if (lesson.status !== 'PUBLISHED' && !lesson.isFree && !isAdminOrMentor) {
+  if (lesson.status !== 'PUBLISHED' && !isAdminOrMentor) {
+    res.status(404).json({ error: 'Lesson not found' });
+    return;
+  }
+
+  if (!lesson.isFree && !isAdminOrMentor) {
     if (!req.user) {
       res.status(401).json({ error: 'Not authenticated' });
       return;
