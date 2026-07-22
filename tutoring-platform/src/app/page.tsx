@@ -32,21 +32,20 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section id="home" className="relative min-h-[90vh] flex items-center pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full hero-bg overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-20 -left-20 h-[500px] w-[500px] rounded-full bg-gradient-to-br from-blue-400/10 to-blue-600/05 blur-[100px] animate-float"></div>
-          <div className="absolute top-1/3 -right-20 h-[400px] w-[400px] rounded-full bg-gradient-to-br from-orange-300/08 to-orange-500/05 blur-[100px] animate-pulse-slow"></div>
-          <div className="absolute bottom-0 left-1/3 h-[300px] w-[300px] rounded-full bg-gradient-to-br from-blue-200/08 to-transparent blur-[80px]"></div>
-          <svg className="absolute right-10 top-20 w-32 h-32 text-blue-200/15" viewBox="0 0 100 100"><text x="50" y="70" textAnchor="middle" fontSize="70" fontWeight="900" fontFamily="serif">∑</text></svg>
-          <svg className="absolute left-1/4 bottom-10 w-24 h-24 text-orange-200/12" viewBox="0 0 100 100"><text x="50" y="70" textAnchor="middle" fontSize="70" fontWeight="900" fontFamily="serif">π</text></svg>
+          <div className="absolute -top-20 -left-20 h-[500px] w-[500px] rounded-full bg-gradient-to-br from-blue-500/20 to-orange-500/10 blur-[100px] animate-pulse-glow"></div>
+          <div className="absolute top-1/3 -right-20 h-[400px] w-[400px] rounded-full bg-gradient-to-br from-orange-400/20 to-blue-500/10 blur-[100px] animate-float-reverse"></div>
+          <div className="absolute bottom-0 left-1/3 h-[300px] w-[300px] rounded-full bg-gradient-to-br from-blue-400/15 to-transparent blur-[80px] animate-float"></div>
+          <div className="absolute right-1/4 top-10 h-[200px] w-[200px] rounded-full bg-gradient-to-br from-blue-400/10 to-transparent blur-[60px] animate-pulse-glow"></div>
         </div>
 
         <div className="relative grid gap-16 xl:grid-cols-[1.1fr_0.9fr] items-center w-full">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/70 backdrop-blur-md border border-slate-200/60 px-5 py-2 text-sm font-semibold text-slate-700 uppercase tracking-[0.28em] mb-8 shadow-sm">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/70 backdrop-blur-md border border-blue-100 px-5 py-2 text-sm font-bold text-blue-700 uppercase tracking-[0.25em] mb-8 shadow-sm">
               <span className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-orange-500 animate-pulse"></span>
-              Mentor, Author, IITian
+              Premium Mentorship
             </div>
 
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] mb-8 text-slate-900">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] mb-8 text-slate-900 animate-slide-up">
               Premium mentorship for<br />
               <span className="gradient-text">top rank outcomes</span>
             </h1>
@@ -72,14 +71,14 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
               <Link
                 href="/courses"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-blue-600 to-orange-600 px-10 py-4.5 text-sm font-semibold text-white transition-all duration-300 hover:shadow-[0_0_40px_rgba(249,115,22,0.3)] hover:scale-105 hover:from-blue-500 hover:to-orange-500 shadow-lg"
+                className="btn btn-primary px-10 py-4.5 text-sm font-bold"
               >
                 Explore Courses
                 <ChevronRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/signup"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-300 bg-white/70 backdrop-blur-sm text-slate-800 px-10 py-4.5 text-sm font-semibold transition-all duration-300 hover:bg-white hover:shadow-xl hover:scale-105 hover:border-slate-400 shadow-sm"
+                className="btn btn-ghost px-10 py-4.5 text-sm font-bold"
               >
                 Join Free Now
               </Link>
@@ -141,8 +140,8 @@ export default function LandingPage() {
 
       {/* Stats Section */}
       <section className="relative py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-blue-600 via-blue-700 to-orange-700 text-white shadow-2xl relative">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(56,189,248,0.2),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(251,146,60,0.15),transparent_40%)]"></div>
+        <div className="max-w-7xl mx-auto overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-blue-900 via-blue-700 to-orange-700 text-white shadow-2xl relative">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.2),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(249,115,22,0.15),transparent_40%)]"></div>
           <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-white/05 to-transparent"></div>
           <div className="relative grid gap-5 p-10 md:grid-cols-4">
             {[
@@ -166,8 +165,8 @@ export default function LandingPage() {
 
       {/* Short mid-page mentor blurb */}
       <section id="about" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-12">
-        <div className="rounded-[2.5rem] bg-gradient-to-br from-blue-600 to-orange-700 p-10 sm:p-14 text-white relative overflow-hidden shadow-2xl">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.12),transparent_40%)]"></div>
+        <div className="rounded-[2.5rem] bg-gradient-to-br from-blue-700 to-orange-600 p-10 sm:p-14 text-white relative overflow-hidden shadow-2xl">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.15),transparent_40%)] animate-pulse-glow"></div>
           <div className="relative">
             <span className="inline-block px-3 py-1 rounded-full bg-white/15 border border-white/20 text-white/90 text-xs font-bold uppercase tracking-[0.3em] mb-5">About the Mentor</span>
             <p className="text-2xl sm:text-3xl font-bold leading-[1.3] mb-8 max-w-3xl">
