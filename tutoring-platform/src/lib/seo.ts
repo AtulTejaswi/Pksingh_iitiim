@@ -1,4 +1,4 @@
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://pksingh.netlify.app';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://pksingh-iitiim.vercel.app';
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 export const SITE_CONFIG = {

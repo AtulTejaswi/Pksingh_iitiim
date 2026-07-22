@@ -5,25 +5,46 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Testimonials from '@/components/common/Testimonials';
 import Navbar from '@/components/student/Navbar';
+import PricingSection from '@/components/common/PricingSection';
+import FreePreview from '@/components/common/FreePreview';
+import TrustBadges from '@/components/common/TrustBadges';
+import WhatYouGet from '@/components/common/WhatYouGet';
+import DashboardPreview from '@/components/common/DashboardPreview';
+import { getStaticFeaturedCourses } from '@/data/courseData';
+import { useScrollAnimation, useCountUp } from '@/hooks/useScrollAnimation';
 import { useGetCourses, useGetPublicStats } from '@/hooks/useCourses';
 import { BookOpen, GraduationCap, Award, CheckCircle2, ChevronRight, Zap, Target, Search, Flame } from 'lucide-react';
 import SiteFooter from '@/components/common/SiteFooter';
 
-function formatStat(value: number, fallback: string): string {
-  if (value <= 0) return fallback;
-  if (value >= 1000) return `${Math.floor(value / 100) * 100}+`;
-  if (value >= 100) return `${value}+`;
-  return String(value);
+function StatCard({ icon: Icon, value, targetValue, label, color, span, isVisible }: any) {
+  const animatedValue = useCountUp(targetValue, 2000, isVisible);
+  const displayValue = targetValue > 0 ? `${animatedValue}+` : value;
+
+  return (
+    <div className={`group relative overflow-hidden rounded-3xl border border-white/15 bg-white/05 p-7 backdrop-blur-md hover:bg-white/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] ${span}`}>
+      <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: `radial-gradient(circle at top right, rgba(255,255,255,0.08), transparent 60%)` }}></div>
+      <div className={`relative mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${color} shadow-inner`}>
+        <Icon className="w-6 h-6" />
+      </div>
+      <div className="relative mt-auto">
+        <p className="text-4xl font-black text-white tracking-tight">{displayValue}</p>
+        <p className="mt-2 text-xs text-white/70 uppercase tracking-[0.2em] font-bold">{label}</p>
+      </div>
+    </div>
+  );
 }
 
 export default function LandingPage() {
   const { data: courses, isLoading } = useGetCourses();
   const { data: stats } = useGetPublicStats();
 
-  // Pick top 3 published courses as featured
-  const featuredCourses = courses
-    ?.filter((course) => course.status === 'PUBLISHED')
-    ?.slice(0, 3) || [];
+  const statsAnim = useScrollAnimation();
+
+  // Pick top 3 published courses from API, fallback to static featured courses
+  const apiPublished = courses?.filter((course) => course.status === 'PUBLISHED') || [];
+  const featuredCourses = apiPublished.length > 0 
+    ? apiPublished.slice(0, 3) 
+    : getStaticFeaturedCourses().slice(0, 3);
 
   return (
     <div className="flex flex-col min-h-screen bg-white text-slate-900">
@@ -37,14 +58,14 @@ export default function LandingPage() {
           <div className="absolute bottom-0 left-1/3 h-[300px] w-[300px] rounded-full bg-amber-50/50 blur-[100px]"></div>
         </div>
 
-        <div className="relative grid gap-16 xl:grid-cols-[1.1fr_0.9fr] items-center w-full">
+        <div className="relative grid gap-16 xl:grid-cols-[1.1fr_0.9fr] items-center w-full animate-slide-up">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 border border-amber-200 px-5 py-2 text-sm font-bold text-amber-800 uppercase tracking-[0.25em] mb-8">
               <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
               Premium Mentorship
             </div>
 
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] mb-8 text-slate-900 animate-slide-up">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] mb-8 text-slate-900">
               Premium mentorship for<br />
               <span className="text-amber-600">top rank outcomes</span>
             </h1>
@@ -75,16 +96,17 @@ export default function LandingPage() {
                 Explore Courses
                 <ChevronRight className="w-4 h-4" />
               </Link>
-              <Link
-                href="/signup"
-                className="btn btn-ghost px-10 py-4 text-sm font-bold"
+              <a
+                href="#free-preview"
+                className="btn btn-ghost px-10 py-4 text-sm font-bold flex items-center gap-2 text-slate-700 border-slate-300 hover:bg-slate-50"
               >
-                Join Free Now
-              </Link>
+                Watch Free Lesson
+                <span className="inline-block w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+              </a>
             </div>
 
             {/* Interactive Search Bar */}
-            <div className="relative max-w-xl group">
+            <div className="relative max-w-xl group mb-12">
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
               </div>
@@ -168,38 +190,62 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="relative py-16 px-4 sm:px-6 lg:px-8">
+      {/* Free Sample Lesson / Lead Magnet */}
+      <div id="free-preview">
+        <FreePreview />
+      </div>
+
+      {/* Trust Badges */}
+      <TrustBadges />
+
+      {/* Stats Section with Scroll Animation & Live / Fallback counters */}
+      <section ref={statsAnim.ref} className="relative py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto overflow-hidden rounded-[2.5rem] bg-slate-900 text-white shadow-2xl relative">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(217,119,6,0.08),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(148,163,184,0.08),transparent_40%)]"></div>
           <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-white/03 to-transparent"></div>
           <div className="relative grid gap-5 p-10 md:grid-cols-4 grid-rows-[auto]">
-            {[
-              { icon: BookOpen, value: formatStat(stats?.enrollments ?? stats?.students ?? 0, 'Growing'), label: 'Learners enrolled', color: 'from-sky-400/20 to-sky-500/10 text-sky-200', span: 'md:col-span-2 md:row-span-2' },
-              { icon: Flame, value: formatStat(stats?.publishedCourses ?? 0, 'New'), label: 'Active Streaks', color: 'from-orange-400/20 to-red-500/10 text-orange-200', span: 'md:col-span-1 md:row-span-1' },
-              { icon: Award, value: formatStat(stats?.publishedLessons ?? 0, 'Adding soon'), label: 'Lesson modules', color: 'from-emerald-400/20 to-emerald-500/10 text-emerald-200', span: 'md:col-span-1 md:row-span-1' },
-              { icon: Target, value: '100%', label: 'Free Resources', color: 'from-blue-400/20 to-blue-500/10 text-blue-200', span: 'md:col-span-2 md:row-span-1' },
-            ].map((item, i) => (
-              <div key={item.label} className={`group relative overflow-hidden rounded-3xl border border-white/15 bg-white/05 p-7 backdrop-blur-md hover:bg-white/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] ${item.span}`}>
-                <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: `radial-gradient(circle at top right, rgba(255,255,255,0.08), transparent 60%)` }}></div>
-                
-                {/* Gamified visual for larger bento cards */}
-                {i === 0 && (
-                  <div className="absolute right-0 bottom-0 w-32 h-32 bg-sky-500/20 blur-3xl rounded-full"></div>
-                )}
-                
-                <div className={`relative mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${item.color} shadow-inner`}>
-                  <item.icon className="w-6 h-6" />
-                </div>
-                <div className="relative mt-auto">
-                  <p className="text-4xl font-black text-white tracking-tight">{item.value}</p>
-                  <p className="mt-2 text-xs text-white/70 uppercase tracking-[0.2em] font-bold">{item.label}</p>
-                </div>
-              </div>
-            ))}
+            <StatCard 
+              icon={BookOpen} 
+              value="10,000+" 
+              targetValue={stats?.enrollments ?? stats?.students ?? 10000} 
+              label="Learners mentored" 
+              color="from-sky-400/20 to-sky-500/10 text-sky-200" 
+              span="md:col-span-2 md:row-span-2" 
+              isVisible={statsAnim.isVisible} 
+            />
+            <StatCard 
+              icon={Flame} 
+              value="9+" 
+              targetValue={stats?.publishedCourses ?? 9} 
+              label="Interactive Courses" 
+              color="from-orange-400/20 to-red-500/10 text-orange-200" 
+              span="md:col-span-1 md:row-span-1" 
+              isVisible={statsAnim.isVisible} 
+            />
+            <StatCard 
+              icon={Award} 
+              value="200+" 
+              targetValue={stats?.publishedLessons ?? 250} 
+              label="Lesson modules" 
+              color="from-emerald-400/20 to-emerald-500/10 text-emerald-200" 
+              span="md:col-span-1 md:row-span-1" 
+              isVisible={statsAnim.isVisible} 
+            />
+            <StatCard 
+              icon={Target} 
+              value="100% Free Resources" 
+              targetValue={0} 
+              label="Available Study Guides" 
+              color="from-blue-400/20 to-blue-500/10 text-blue-200" 
+              span="md:col-span-2 md:row-span-1" 
+              isVisible={statsAnim.isVisible} 
+            />
           </div>
         </div>
       </section>
+
+      {/* What You Get Breakdown */}
+      <WhatYouGet />
 
       {/* Short mid-page mentor blurb */}
       <section id="about" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-12">
@@ -270,6 +316,10 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Pricing Section */}
+      <PricingSection />
+
+      {/* Testimonials (Upgraded) */}
       <Testimonials />
 
       {/* Browse by Subject shortcuts */}
@@ -340,20 +390,17 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
-        ) : featuredCourses.length === 0 ? (
-          <div className="text-center py-20 rounded-3xl bg-white border border-slate-200 shadow-sm">
-            <BookOpen className="w-14 h-14 text-slate-300 mx-auto mb-4" />
-            <p className="text-slate-600 text-lg font-semibold">No courses have been published yet.</p>
-            <p className="text-slate-500 text-sm mt-1">Check back later or register as admin to add new courses!</p>
-          </div>
         ) : (
-          <div className="grid md:grid-cols-3 gap-8">
-            {featuredCourses.map((course) => (
+          <div className="grid md:grid-cols-3 gap-8 animate-fade-in-up">
+            {featuredCourses.map((course: any) => (
               <div
                 key={course.id}
                 className="rounded-3xl border border-slate-200 bg-white shadow-sm hover:shadow-2xl hover:-translate-y-2 hover:border-blue-300 transition-all duration-500 overflow-hidden flex flex-col group cursor-pointer"
               >
-                <div className="h-44 bg-slate-900 relative p-6 flex flex-col justify-between">
+                <div className={`h-44 relative p-6 flex flex-col justify-between ${
+                  course.subject === 'PHYSICS' ? 'bg-orange-950' : 
+                  course.subject === 'CHEMISTRY' ? 'bg-sky-950' : 'bg-emerald-950'
+                }`}>
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_50%)]"></div>
                   <span className="relative self-start px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white text-[10px] font-bold uppercase tracking-wider">
                     {course.subject}
@@ -371,7 +418,7 @@ export default function LandingPage() {
                   </p>
 
                   <div className="flex flex-wrap gap-1.5 mb-6">
-                    {course.examTags.map((tag) => (
+                    {course.examTags.map((tag: string) => (
                       <span
                         key={tag}
                         className="px-2.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-[9px] font-semibold uppercase tracking-wider"
@@ -396,6 +443,9 @@ export default function LandingPage() {
           </div>
         )}
       </section>
+
+      {/* Dashboard Preview Section */}
+      <DashboardPreview />
 
       {/* Full Mentor Profile */}
       <section id="mentor-profile" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20">
@@ -455,3 +505,4 @@ export default function LandingPage() {
     </div>
   );
 }
+

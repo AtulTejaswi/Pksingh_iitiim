@@ -56,7 +56,7 @@ export default function AdminSettingsPage() {
               Manage Enrollments
             </Link>
             <a
-              href="https://pksingh.netlify.app/"
+              href="https://pksingh-iitiim.vercel.app/"
               target="_blank"
               rel="noopener noreferrer"
               className="block w-full p-3 rounded-lg border border-slate-200 hover:bg-slate-50 text-sm text-slate-600 hover:text-slate-900 transition-all"

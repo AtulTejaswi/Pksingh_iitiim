@@ -13,7 +13,7 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://pksingh.netlify.app';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://pksingh-iitiim.vercel.app';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -94,6 +94,19 @@ export default function RootLayout({
             url: siteUrl,
           }),
         }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'EducationalOrganization',
+            name: 'PK Singh Mentorship',
+            url: siteUrl,
+            logo: `${siteUrl}/images/pk_sir_logo.jpg`,
+            sameAs: [
+              // Add social media links here if any
+            ]
+          }),
+        }} />
+
         <ClientProviders>{children}</ClientProviders>
       </body>
     </html>

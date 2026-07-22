@@ -3,7 +3,7 @@ import type { MetadataRoute } from 'next';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://pksingh.netlify.app';
+  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://pksingh-iitiim.vercel.app';
 
   const staticRoutes = [
     { url: `${base}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 1 },

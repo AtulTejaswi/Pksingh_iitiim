@@ -16,7 +16,7 @@ export default function PrivacyPage() {
 
         <section>
           <p>
-            PK Singh (&quot;we&quot;, &quot;our&quot;) operates the tutoring platform at pksingh.netlify.app. This policy
+            PK Singh (&quot;we&quot;, &quot;our&quot;) operates the tutoring platform at pksingh-iitiim.vercel.app. This policy
             explains what information we collect when you browse courses, create an account, or enroll in lessons.
           </p>
           <h2 className="text-lg font-semibold text-slate-900 pt-4">Information we collect</h2>

@@ -41,6 +41,32 @@ export function PersonJsonLd() {
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
 }
 
+export function EducationalOrganizationJsonLd() {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'EducationalOrganization',
+    name: 'PK Singh Academy',
+    url: SITE_CONFIG.url,
+    logo: `${SITE_CONFIG.url}${SITE_CONFIG.logo}`,
+    description: 'Premium mentorship for JEE, NEET, SAT, CAT and GMAT aspirants by IIT + IIM alumnus PK Singh.',
+    founder: {
+      '@type': 'Person',
+      name: 'PK Singh',
+    },
+    areaServed: 'Worldwide',
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Course Catalog',
+      itemListElement: [
+        { '@type': 'OfferCatalog', name: 'Physics Courses' },
+        { '@type': 'OfferCatalog', name: 'Chemistry Courses' },
+        { '@type': 'OfferCatalog', name: 'Mathematics Courses' },
+      ],
+    },
+  };
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
+}
+
 export function CourseJsonLd({
   title,
   description,
@@ -67,6 +93,14 @@ export function CourseJsonLd({
     educationalLevel: examTags.includes('JEE_ADVANCED') ? 'Advanced' : 'Intermediate',
     courseCode: courseId,
     teaches: subject,
+    hasCourseInstance: {
+      '@type': 'CourseInstance',
+      courseMode: 'Online',
+      instructor: {
+        '@type': 'Person',
+        name: 'PK Singh',
+      },
+    },
   };
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
 }
