@@ -422,3 +422,17 @@ model AuditLog {
   @@index([action, createdAt])
   @@map("audit_logs")
 }
+
+// ─── QUOTES (DYNAMIC CONTENT) ────────────────────────────────────────────────
+model Quote {
+  id          String   @id @default(uuid())
+  text        String
+  source      String
+  reference   String?
+  tags        String[] // E.g., ["mindset", "exam_prep", "stoicism"]
+  isVerified  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("quotes")
+}

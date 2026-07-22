@@ -10,6 +10,9 @@ import FreePreview from '@/components/common/FreePreview';
 import TrustBadges from '@/components/common/TrustBadges';
 import WhatYouGet from '@/components/common/WhatYouGet';
 import DashboardPreview from '@/components/common/DashboardPreview';
+import QuotesCarousel from '@/components/common/QuotesCarousel';
+import MasteryPathPreview from '@/components/common/MasteryPathPreview';
+import MentorshipComparison from '@/components/common/MentorshipComparison';
 import { getStaticFeaturedCourses } from '@/data/courseData';
 import { useScrollAnimation, useCountUp } from '@/hooks/useScrollAnimation';
 import { useGetCourses, useGetPublicStats } from '@/hooks/useCourses';
@@ -195,6 +198,31 @@ export default function LandingPage() {
         <FreePreview />
       </div>
 
+      {/* Gamification / Streaks Callout */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-12">
+        <div className="rounded-[2.5rem] bg-gradient-to-r from-orange-500 to-amber-500 p-8 sm:p-12 text-white relative overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-white/20 rounded-full blur-[80px] pointer-events-none"></div>
+          <div className="relative z-10 max-w-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                <Flame className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold tracking-tight">Active Streaks: Building the Habit of Success</h3>
+            </div>
+            <p className="text-white/90 text-lg leading-relaxed">
+              Consistency beats intensity. Our platform tracks your daily learning streak. Watch a lesson, solve a problem, or complete a quiz every day to keep your streak alive. The longest streaks unlock exclusive 1:1 strategy sessions with PK Singh!
+            </p>
+          </div>
+          <div className="relative z-10 shrink-0">
+            <div className="bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-6 text-center shadow-[0_8px_32px_rgba(0,0,0,0.1)]">
+              <Flame className="w-12 h-12 text-amber-200 mx-auto mb-2 animate-pulse" />
+              <div className="text-4xl font-black text-white">12 Day</div>
+              <div className="text-sm font-semibold text-amber-200 uppercase tracking-widest mt-1">Current Streak</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Trust Badges */}
       <TrustBadges />
 
@@ -247,49 +275,60 @@ export default function LandingPage() {
       {/* What You Get Breakdown */}
       <WhatYouGet />
 
-      {/* Short mid-page mentor blurb */}
-      <section id="about" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-12">
-        <div className="rounded-[2.5rem] bg-slate-900 p-10 sm:p-14 text-white relative overflow-hidden shadow-2xl">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(217,119,6,0.1),transparent_40%)]"></div>
-          <div className="relative">
-            <span className="inline-block px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold uppercase tracking-[0.3em] mb-5">About the Mentor</span>
-            <p className="text-2xl sm:text-3xl font-bold leading-[1.3] mb-8 max-w-3xl text-white">
-              Personal guidance from PK Singh — IIT + IIM alumnus, bestselling author, and mentor focused on exam-winning strategies.
-            </p>
-            <Link href="/courses" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-amber-500 text-white font-bold transition-all duration-300 hover:bg-amber-600 hover:shadow-xl shadow-lg">
-              Explore Courses <ChevronRight className="w-4 h-4" />
-            </Link>
+      {/* Cinematic Mentor Story (MasterClass Style) */}
+      <section id="about" className="relative bg-slate-950 py-24 sm:py-32 overflow-hidden">
+        {/* Background Image / Video Placeholder */}
+        <div className="absolute inset-0 z-0">
+          <Image src="/images/pk-singh.svg" alt="Mentor Background" fill className="object-cover opacity-30 mix-blend-luminosity" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+        </div>
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-16 items-center">
+          <div>
+            <span className="inline-block px-3 py-1 rounded-full bg-white/10 border border-white/20 text-slate-300 text-xs font-bold uppercase tracking-[0.3em] mb-6">Meet Your Mentor</span>
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.1] mb-8">
+              "Excellence is not an act, but a <span className="text-amber-500 italic font-serif">daily habit.</span>"
+            </h2>
+            <div className="space-y-6 text-lg text-slate-300 leading-relaxed max-w-xl">
+              <p>
+                As an IIT and IIM alumnus, I've walked the path you are on right now. The pressure, the overwhelming syllabus, the fear of falling behind — I know it intimately.
+              </p>
+              <p>
+                But over my 23 years of professional leadership and teaching, I've distilled the noise into a clear, repeatable framework. I don't just teach you formulas; I teach you how to think, how to break down complex problems, and how to build the unshakable confidence required to conquer JEE, NEET, SAT, and beyond.
+              </p>
+              <p className="text-amber-400 font-semibold italic">
+                Welcome to the mentorship that changes the trajectory of your career.
+              </p>
+            </div>
+            
+            <div className="mt-10 flex items-center gap-6">
+              <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center border border-amber-500/30">
+                <div className="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center cursor-pointer hover:bg-amber-400 transition-colors shadow-[0_0_20px_rgba(245,158,11,0.5)]">
+                  <div className="w-0 h-0 border-t-8 border-b-8 border-l-[12px] border-t-transparent border-b-transparent border-l-slate-900 ml-1"></div>
+                </div>
+              </div>
+              <div>
+                <p className="text-white font-bold">Watch My Story</p>
+                <p className="text-slate-400 text-sm">2 min masterclass</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="hidden md:block">
+            {/* Space for the cinematic portrait */}
           </div>
         </div>
       </section>
 
-      {/* Ancient Wisdom Parallax Section */}
-      <section className="relative py-28 px-4 sm:px-6 lg:px-8 bg-amber-50 overflow-hidden">
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-amber-100/60 rounded-full blur-[100px] pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-slate-100/60 rounded-full blur-[100px] pointer-events-none"></div>
-        
-        <div className="relative max-w-4xl mx-auto text-center z-10">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-amber-100 border border-amber-200 text-amber-800 text-xs font-bold uppercase tracking-[0.3em] mb-12">Ancient Wisdom for Modern Success</span>
-          
-          <div className="space-y-16">
-            <div className="group cursor-default">
-              <p className="text-2xl sm:text-3xl lg:text-4xl font-extrabold leading-tight text-slate-900 mb-6 transition-all duration-500">
-                "There is only one single-pointed determination; many-branched and endless are the thoughts of the indecisive."
-              </p>
-              <p className="text-amber-700 text-base uppercase tracking-widest font-semibold">— Bhagavad Gita (2.41)</p>
-            </div>
-            
-            <div className="w-24 h-px bg-gradient-to-r from-transparent via-amber-300 to-transparent mx-auto"></div>
-            
-            <div className="group cursor-default">
-              <p className="text-2xl sm:text-3xl lg:text-4xl font-extrabold leading-tight text-slate-900 mb-6 transition-all duration-500">
-                "A person with faith, dedication, and self-control attains wisdom."
-              </p>
-              <p className="text-amber-700 text-base uppercase tracking-widest font-semibold">— Bhagavad Gita (4.39)</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Mentorship vs Mass Classes Comparison */}
+      <MentorshipComparison />
+
+      {/* Mastery Path Visual */}
+      <MasteryPathPreview />
+
+      {/* Dynamic Wisdom Quotes Carousel */}
+      <QuotesCarousel />
 
       {/* How It Works */}
       <section id="how" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20">

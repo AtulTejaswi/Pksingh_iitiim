@@ -224,10 +224,25 @@ export default function CoursesCatalog() {
           ))}
         </div>
       ) : filteredCourses.length === 0 ? (
-        <div className="text-center py-20 rounded-2xl bg-white border border-slate-100 shadow-sm">
-          <BookOpen className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-          <p className="text-slate-700 text-lg font-medium">No courses found matching your criteria.</p>
-          <p className="text-slate-500 text-sm mt-1">Try resetting the filters or modifying your search query.</p>
+        <div className="text-center py-24 px-6 rounded-3xl bg-gradient-to-b from-white to-slate-50 border border-slate-200 shadow-sm max-w-3xl mx-auto">
+          <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+            <BookOpen className="w-8 h-8" />
+          </div>
+          <h3 className="text-2xl font-bold text-slate-900 mb-3">Courses launching soon</h3>
+          <p className="text-slate-600 text-lg mb-8 max-w-lg mx-auto">
+            We're currently building out our premium curriculum for this category. Join the waitlist to get early access and exclusive founding-member pricing when we launch.
+          </p>
+          <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" onSubmit={(e) => e.preventDefault()}>
+            <input 
+              type="email" 
+              placeholder="Enter your email address" 
+              className="flex-1 px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm transition-all"
+              required
+            />
+            <button type="submit" className="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl transition-colors shadow-md">
+              Join Waitlist
+            </button>
+          </form>
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
