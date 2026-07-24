@@ -64,6 +64,8 @@ async function startServer() {
   try {
     await prisma.$connect();
     console.log('Connected to database successfully');
+    // mark app as DB-connected so /health can report
+    (app as any).locals.dbConnected = true;
     await ensureAdminUser();
 
     // Auto-restore from latest backup if DB is empty (protects against Render SQLite wipe)
@@ -79,6 +81,7 @@ async function startServer() {
     if (bp) console.log('Startup backup saved:', bp);
   } catch (error) {
     console.error('Warning: Failed to connect to database or seed admin user. Server will run but DB features may fail:', error);
+    (app as any).locals.dbConnected = false;
   }
   
   app.listen(PORT, () => {
