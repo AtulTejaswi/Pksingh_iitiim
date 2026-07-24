@@ -9,11 +9,13 @@ services:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
-        value: file:./dev.db
+        fromDatabase:
+          name: pksingh-db
+          property: connectionString
       - key: LOCAL_JWT_SECRET
         value: pksingh-jwt-secret-change-this-to-a-strong-random-value
       - key: ADMIN_PASSWORD
-        value: adminpassword123
+        sync: false
       - key: FRONTEND_URL
         value: https://pksingh-iitiim.vercel.app
       - key: NODE_VERSION
