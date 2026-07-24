@@ -4,8 +4,22 @@ import React, { useState } from 'react';
 import { Quote, Star, PlayCircle } from 'lucide-react';
 import Image from 'next/image';
 
+interface Testimonial {
+  name: string;
+  text: string;
+  role: string;
+  rating: number;
+  result: string;
+  avatarGradient: string;
+  image: string | null;
+  rankCardImage?: string | null;
+}
+
 // TODO: Replace with real student data, photos, and verified results
-const testimonials = [
+// Set `image` to a photo path (e.g. '/images/testimonials/arjun.jpg') for real photo,
+// or leave null for initials-based avatar fallback.
+// Set `rankCardImage` to a scorecard/rank-card screenshot path if available.
+const testimonials: Testimonial[] = [
   { 
     name: 'Arjun K.', 
     text: 'Transformed my scores completely. The clear explanations and targeted exam strategy made all the difference in my preparation journey. I felt so much more confident on test day.', 
@@ -13,7 +27,8 @@ const testimonials = [
     rating: 5,
     result: 'AIR 847',
     avatarGradient: 'from-blue-500 to-indigo-600',
-    image: null
+    image: null,
+    rankCardImage: null
   },
   { 
     name: 'Sneha M.', 
@@ -22,7 +37,8 @@ const testimonials = [
     rating: 5,
     result: 'Score: 1560',
     avatarGradient: 'from-amber-400 to-orange-500',
-    image: null
+    image: null,
+    rankCardImage: null
   },
   { 
     name: 'Rahul S.', 
@@ -31,7 +47,8 @@ const testimonials = [
     rating: 5,
     result: 'Score: 680/720',
     avatarGradient: 'from-emerald-400 to-teal-500',
-    image: null
+    image: null,
+    rankCardImage: null
   },
   { 
     name: 'Priya D.', 
@@ -40,7 +57,8 @@ const testimonials = [
     rating: 5,
     result: '99.8 Percentile',
     avatarGradient: 'from-pink-500 to-rose-500',
-    image: null
+    image: null,
+    rankCardImage: null
   },
   { 
     name: 'Vikram T.', 
@@ -49,7 +67,8 @@ const testimonials = [
     rating: 4,
     result: 'Maths: 100/100',
     avatarGradient: 'from-violet-500 to-purple-600',
-    image: null
+    image: null,
+    rankCardImage: null
   },
   { 
     name: 'Ananya J.', 
@@ -58,7 +77,8 @@ const testimonials = [
     rating: 5,
     result: 'Score: 342',
     avatarGradient: 'from-cyan-400 to-blue-500',
-    image: null
+    image: null,
+    rankCardImage: null
   },
 ];
 
@@ -116,6 +136,14 @@ export default function Testimonials() {
                 {t.result}
               </div>
             </div>
+            {t.rankCardImage && (
+              <div className="mt-4 pt-4 border-t border-slate-100">
+                <a href={t.rankCardImage} target="_blank" rel="noopener noreferrer" className="group/rank inline-flex items-center gap-2 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors">
+                  <Image src={t.rankCardImage} alt={`${t.name} rank card`} width={32} height={24} className="rounded border border-slate-200 object-cover group-hover/rank:shadow-md transition-shadow" />
+                  View scorecard
+                </a>
+              </div>
+            )}
           </div>
         ))}
       </div>
