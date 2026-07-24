@@ -18,12 +18,14 @@ import CohortBanner from '@/components/common/CohortBanner';
 import FaqSection from '@/components/common/FaqSection';
 import WhatsAppButton from '@/components/common/WhatsAppButton';
 import ExitIntentModal from '@/components/common/ExitIntentModal';
+import ScrollDepthCta from '@/components/common/ScrollDepthCta';
 import EmailCaptureForm from '@/components/common/EmailCaptureForm';
 import { getStaticFeaturedCourses } from '@/data/courseData';
 import { useScrollAnimation, useCountUp } from '@/hooks/useScrollAnimation';
 import { useGetCourses, useGetPublicStats } from '@/hooks/useCourses';
 import { BookOpen, GraduationCap, Award, CheckCircle2, ChevronRight, Zap, Target, Search, Flame, Gift } from 'lucide-react';
 import SiteFooter from '@/components/common/SiteFooter';
+import { SITE_STATS } from '@/data/site-config';
 
 function StatCard({ icon: Icon, value, targetValue, label, color, span, isVisible }: any) {
   const animatedValue = useCountUp(targetValue, 2000, isVisible);
@@ -56,7 +58,7 @@ export default function LandingPage() {
     : getStaticFeaturedCourses().slice(0, 3);
 
   return (
-    <div className="flex flex-col min-h-screen bg-white text-slate-900">
+    <div id="main-content" role="main" className="flex flex-col min-h-screen bg-white text-slate-900">
       <Navbar />
 
       {/* Hero Section */}
@@ -247,8 +249,8 @@ export default function LandingPage() {
           <div className="relative grid gap-5 p-10 md:grid-cols-4 grid-rows-[auto]">
             <StatCard 
               icon={BookOpen} 
-              value="10,000+" 
-              targetValue={stats?.enrollments ?? stats?.students ?? 10000} 
+              value={`${SITE_STATS.learnersMentored.toLocaleString()}+`} 
+              targetValue={stats?.enrollments ?? stats?.students ?? SITE_STATS.learnersMentored} 
               label="Learners mentored" 
               color="from-sky-400/20 to-sky-500/10 text-sky-200" 
               span="md:col-span-2 md:row-span-2" 
@@ -256,8 +258,8 @@ export default function LandingPage() {
             />
             <StatCard 
               icon={Flame} 
-              value="9+" 
-              targetValue={stats?.publishedCourses ?? 9} 
+              value={`${SITE_STATS.interactiveCourses}+`} 
+              targetValue={stats?.publishedCourses ?? SITE_STATS.interactiveCourses} 
               label="Interactive Courses" 
               color="from-orange-400/20 to-red-500/10 text-orange-200" 
               span="md:col-span-1 md:row-span-1" 
@@ -265,8 +267,8 @@ export default function LandingPage() {
             />
             <StatCard 
               icon={Award} 
-              value="200+" 
-              targetValue={stats?.publishedLessons ?? 250} 
+              value={`${SITE_STATS.lessonModules}+`} 
+              targetValue={stats?.publishedLessons ?? SITE_STATS.lessonModules} 
               label="Lesson modules" 
               color="from-emerald-400/20 to-emerald-500/10 text-emerald-200" 
               span="md:col-span-1 md:row-span-1" 
@@ -274,7 +276,7 @@ export default function LandingPage() {
             />
             <StatCard 
               icon={Target} 
-              value="100% Free Resources" 
+              value={`${SITE_STATS.freeResources}% Free Resources`} 
               targetValue={0} 
               label="Available Study Guides" 
               color="from-blue-400/20 to-blue-500/10 text-blue-200" 
@@ -645,6 +647,7 @@ export default function LandingPage() {
       {/* Fixed Position Components */}
       <WhatsAppButton />
       <ExitIntentModal />
+      <ScrollDepthCta />
 
       <SiteFooter />
 
@@ -653,7 +656,7 @@ export default function LandingPage() {
         <div className="pointer-events-auto bg-slate-900 backdrop-blur-md border border-slate-700 rounded-full px-6 py-3 shadow-2xl flex items-center gap-4 sm:gap-6 animate-slide-up transition-all">
           <span className="hidden sm:inline text-white text-sm font-medium">Ready to start your journey?</span>
           <Link href="/courses" className="btn bg-amber-500 text-white border-none py-2 px-6 rounded-full text-sm font-bold hover:bg-amber-600 transition-colors">
-            Explore Courses Now
+            Explore Courses
           </Link>
         </div>
       </div>

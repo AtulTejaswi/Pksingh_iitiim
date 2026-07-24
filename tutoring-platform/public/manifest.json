@@ -1,0 +1,27 @@
+{
+  "name": "PK Singh Mentorship",
+  "short_name": "PK Singh",
+  "description": "Premium exam mentorship — JEE, NEET, SAT, CAT, GMAT — from an IIT + IIM alumnus and bestselling author.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1e293b",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/pk_sir_logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/pk_sir_logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "lang": "en-IN",
+  "scope": "/"
+}
