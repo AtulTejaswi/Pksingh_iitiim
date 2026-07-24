@@ -375,6 +375,17 @@ export default function LandingPage() {
       {/* Pricing Section */}
       <PricingSection />
 
+      {/* Trust Badges near pricing */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-8 mb-8">
+        <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-500">
+          <span className="flex items-center gap-1.5">🔒 Secure payment</span>
+          <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+          <span className="flex items-center gap-1.5">↩️ 7-day refund policy</span>
+          <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+          <span className="flex items-center gap-1.5">🛡️ SSL encrypted</span>
+        </div>
+      </div>
+
       {/* Testimonials (Upgraded) */}
       <Testimonials />
 

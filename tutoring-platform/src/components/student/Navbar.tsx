@@ -1,14 +1,37 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
-import { LogOut, LayoutDashboard, Menu, X } from 'lucide-react';
+import { LogOut, LayoutDashboard, Menu, X, Moon, Sun } from 'lucide-react';
 import { useState } from 'react';
+import LocaleToggle from '@/components/common/LocaleToggle';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [dark, setDark] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+      setDark(true);
+    }
+  }, []);
+
+  const toggleDark = () => {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.classList.toggle('dark', next);
+    localStorage.setItem('theme', next ? 'dark' : 'light');
+  };
+
+  useEffect(() => {
+    if (isOpen) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = '';
+    return () => { document.body.style.overflow = ''; };
+  }, [isOpen]);
 
   const userRole = user?.role || '';
 
@@ -32,6 +55,8 @@ export default function Navbar() {
             <Link href="/" className="text-slate-700 hover:text-blue-600 transition-colors text-sm font-medium">Home</Link>
             <Link href="/about" className="text-slate-700 hover:text-blue-600 transition-colors text-sm font-medium">About</Link>
             <Link href="/courses" className="text-slate-700 hover:text-blue-600 transition-colors text-sm font-medium">Courses</Link>
+            <Link href="/blog" className="text-slate-700 hover:text-blue-600 transition-colors text-sm font-medium">Blog</Link>
+            <Link href="/faq" className="text-slate-700 hover:text-blue-600 transition-colors text-sm font-medium">FAQ</Link>
             {user && (userRole === 'STUDENT' || userRole === 'MENTOR' || userRole === 'INSTRUCTOR') && (
               <Link href="/my-courses" className="text-slate-700 hover:text-blue-600 transition-colors text-sm font-medium">My Courses</Link>
             )}
@@ -39,7 +64,11 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Right Side Action Buttons */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-3">
+            <LocaleToggle />
+            <button onClick={toggleDark} className="p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors" aria-label="Toggle dark mode">
+              {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
             {user ? (
               <div className="flex items-center gap-4">
                 {(userRole === 'SUPER_ADMIN' || userRole === 'INSTRUCTOR' || userRole === 'MENTOR') && (
@@ -88,16 +117,34 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Slide-in Drawer */}
       {isOpen && (
-        <div className="md:hidden bg-white border-t border-slate-200 px-2 pt-2 pb-4 space-y-1 shadow-sm">
-          <Link href="/" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-blue-600">Home</Link>
-          <Link href="/about" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-blue-600">About</Link>
-          <Link href="/courses" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-blue-600">Courses</Link>
-          {user && (userRole === 'STUDENT' || userRole === 'MENTOR' || userRole === 'INSTRUCTOR') && (
-            <Link href="/my-courses" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-blue-600">My Courses</Link>
-          )}
-          <Link href="/#how" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-blue-600">How It Works</Link>
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
+          <div className="absolute top-0 right-0 w-72 h-full bg-white shadow-2xl animate-slide-in-right overflow-y-auto">
+            <div className="flex items-center justify-between px-4 py-4 border-b border-slate-200">
+              <img src="/images/pk_sir_logo.jpg" alt="PK Singh" className="w-[100px] h-auto rounded-lg bg-white px-2 py-1" />
+              <button onClick={() => setIsOpen(false)} className="p-2 rounded-md text-slate-400 hover:text-slate-800 hover:bg-slate-100">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="px-3 pt-3 pb-6 space-y-1">
+              <Link href="/" onClick={() => setIsOpen(false)} className="block px-3 py-3 rounded-xl text-base font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all">Home</Link>
+              <Link href="/about" onClick={() => setIsOpen(false)} className="block px-3 py-3 rounded-xl text-base font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all">About</Link>
+              <Link href="/courses" onClick={() => setIsOpen(false)} className="block px-3 py-3 rounded-xl text-base font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all">Courses</Link>
+              <Link href="/blog" onClick={() => setIsOpen(false)} className="block px-3 py-3 rounded-xl text-base font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all">Blog</Link>
+              <Link href="/faq" onClick={() => setIsOpen(false)} className="block px-3 py-3 rounded-xl text-base font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all">FAQ</Link>
+              <Link href="/#how" onClick={() => setIsOpen(false)} className="block px-3 py-3 rounded-xl text-base font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all">How It Works</Link>
+            </div>
+
+            {/* Mobile dark mode + locale */}
+            <div className="px-6 py-4 border-t border-slate-200 flex items-center gap-4">
+              <button onClick={(e) => { e.stopPropagation(); toggleDark(); }} className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-slate-600 hover:bg-slate-100 transition-colors">
+                {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                <span>{dark ? 'Light Mode' : 'Dark Mode'}</span>
+              </button>
+              <LocaleToggle />
+            </div>
 
           {user ? (
             <div className="pt-4 pb-2 border-t border-slate-200 px-3 space-y-3">
@@ -149,6 +196,7 @@ export default function Navbar() {
               </Link>
             </div>
           )}
+        </div>
         </div>
       )}
     </nav>
