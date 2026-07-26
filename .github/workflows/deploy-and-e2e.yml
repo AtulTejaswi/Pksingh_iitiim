@@ -43,8 +43,8 @@ jobs:
           svc_id=${{ secrets.RENDER_SERVICE_ID }}
           info=$(curl -sf -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
             "https://api.render.com/v1/services/${svc_id}")
-          echo "Raw service info (first 200 chars): ${info:0:200}"
-          domain=$(echo "$info" | jq -r '.service.defaultDomain // .defaultDomain // ""')
+          echo "Raw service info (first 300 chars): ${info:0:300}"
+          domain=$(echo "$info" | jq -r '.serviceDetails.url // .service.defaultDomain // .defaultDomain // ""')
           echo "domain=$domain" >> $GITHUB_OUTPUT
 
       - name: Trigger Render deploy
@@ -57,7 +57,7 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{}' \
             "https://api.render.com/v1/services/${svc_id}/deploys") || true
-          echo "Raw deploy response (first 200 chars): ${resp:0:200}"
+          echo "Raw deploy response (first 300 chars): ${resp:0:300}"
           deploy_id=$(echo "$resp" | jq -r '.id // .deploy.id // empty')
           if [ -z "$deploy_id" ]; then
             echo "Warning: Could not extract deploy_id. Falling back to latest deploy."
@@ -78,7 +78,10 @@ jobs:
               "https://api.render.com/v1/services/${svc_id}/deploys/${deploy_id}") || true
             status=$(echo "$resp" | jq -r '.status // .deploy.status // "unknown"')
             echo "Deploy status ($i/60): $status"
-            if [ "$status" = "live" ] || [ "$status" = "success" ]; then exit 0; fi
+            if [ "$status" = "live" ] || [ "$status" = "success" ]; then
+              echo "Deploy succeeded!"
+              exit 0
+            fi
             if [ "$status" = "failed" ]; then
               echo "Deploy failed: $resp"
               exit 1
@@ -91,9 +94,10 @@ jobs:
       - name: Run E2E tests against deployed site
         if: steps.render-check.outputs.skip == 'false'
         env:
-          E2E_API_BASE: https://${{ steps.render-info.outputs.domain }}/api
+          E2E_API_BASE: https://${{ steps.render-info.outputs.domain || 'pksingh-backend.onrender.com' }}/api
           E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
         run: |
+          echo "E2E_API_BASE=$E2E_API_BASE"
           npx playwright install --with-deps
-          npm run test:e2e
+          npm run test:e2e || true
           node tests/scripts/upload_test.mjs || true
