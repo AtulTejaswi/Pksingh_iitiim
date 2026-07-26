@@ -402,9 +402,9 @@ export default function LandingPage() {
         
         <div className="grid md:grid-cols-3 gap-8">
           {[
-            { href: '/courses?subject=PHYSICS', icon: Target, title: 'Physics', desc: 'Explore mechanics, electrodynamics, optics, and wave theory with crystal clear visual derivations.', bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', iconBg: 'bg-amber-100', gradient: 'from-amber-500 to-amber-600' },
-            { href: '/courses?subject=CHEMISTRY', icon: Award, title: 'Chemistry', desc: 'Unlock organic synthesis mechanisms, chemical kinetics, atomic structures, and coordinate compounds.', bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', iconBg: 'bg-amber-100', gradient: 'from-amber-500 to-amber-600' },
-            { href: '/courses?subject=MATH', icon: GraduationCap, title: 'Mathematics', desc: 'Ace AP Calculus, JEE trigonometry, complex algebra, matrices, probability, and advanced coordinate geometry.', bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', iconBg: 'bg-amber-100', gradient: 'from-amber-500 to-amber-600' },
+            { href: '/courses?subject=PHYSICS', icon: Target, title: 'Physics', desc: 'Explore mechanics, electrodynamics, optics, and wave theory with crystal clear visual derivations.', bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', iconBg: 'bg-blue-100', gradient: 'from-blue-500 to-blue-600' },
+            { href: '/courses?subject=CHEMISTRY', icon: Award, title: 'Chemistry', desc: 'Unlock organic synthesis mechanisms, chemical kinetics, atomic structures, and coordinate compounds.', bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', iconBg: 'bg-emerald-100', gradient: 'from-emerald-500 to-emerald-600' },
+            { href: '/courses?subject=MATH', icon: GraduationCap, title: 'Mathematics', desc: 'Ace AP Calculus, JEE trigonometry, complex algebra, matrices, probability, and advanced coordinate geometry.', bg: 'bg-violet-50', border: 'border-violet-200', text: 'text-violet-700', iconBg: 'bg-violet-100', gradient: 'from-violet-500 to-violet-600' },
           ].map((item) => (
             <Link
               key={item.title}
