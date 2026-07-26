@@ -96,7 +96,7 @@ export default function LandingPage() {
 
             <div className="flex flex-wrap gap-3 text-sm mb-10 dark:text-slate-800">
               <span className="inline-flex items-center gap-2 rounded-full bg-slate-50 border border-slate-200 px-4 py-2 text-slate-800 font-medium">
-                <BookOpen className="w-4 h-4 text-slate-600" />
+                <BookOpen className="w-4 h-4 text-amber-600" />
                 23+ years of mentorship
               </span>
               <span className="inline-flex items-center gap-2 rounded-full bg-slate-50 border border-slate-200 px-4 py-2 text-slate-800 font-medium">
@@ -104,7 +104,7 @@ export default function LandingPage() {
                 IIT + IIM curriculum
               </span>
               <span className="inline-flex items-center gap-2 rounded-full bg-slate-50 border border-slate-200 px-4 py-2 text-slate-800 font-medium">
-                <Award className="w-4 h-4 text-emerald-600" />
+                <Award className="w-4 h-4 text-amber-600" />
                 Proven exam strategies
               </span>
             </div>
@@ -201,14 +201,10 @@ export default function LandingPage() {
         <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
         <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
         <div className="animate-marquee flex items-center gap-12 px-4">
-          {[1, 2, 3, 4, 5].map((_, i) => (
-            <React.Fragment key={i}>
-              <span className="flex items-center gap-2 text-sm font-semibold text-slate-700 whitespace-nowrap"><Target className="w-4 h-4 text-amber-600" /> 10,000+ Students Mentored</span>
-              <span className="flex items-center gap-2 text-sm font-semibold text-slate-700 whitespace-nowrap"><Award className="w-4 h-4 text-slate-600" /> #1 Bestselling Author</span>
-              <span className="flex items-center gap-2 text-sm font-semibold text-slate-700 whitespace-nowrap"><Zap className="w-4 h-4 text-emerald-600" /> IIT & IIM Alumni Network</span>
-              <span className="flex items-center gap-2 text-sm font-bold text-amber-800 whitespace-nowrap bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">"Focus on effort, not the outcome."</span>
-            </React.Fragment>
-          ))}
+          <span className="flex items-center gap-2 text-sm font-semibold text-slate-700 whitespace-nowrap"><Target className="w-4 h-4 text-amber-600" /> 10,000+ Students Mentored</span>
+          <span className="flex items-center gap-2 text-sm font-semibold text-slate-700 whitespace-nowrap"><Award className="w-4 h-4 text-amber-600" /> #1 Bestselling Author</span>
+          <span className="flex items-center gap-2 text-sm font-semibold text-slate-700 whitespace-nowrap"><Zap className="w-4 h-4 text-amber-600" /> IIT & IIM Alumni Network</span>
+          <span className="flex items-center gap-2 text-sm font-bold text-amber-800 whitespace-nowrap bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">"Focus on effort, not the outcome."</span>
         </div>
       </section>
 
@@ -222,7 +218,7 @@ export default function LandingPage() {
 
       {/* Gamification / Streaks Callout */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-12">
-        <div className="rounded-[2.5rem] bg-gradient-to-r from-orange-500 to-amber-500 p-8 sm:p-12 text-white relative overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between gap-8">
+        <div className="rounded-[2.5rem] bg-gradient-to-r from-amber-600 to-amber-500 p-8 sm:p-12 text-white relative overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-white/20 rounded-full blur-[80px] pointer-events-none"></div>
           <div className="relative z-10 max-w-2xl">
             <div className="flex items-center gap-3 mb-4">
@@ -368,9 +364,9 @@ export default function LandingPage() {
 
         <div className="grid gap-8 md:grid-cols-3">
           {[
-            { icon: Zap, title: 'Explore the curriculum', desc: 'Review courses designed for exam clarity, concept mastery and problem-solving speed.', gradient: 'from-blue-500 to-blue-600', bgLight: 'bg-blue-50', borderHover: 'hover:border-blue-300 hover:bg-blue-50/50' },
-            { icon: Target, title: 'Choose your path', desc: 'Select focused lessons for JEE, NEET, SAT or preparatory exams with proven teaching frameworks.', gradient: 'from-orange-500 to-orange-600', bgLight: 'bg-orange-50', borderHover: 'hover:border-orange-300 hover:bg-orange-50/50' },
-            { icon: CheckCircle2, title: 'Track your progress', desc: 'Use the platform to track lessons, review tasks, and measure improvement every week.', gradient: 'from-emerald-500 to-emerald-600', bgLight: 'bg-emerald-50', borderHover: 'hover:border-emerald-300 hover:bg-emerald-50/50' },
+            { icon: Zap, title: 'Explore the curriculum', desc: 'Review courses designed for exam clarity, concept mastery and problem-solving speed.', gradient: 'from-amber-500 to-amber-600', bgLight: 'bg-amber-50', borderHover: 'hover:border-amber-300 hover:bg-amber-50/50' },
+            { icon: Target, title: 'Choose your path', desc: 'Select focused lessons for JEE, NEET, SAT or preparatory exams with proven teaching frameworks.', gradient: 'from-amber-500 to-amber-600', bgLight: 'bg-amber-50', borderHover: 'hover:border-amber-300 hover:bg-amber-50/50' },
+            { icon: CheckCircle2, title: 'Track your progress', desc: 'Use the platform to track lessons, review tasks, and measure improvement every week.', gradient: 'from-amber-500 to-amber-600', bgLight: 'bg-amber-50', borderHover: 'hover:border-amber-300 hover:bg-amber-50/50' },
           ].map((item) => (
             <div key={item.title} className={`group rounded-3xl border border-slate-200 bg-white p-8 ${item.borderHover} transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 shadow-sm`}>
               <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br ${item.gradient} text-white mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
@@ -378,7 +374,7 @@ export default function LandingPage() {
               </div>
               <h3 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h3>
               <p className="text-slate-600 text-sm leading-relaxed">{item.desc}</p>
-              <div className="mt-6 w-12 h-1 rounded-full bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: `linear-gradient(90deg, ${item.gradient.includes('blue') ? '#3B82F6' : item.gradient.includes('orange') ? '#F97316' : '#10B981'}, transparent)` }}></div>
+              <div className="mt-6 w-12 h-1 rounded-full bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: `linear-gradient(90deg, #D97706, transparent)` }}></div>
             </div>
           ))}
         </div>
@@ -412,9 +408,9 @@ export default function LandingPage() {
         
         <div className="grid md:grid-cols-3 gap-8">
           {[
-            { href: '/courses?subject=PHYSICS', icon: Target, title: 'Physics', desc: 'Explore mechanics, electrodynamics, optics, and wave theory with crystal clear visual derivations.', bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-600', iconBg: 'bg-orange-100', gradient: 'from-orange-500 to-orange-600' },
-            { href: '/courses?subject=CHEMISTRY', icon: Award, title: 'Chemistry', desc: 'Unlock organic synthesis mechanisms, chemical kinetics, atomic structures, and coordinate compounds.', bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-600', iconBg: 'bg-blue-100', gradient: 'from-blue-500 to-blue-600' },
-            { href: '/courses?subject=MATH', icon: GraduationCap, title: 'Mathematics', desc: 'Ace AP Calculus, JEE trigonometry, complex algebra, matrices, probability, and advanced coordinate geometry.', bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-600', iconBg: 'bg-emerald-100', gradient: 'from-emerald-500 to-emerald-600' },
+            { href: '/courses?subject=PHYSICS', icon: Target, title: 'Physics', desc: 'Explore mechanics, electrodynamics, optics, and wave theory with crystal clear visual derivations.', bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', iconBg: 'bg-amber-100', gradient: 'from-amber-500 to-amber-600' },
+            { href: '/courses?subject=CHEMISTRY', icon: Award, title: 'Chemistry', desc: 'Unlock organic synthesis mechanisms, chemical kinetics, atomic structures, and coordinate compounds.', bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', iconBg: 'bg-amber-100', gradient: 'from-amber-500 to-amber-600' },
+            { href: '/courses?subject=MATH', icon: GraduationCap, title: 'Mathematics', desc: 'Ace AP Calculus, JEE trigonometry, complex algebra, matrices, probability, and advanced coordinate geometry.', bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', iconBg: 'bg-amber-100', gradient: 'from-amber-500 to-amber-600' },
           ].map((item) => (
             <Link
               key={item.title}
@@ -529,7 +525,7 @@ export default function LandingPage() {
       {/* Master Path Progress Visualization */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20 bg-gradient-to-br from-slate-50 to-blue-50/50 rounded-[3rem]">
         <div className="text-center mb-16">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-600 text-xs font-bold uppercase tracking-[0.3em] mb-5">Learning Journey</span>
+          <span className="inline-block px-4 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold uppercase tracking-[0.3em] mb-5">Learning Journey</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900">
             Your <span className="gradient-text">Master Path</span> to Success
           </h2>
@@ -538,15 +534,13 @@ export default function LandingPage() {
 
         <div className="grid md:grid-cols-3 gap-8">
           {[
-            { title: 'Physics Foundation', progress: 85, color: 'from-blue-500 to-sky-500', lessons: 12, completed: 10 },
-            { title: 'Chemistry Mastery', progress: 45, color: 'from-emerald-500 to-teal-500', lessons: 8, completed: 3 },
-            { title: 'Math Excellence', progress: 25, color: 'from-orange-500 to-amber-500', lessons: 15, completed: 3 },
+            { title: 'Physics Foundation', progress: 85, color: 'from-amber-500 to-amber-600', lessons: 12, completed: 10 },
+            { title: 'Chemistry Mastery', progress: 45, color: 'from-amber-500 to-amber-600', lessons: 8, completed: 3 },
+            { title: 'Math Excellence', progress: 25, color: 'from-amber-500 to-amber-600', lessons: 15, completed: 3 },
           ].map((subject) => (
             <div key={subject.title} className="group rounded-3xl bg-white border border-slate-200 p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
               <div className="flex justify-between items-start mb-6">
-                <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r ${subject.color} text-white text-xs font-bold uppercase tracking-wider`}>{
-                  subject.title.includes('Physics') ? '🚀' : subject.title.includes('Chemistry') ? '🧪' : '🔢'
-                }</div>
+                <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r ${subject.color} text-white text-xs font-bold uppercase tracking-wider`}>Progress</div>
                 <div className="text-right">
                   <div className="text-2xl font-bold text-slate-900">{subject.progress}%</div>
                   <div className="text-xs text-slate-500">Complete</div>
@@ -566,7 +560,7 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <button className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-slate-100 to-slate-200 hover:from-slate-200 hover:to-slate-300 text-slate-800 font-semibold text-sm transition-all duration-300 group-hover:shadow-md">
+              <button className="w-full py-3 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-sm transition-all duration-300 group-hover:shadow-md">
                 Continue Learning
               </button>
             </div>

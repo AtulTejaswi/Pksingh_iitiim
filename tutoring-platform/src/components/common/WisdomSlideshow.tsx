@@ -7,7 +7,6 @@ import { wisdomQuotes, type WisdomQuote } from '@/data/wisdom-quotes';
 const SLIDE_INTERVAL = 7000;
 const categoryLabels: Record<string, string> = {
   'bhagavad-gita': 'Bhagavad Gita',
-  'ashtavakra-gita': 'Ashtavakra Gita',
   'vedas': 'Vedas',
   'upanishads': 'Upanishads',
 };
@@ -77,7 +76,7 @@ export default function WisdomSlideshow({ variant = 'section' }: { variant?: 'se
       className={
         variant === 'strip'
           ? 'relative bg-slate-900 border-b border-slate-700/50'
-          : 'relative py-28 px-4 sm:px-6 lg:px-8 overflow-hidden bg-[#FDFBF7]'
+          : 'relative py-28 px-4 sm:px-6 lg:px-8 overflow-hidden bg-white'
       }
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}

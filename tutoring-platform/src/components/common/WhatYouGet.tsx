@@ -7,31 +7,31 @@ export default function WhatYouGet() {
       icon: Video,
       title: "Live Interactive Classes",
       description: "Real-time sessions with PK Singh. Ask doubts, solve problems together.",
-      color: "bg-blue-100 text-blue-600",
+      color: "bg-amber-100 text-amber-700",
     },
     {
       icon: PlayCircle,
       title: "Recorded Lecture Library",
       description: "Access all past sessions anytime. Rewatch, revise, repeat.",
-      color: "bg-orange-100 text-orange-600",
+      color: "bg-amber-100 text-amber-700",
     },
     {
       icon: MessageCircle,
       title: "Doubt Support",
       description: "Get personalized answers within 24 hours from the mentor.",
-      color: "bg-green-100 text-green-600",
+      color: "bg-amber-100 text-amber-700",
     },
     {
       icon: BarChart3,
       title: "Progress Tracking",
       description: "Dashboard with streaks, completion analytics, and weekly reports.",
-      color: "bg-purple-100 text-purple-600",
+      color: "bg-amber-100 text-amber-700",
     },
     {
       icon: FileText,
       title: "Mock Tests & Analysis",
       description: "Exam-pattern practice tests with detailed performance breakdown.",
-      color: "bg-emerald-100 text-emerald-600",
+      color: "bg-amber-100 text-amber-700",
     },
   ];
 
