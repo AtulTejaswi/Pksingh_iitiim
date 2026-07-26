@@ -41,8 +41,10 @@ jobs:
         id: render-info
         run: |
           svc_id=${{ secrets.RENDER_SERVICE_ID }}
-          info=$(curl -s -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" "https://api.render.com/v1/services/${svc_id}")
-          domain=$(echo "$info" | jq -r .defaultDomain)
+          info=$(curl -sf -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            "https://api.render.com/v1/services/${svc_id}")
+          echo "Raw service info (first 200 chars): ${info:0:200}"
+          domain=$(echo "$info" | jq -r .service.defaultDomain // .defaultDomain // "")
           echo "domain=$domain" >> $GITHUB_OUTPUT
 
       - name: Trigger Render deploy
@@ -50,25 +52,33 @@ jobs:
         id: trigger
         run: |
           svc_id=${{ secrets.RENDER_SERVICE_ID }}
-          resp=$(curl -s -X POST \
+          resp=$(curl -sf -X POST \
             -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
             -H "Content-Type: application/json" \
             -d '{}' \
-            "https://api.render.com/v1/services/${svc_id}/deploys")
-          deploy_id=$(echo "$resp" | jq -r .id)
+            "https://api.render.com/v1/services/${svc_id}/deploys") || true
+          echo "Raw deploy response (first 200 chars): ${resp:0:200}"
+          deploy_id=$(echo "$resp" | jq -r '.id // .deploy.id // empty')
+          if [ -z "$deploy_id" ]; then
+            echo "Warning: Could not extract deploy_id. Falling back to latest deploy."
+            latest=$(curl -sf -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+              "https://api.render.com/v1/services/${svc_id}/deploys?limit=1")
+            deploy_id=$(echo "$latest" | jq -r '.[0].id // .[0].deploy.id // empty')
+          fi
           echo "deploy_id=$deploy_id" >> $GITHUB_OUTPUT
 
       - name: Wait for deploy
-        if: steps.render-check.outputs.skip == 'false'
+        if: steps.render-check.outputs.skip == 'false' && steps.trigger.outputs.deploy_id != ''
         run: |
           svc_id=${{ secrets.RENDER_SERVICE_ID }}
           deploy_id=${{ steps.trigger.outputs.deploy_id }}
+          echo "Waiting for deploy $deploy_id ..."
           for i in $(seq 1 60); do
-            resp=$(curl -s -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
-              "https://api.render.com/v1/services/${svc_id}/deploys/${deploy_id}")
-            status=$(echo "$resp" | jq -r .status)
-            echo "Deploy status: $status"
-            if [ "$status" = "success" ]; then exit 0; fi
+            resp=$(curl -sf -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+              "https://api.render.com/v1/services/${svc_id}/deploys/${deploy_id}") || true
+            status=$(echo "$resp" | jq -r '.status // .deploy.status // "unknown"')
+            echo "Deploy status ($i/60): $status"
+            if [ "$status" = "live" ] || [ "$status" = "success" ]; then exit 0; fi
             if [ "$status" = "failed" ]; then
               echo "Deploy failed: $resp"
               exit 1
