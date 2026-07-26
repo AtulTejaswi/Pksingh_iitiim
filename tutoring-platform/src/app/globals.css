@@ -160,17 +160,14 @@ h4 { font-size: clamp(1rem, 1.5vw, 1.125rem); line-height: 1.4; }
   }
 }
 
-/* Dark-mode text contrast fix: reset text to dark on light backgrounds */
-.dark [class*="bg-white"],
-.dark [class*="bg-slate-50"],
-.dark [class*="bg-slate-100"],
-.dark [class*="bg-amber-50"],
-.dark [class*="bg-orange-50"],
-.dark [class*="bg-blue-50"],
-.dark [class*="bg-emerald-50"],
-.dark [class*="bg-green-50"],
-.dark [class*="bg-purple-50"] {
-  --text-secondary: #334155;
+/* Dark-mode text contrast fix: ensure text stays dark on light backgrounds.
+   :where() keeps specificity 0 so explicit text utilities (text-white, text-amber-200) still override. */
+.dark :where([class*="bg-white"], [class*="bg-slate-50"], [class*="bg-slate-100"], [class*="bg-amber-50"], [class*="bg-orange-50"], [class*="bg-blue-50"], [class*="bg-emerald-50"], [class*="bg-green-50"], [class*="bg-purple-50"]) {
+  color: #0F172A;
+}
+/* Nested dark-background cards inside light sections: restore light text */
+.dark :where([class*="bg-white"], [class*="bg-slate-50"]) :where([class*="bg-slate-900"], [class*="bg-slate-950"], [class*="bg-gray-900"], [class*="bg-gray-950"]) {
+  color: #F1F5F9;
 }
 
 .muted { color: var(--text-muted); }

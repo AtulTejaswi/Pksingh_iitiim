@@ -8,7 +8,7 @@ export default function DashboardPreview() {
       {/* Decorative background elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-amber-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-amber-500/10 rounded-full blur-3xl"></div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -34,18 +34,18 @@ export default function DashboardPreview() {
                 {/* Stats Row */}
                 <div className="grid grid-cols-3 gap-4 mb-8">
                   <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center justify-center">
-                    <BookOpen className="w-5 h-5 text-blue-500 mb-2" />
+                    <BookOpen className="w-5 h-5 text-amber-500 mb-2" />
                     <span className="text-2xl font-bold text-slate-800">3</span>
                     <span className="text-xs text-slate-500 mt-1 text-center">Courses Enrolled</span>
                   </div>
                   <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center justify-center">
-                    <CheckCircle className="w-5 h-5 text-emerald-500 mb-2" />
+                    <CheckCircle className="w-5 h-5 text-amber-500 mb-2" />
                     <span className="text-2xl font-bold text-slate-800">47</span>
                     <span className="text-xs text-slate-500 mt-1 text-center">Lessons Completed</span>
                   </div>
                   <div className="bg-white p-4 rounded-xl border border-amber-100 shadow-sm flex flex-col items-center justify-center bg-amber-50/30">
-                    <Flame className="w-5 h-5 text-orange-500 mb-2" />
-                    <span className="text-2xl font-bold text-orange-600">12 days</span>
+                    <Flame className="w-5 h-5 text-amber-500 mb-2" />
+                    <span className="text-2xl font-bold text-amber-600">12 days</span>
                     <span className="text-xs text-slate-500 mt-1 text-center">Current Streak</span>
                   </div>
                 </div>
@@ -66,7 +66,7 @@ export default function DashboardPreview() {
                   <h4 className="font-semibold text-slate-800 font-outfit mb-4">Upcoming Sessions</h4>
                   <div className="space-y-3">
                     <div className="flex items-center p-3 bg-white rounded-lg border border-slate-100 shadow-sm">
-                      <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 mr-4">
+                      <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 mr-4">
                         <Calendar className="w-5 h-5" />
                       </div>
                       <div className="flex-1">
@@ -78,7 +78,7 @@ export default function DashboardPreview() {
                       <ChevronRight className="w-4 h-4 text-slate-400" />
                     </div>
                     <div className="flex items-center p-3 bg-white rounded-lg border border-slate-100 shadow-sm">
-                      <div className="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600 mr-4">
+                      <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 mr-4">
                         <Calendar className="w-5 h-5" />
                       </div>
                       <div className="flex-1">
@@ -97,7 +97,7 @@ export default function DashboardPreview() {
 
           {/* Right Side: Text & CTA */}
           <div className="w-full lg:w-2/5 text-center lg:text-left">
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-outfit mb-6 leading-tight">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-6 leading-tight">
               Your Personalized Learning Command Center
             </h2>
             <p className="text-lg text-slate-300 font-inter mb-8">

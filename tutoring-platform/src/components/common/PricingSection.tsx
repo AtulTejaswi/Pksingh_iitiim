@@ -13,7 +13,7 @@ export default function PricingSection() {
           <span className="inline-block py-1 px-3 rounded-full bg-amber-100 text-amber-800 text-sm font-semibold tracking-wider mb-4">
             Pricing
           </span>
-          <h2 className="text-4xl font-bold text-slate-900 font-outfit mb-4">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
             Choose Your Learning Path
           </h2>
           <p className="text-lg text-slate-600 font-inter">

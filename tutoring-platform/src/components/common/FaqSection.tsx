@@ -38,7 +38,7 @@ export default function FaqSection() {
     <section className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20">
       <div className="text-center mb-12">
         <span className="inline-block px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-[0.3em] mb-4">FAQ</span>
-        <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Frequently Asked Questions</h2>
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">Frequently Asked Questions</h2>
       </div>
       <div className="space-y-3">
         {faqs.map((faq) => <FaqItem key={faq.q} faq={faq} />)}

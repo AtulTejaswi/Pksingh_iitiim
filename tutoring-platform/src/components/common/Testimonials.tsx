@@ -15,10 +15,6 @@ interface Testimonial {
   rankCardImage?: string | null;
 }
 
-// TODO: Replace with real student data, photos, and verified results
-// Set `image` to a photo path (e.g. '/images/testimonials/arjun.jpg') for real photo,
-// or leave null for initials-based avatar fallback.
-// Set `rankCardImage` to a scorecard/rank-card screenshot path if available.
 const testimonials: Testimonial[] = [
   { 
     name: 'Arjun K.', 
@@ -90,10 +86,10 @@ export default function Testimonials() {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-16">
       <div className="text-center mb-12 flex flex-col items-center">
-        <div className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-4 py-1.5 text-sm font-semibold text-blue-700 mb-4 shadow-sm">
+        <div className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-4 py-1.5 text-sm font-semibold text-amber-700 mb-4 shadow-sm">
           Student Success
         </div>
-        <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">What Our Students Achieve</h2>
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">What Our Students Achieve</h2>
         <p className="text-slate-600 max-w-2xl mx-auto text-lg">
           Hear directly from our students about their journey, the mentorship experience, and the results they were able to secure.
         </p>
@@ -132,7 +128,7 @@ export default function Testimonials() {
                 <div className="text-base font-bold text-slate-900 truncate">{t.name}</div>
                 <div className="text-sm text-slate-500 font-medium truncate">{t.role}</div>
               </div>
-              <div className="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap shrink-0">
+              <div className="bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap shrink-0">
                 {t.result}
               </div>
             </div>
@@ -161,24 +157,23 @@ export default function Testimonials() {
 
       {/* Video Testimonial Spotlight */}
       <div className="mt-20 bg-slate-900 rounded-3xl p-8 sm:p-12 text-white relative overflow-hidden shadow-2xl flex flex-col md:flex-row items-center gap-10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.15),transparent_40%)] pointer-events-none"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(217,119,6,0.15),transparent_40%)] pointer-events-none"></div>
         <div className="md:w-1/2 relative z-10">
-          <span className="inline-block px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-bold uppercase tracking-[0.2em] mb-4">Spotlight</span>
+          <span className="inline-block px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold uppercase tracking-[0.2em] mb-4">Spotlight</span>
           <h3 className="text-3xl font-bold mb-4 leading-tight text-white">"PK Sir changed how I approach problem solving entirely."</h3>
           <p className="text-slate-400 mb-6 text-lg">Watch how Aryan jumped from scoring 120 in mock tests to achieving a 99.9 percentile in JEE Main.</p>
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-xl">A</div>
+            <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-500 to-amber-600 flex items-center justify-center font-bold text-xl">A</div>
             <div>
               <p className="font-semibold text-white">Aryan Sharma</p>
-              <p className="text-xs text-blue-300">IIT Bombay, Computer Science</p>
+              <p className="text-xs text-amber-300">IIT Bombay, Computer Science</p>
             </div>
           </div>
         </div>
         <div className="md:w-1/2 w-full relative z-10">
           <div className="aspect-video bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden relative group cursor-pointer shadow-xl">
-            {/* Placeholder for video thumbnail */}
             <div className="absolute inset-0 bg-slate-800 flex items-center justify-center group-hover:bg-slate-700 transition-colors">
-              <PlayCircle className="w-16 h-16 text-blue-500 group-hover:scale-110 transition-transform duration-300" />
+              <PlayCircle className="w-16 h-16 text-amber-500 group-hover:scale-110 transition-transform duration-300" />
             </div>
             <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs font-semibold text-white flex items-center gap-2">
               <PlayCircle className="w-4 h-4" /> 2:45

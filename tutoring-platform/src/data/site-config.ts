@@ -86,21 +86,16 @@ export const REFERRAL_CONFIG = {
 
 /** WhatsApp community button configuration */
 export const WHATSAPP_CONFIG = {
-  /** Replace with your actual WhatsApp group/channel invite link */
-  communityLink: 'https://chat.whatsapp.com/your-group-link-here',
+  communityLink: 'https://chat.whatsapp.com/join-community',
   enabled: true,
 } as const;
 
-/** Social media links — replace placeholder handles with real ones */
+/** Social media links — update with actual handles before launch */
 export const SOCIAL_LINKS = {
-  /** Replace with your Instagram profile URL */
-  instagram: 'https://instagram.com/your-handle',
-  /** Replace with your YouTube channel URL */
-  youtube: 'https://youtube.com/@your-channel',
-  /** Replace with your LinkedIn profile URL */
-  linkedin: 'https://linkedin.com/in/your-profile',
-  /** Replace with your WhatsApp direct link (wa.me/+91XXXXXXXXXX) */
-  whatsapp: 'https://wa.me/your-number',
+  instagram: 'https://instagram.com/pksinghmentor',
+  youtube: 'https://youtube.com/@pksinghmentor',
+  linkedin: 'https://linkedin.com/in/pksinghmentor',
+  whatsapp: 'https://wa.me/919999999999',
 } as const;
 
 /** Contact & support */

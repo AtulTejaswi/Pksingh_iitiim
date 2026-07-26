@@ -9,7 +9,7 @@ export default function CohortBanner() {
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-8">
-      <div className="rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 p-6 sm:p-8 text-white relative overflow-hidden shadow-lg">
+      <div className="rounded-2xl bg-gradient-to-r from-amber-600 to-amber-500 p-6 sm:p-8 text-white relative overflow-hidden shadow-lg">
         <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-[60px] pointer-events-none"></div>
         <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">

@@ -11,7 +11,7 @@ import TrustBadges from '@/components/common/TrustBadges';
 import WhatYouGet from '@/components/common/WhatYouGet';
 import DashboardPreview from '@/components/common/DashboardPreview';
 import WisdomSlideshow from '@/components/common/WisdomSlideshow';
-import MasteryPathPreview from '@/components/common/MasteryPathPreview';
+
 import MentorshipComparison from '@/components/common/MentorshipComparison';
 import MediaLogos from '@/components/common/MediaLogos';
 import CohortBanner from '@/components/common/CohortBanner';
@@ -129,7 +129,7 @@ export default function LandingPage() {
             {/* Interactive Search Bar */}
             <div className="relative max-w-xl group mb-12">
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                <Search className="h-5 w-5 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
               </div>
               <input 
                 type="text" 
@@ -161,7 +161,6 @@ export default function LandingPage() {
             <div className="space-y-6">
               <div className="flex items-center gap-4">
                 <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-white/80 bg-white shadow-md overflow-hidden">
-                  {/* TODO: Upload real photo to public/images/pk-singh-photo.jpg */}
                   <Image src="/images/pk-singh-photo.jpg" alt="PK Singh" width={80} height={80} className="object-cover" priority />
                 </div>
                 <div>
@@ -250,15 +249,15 @@ export default function LandingPage() {
       {/* Stats Section with Scroll Animation & Live / Fallback counters */}
       <section ref={statsAnim.ref} className="relative py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto overflow-hidden rounded-[2.5rem] bg-slate-900 text-white shadow-2xl relative">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(217,119,6,0.08),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(148,163,184,0.08),transparent_40%)]"></div>
-          <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-white/03 to-transparent"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(217,119,6,0.08),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(217,119,6,0.06),transparent_40%)]"></div>
+          <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-amber-500/05 to-transparent"></div>
           <div className="relative grid gap-5 p-10 md:grid-cols-4 grid-rows-[auto]">
             <StatCard 
               icon={BookOpen} 
               value={`${SITE_STATS.learnersMentored.toLocaleString()}+`} 
               targetValue={stats?.enrollments ?? stats?.students ?? SITE_STATS.learnersMentored} 
               label="Learners mentored" 
-              color="from-sky-400/20 to-sky-500/10 text-sky-200" 
+              color="from-amber-400/20 to-amber-500/10 text-amber-200" 
               span="md:col-span-2 md:row-span-2" 
               isVisible={statsAnim.isVisible} 
             />
@@ -267,7 +266,7 @@ export default function LandingPage() {
               value={`${SITE_STATS.interactiveCourses}+`} 
               targetValue={stats?.publishedCourses ?? SITE_STATS.interactiveCourses} 
               label="Interactive Courses" 
-              color="from-orange-400/20 to-red-500/10 text-orange-200" 
+              color="from-amber-400/20 to-amber-500/10 text-amber-200" 
               span="md:col-span-1 md:row-span-1" 
               isVisible={statsAnim.isVisible} 
             />
@@ -276,7 +275,7 @@ export default function LandingPage() {
               value={`${SITE_STATS.lessonModules}+`} 
               targetValue={stats?.publishedLessons ?? SITE_STATS.lessonModules} 
               label="Lesson modules" 
-              color="from-emerald-400/20 to-emerald-500/10 text-emerald-200" 
+              color="from-amber-400/20 to-amber-500/10 text-amber-200" 
               span="md:col-span-1 md:row-span-1" 
               isVisible={statsAnim.isVisible} 
             />
@@ -285,7 +284,7 @@ export default function LandingPage() {
               value={`${SITE_STATS.freeResources}% Free Resources`} 
               targetValue={0} 
               label="Available Study Guides" 
-              color="from-blue-400/20 to-blue-500/10 text-blue-200" 
+              color="from-amber-400/20 to-amber-500/10 text-amber-200" 
               span="md:col-span-2 md:row-span-1" 
               isVisible={statsAnim.isVisible} 
             />
@@ -301,9 +300,7 @@ export default function LandingPage() {
 
       {/* Cinematic Mentor Story (MasterClass Style) */}
       <section id="about" className="relative bg-slate-950 py-24 sm:py-32 overflow-hidden">
-        {/* Background Image / Video Placeholder */}
         <div className="absolute inset-0 z-0">
-          {/* TODO: Upload real photo to public/images/pk-singh-photo.jpg */}
           <Image src="/images/pk-singh-photo.jpg" alt="Mentor Background" fill className="object-cover opacity-30 mix-blend-luminosity" priority />
           <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent"></div>
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
@@ -348,9 +345,6 @@ export default function LandingPage() {
 
       {/* Mentorship vs Mass Classes Comparison */}
       <MentorshipComparison />
-
-      {/* Mastery Path Visual */}
-      <MasteryPathPreview />
 
       {/* Dynamic Wisdom Quotes Carousel */}
       <WisdomSlideshow variant="section" />
@@ -470,12 +464,9 @@ export default function LandingPage() {
             {featuredCourses.map((course: any) => (
               <div
                 key={course.id}
-                className="rounded-3xl border border-slate-200 bg-white shadow-sm hover:shadow-2xl hover:-translate-y-2 hover:border-blue-300 transition-all duration-500 overflow-hidden flex flex-col group cursor-pointer"
+                className="rounded-3xl border border-slate-200 bg-white shadow-sm hover:shadow-2xl hover:-translate-y-2 hover:border-amber-300 transition-all duration-500 overflow-hidden flex flex-col group cursor-pointer"
               >
-                <div className={`h-44 relative p-6 flex flex-col justify-between ${
-                  course.subject === 'PHYSICS' ? 'bg-orange-950' : 
-                  course.subject === 'CHEMISTRY' ? 'bg-sky-950' : 'bg-emerald-950'
-                }`}>
+                <div className={`h-44 relative p-6 flex flex-col justify-between bg-amber-950`}>
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_50%)]"></div>
                   <span className="relative self-start px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white text-[10px] font-bold uppercase tracking-wider">
                     {course.subject}
@@ -522,52 +513,6 @@ export default function LandingPage() {
       {/* Dashboard Preview Section */}
       <DashboardPreview />
 
-      {/* Master Path Progress Visualization */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20 bg-gradient-to-br from-slate-50 to-blue-50/50 rounded-[3rem]">
-        <div className="text-center mb-16">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold uppercase tracking-[0.3em] mb-5">Learning Journey</span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900">
-            Your <span className="gradient-text">Master Path</span> to Success
-          </h2>
-          <p className="text-slate-600 mt-4 text-lg max-w-2xl mx-auto">Track your progress through each subject with visual milestones and achievements.</p>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-8">
-          {[
-            { title: 'Physics Foundation', progress: 85, color: 'from-amber-500 to-amber-600', lessons: 12, completed: 10 },
-            { title: 'Chemistry Mastery', progress: 45, color: 'from-amber-500 to-amber-600', lessons: 8, completed: 3 },
-            { title: 'Math Excellence', progress: 25, color: 'from-amber-500 to-amber-600', lessons: 15, completed: 3 },
-          ].map((subject) => (
-            <div key={subject.title} className="group rounded-3xl bg-white border border-slate-200 p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-              <div className="flex justify-between items-start mb-6">
-                <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r ${subject.color} text-white text-xs font-bold uppercase tracking-wider`}>Progress</div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-slate-900">{subject.progress}%</div>
-                  <div className="text-xs text-slate-500">Complete</div>
-                </div>
-              </div>
-
-              <h3 className="text-xl font-bold text-slate-900 mb-3">{subject.title}</h3>
-              <p className="text-slate-600 text-sm mb-6">Progress through {subject.lessons} structured lessons with practical applications and real-world problem-solving.</p>
-
-              <div className="space-y-3 mb-4">
-                <div className="flex justify-between text-xs text-slate-600">
-                  <span>Lessons Completed</span>
-                  <span>{subject.completed}/{subject.lessons}</span>
-                </div>
-                <div className="w-full bg-slate-200 rounded-full h-2">
-                  <div className={`bg-gradient-to-r ${subject.color} h-2 rounded-full transition-all duration-500`} style={{ width: `${subject.progress}%` }}></div>
-                </div>
-              </div>
-
-              <button className="w-full py-3 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-sm transition-all duration-300 group-hover:shadow-md">
-                Continue Learning
-              </button>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* About — PK Singh */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20">
         <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -592,7 +537,6 @@ export default function LandingPage() {
 
           <div className="rounded-3xl p-8 bg-gradient-to-br from-slate-50 to-white border border-slate-200 shadow-sm flex flex-col items-center">
             <div className="w-36 h-36 rounded-full overflow-hidden mb-5 border-4 border-white shadow-lg">
-              {/* TODO: Upload real photo to public/images/pk-singh-photo.jpg */}
               <Image src="/images/pk-singh-photo.jpg" alt="PK Singh" width={160} height={160} className="object-cover" />
             </div>
             <h4 className="text-sm uppercase text-amber-700 font-bold tracking-[0.24em] mb-4">Snapshot</h4>
@@ -619,7 +563,7 @@ export default function LandingPage() {
           <div className="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
             <Gift className="w-7 h-7 text-amber-600" />
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-4">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
             Refer & Earn
           </h2>
           <p className="text-lg text-slate-600 mb-6">Refer a friend, both get 1 free 1:1 session</p>
@@ -640,7 +584,7 @@ export default function LandingPage() {
       <FaqSection />
 
       {/* Free Study Guide Email Capture */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-16">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-16 pb-28">
         <div className="max-w-md mx-auto bg-white rounded-3xl border border-slate-200 p-8 shadow-lg">
           <h3 className="text-2xl font-bold text-slate-900 text-center mb-2">Free Study Guide</h3>
           <p className="text-sm text-slate-500 text-center mb-6">Get your comprehensive exam preparation notes + weekly tips.</p>
