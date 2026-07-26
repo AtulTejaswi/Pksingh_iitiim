@@ -23,6 +23,7 @@ import EmailCaptureForm from '@/components/common/EmailCaptureForm';
 import { getStaticFeaturedCourses } from '@/data/courseData';
 import { useScrollAnimation, useCountUp } from '@/hooks/useScrollAnimation';
 import { useGetCourses, useGetPublicStats } from '@/hooks/useCourses';
+import { useState, useEffect } from 'react';
 import { BookOpen, GraduationCap, Award, CheckCircle2, ChevronRight, Zap, Target, Search, Flame, Gift } from 'lucide-react';
 import SiteFooter from '@/components/common/SiteFooter';
 import { SITE_STATS } from '@/data/site-config';
@@ -50,6 +51,15 @@ export default function LandingPage() {
   const { data: stats } = useGetPublicStats();
 
   const statsAnim = useScrollAnimation();
+  const [showBottomCta, setShowBottomCta] = useState(true);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBottomCta(window.scrollY < window.innerHeight * 0.85);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Pick top 3 published courses from API, fallback to static featured courses
   const apiPublished = courses?.filter((course) => course.status === 'PUBLISHED') || [];
@@ -84,7 +94,7 @@ export default function LandingPage() {
               Learn Physics, Chemistry, Math and exam strategy from an IIT + IIM alumnus, bestselling author and global consultant. Every course is built for clarity, confidence and accelerated exam performance.
             </p>
 
-            <div className="flex flex-wrap gap-3 text-sm mb-10">
+            <div className="flex flex-wrap gap-3 text-sm mb-10 dark:text-slate-800">
               <span className="inline-flex items-center gap-2 rounded-full bg-slate-50 border border-slate-200 px-4 py-2 text-slate-800 font-medium">
                 <BookOpen className="w-4 h-4 text-slate-600" />
                 23+ years of mentorship
@@ -162,9 +172,9 @@ export default function LandingPage() {
                   <Image src="/images/pk_sir_logo.jpg" alt="Brand Logo" width={80} height={24} className="w-[80px] h-auto rounded-lg bg-white/80 px-1.5 py-1" />
                 </div>
               </div>
-              <div className="rounded-2xl bg-amber-50 border border-amber-100 p-6">
-                <p className="text-xs uppercase tracking-[0.3em] text-amber-700 font-bold mb-3">High-impact mentorship</p>
-                <p className="text-slate-700 text-sm leading-relaxed">One-to-one guidance, exam-ready routines, and strategically designed learning plans for maximum progress.</p>
+              <div className="rounded-2xl bg-amber-50 border border-amber-100 p-6 dark:text-slate-900">
+                <p className="text-xs uppercase tracking-[0.3em] text-amber-800 font-bold mb-3">High-impact mentorship</p>
+                <p className="text-slate-800 text-sm leading-relaxed">One-to-one guidance, exam-ready routines, and strategically designed learning plans for maximum progress.</p>
               </div>
               <div className="grid gap-3">
                 {[
@@ -380,11 +390,11 @@ export default function LandingPage() {
       {/* Trust Badges near pricing */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-8 mb-8">
         <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-500">
-          <span className="flex items-center gap-1.5">🔒 Secure payment</span>
+          <span className="flex items-center gap-1.5 text-slate-500">🔒 Secure payment</span>
           <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-          <span className="flex items-center gap-1.5">↩️ 7-day refund policy</span>
+          <span className="flex items-center gap-1.5 text-slate-500">↩️ 7-day refund policy</span>
           <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-          <span className="flex items-center gap-1.5">🛡️ SSL encrypted</span>
+          <span className="flex items-center gap-1.5 text-slate-500">🛡️ SSL encrypted</span>
         </div>
       </div>
 
@@ -599,8 +609,8 @@ export default function LandingPage() {
                 { label: 'Books', value: 'Bestselling titles in UK & USA' },
                 { label: 'Roots', value: 'Based in Mumbai; teaching globally' },
               ].map((item) => (
-                <li key={item.label} className="py-2.5 px-4 rounded-xl bg-white/60 border border-slate-100">
-                  <span className="text-slate-400 text-[10px] uppercase tracking-wider block">{item.label}</span>
+                <li key={item.label} className="py-2.5 px-4 rounded-xl bg-white/60 border border-slate-100 text-slate-700">
+                  <span className="text-slate-500 text-[10px] uppercase tracking-wider block">{item.label}</span>
                   <span className="font-semibold text-slate-800">{item.value}</span>
                 </li>
               ))}
@@ -619,11 +629,11 @@ export default function LandingPage() {
             Refer & Earn
           </h2>
           <p className="text-lg text-slate-600 mb-6">Refer a friend, both get 1 free 1:1 session</p>
-          <p className="text-sm text-slate-400 mb-8">Share your unique referral code with friends. When they sign up, you both earn a free session.</p>
+          <p className="text-sm text-slate-500 mb-8">Share your unique referral code with friends. When they sign up, you both earn a free session.</p>
           <div className="max-w-sm mx-auto bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
             <label htmlFor="referral-code" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Your Referral Code</label>
             <div className="flex gap-2">
-              <input id="referral-code" readOnly value="PK-REF-001" className="flex-1 text-center font-mono font-bold text-lg bg-slate-50 border border-slate-200 rounded-xl py-3" />
+              <input id="referral-code" readOnly value="PK-REF-001" className="flex-1 text-center font-mono font-bold text-lg bg-slate-50 border border-slate-200 rounded-xl py-3 text-slate-900" />
               <button onClick={() => navigator.clipboard.writeText('PK-REF-001')} className="px-4 py-3 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-colors whitespace-nowrap">
                 Copy
               </button>
@@ -651,15 +661,17 @@ export default function LandingPage() {
 
       <SiteFooter />
 
-      {/* Sticky Bottom Engagement Bar */}
-      <div className="fixed bottom-6 left-0 right-0 z-50 px-4 pointer-events-none flex justify-center">
-        <div className="pointer-events-auto bg-slate-900 backdrop-blur-md border border-slate-700 rounded-full px-6 py-3 shadow-2xl flex items-center gap-4 sm:gap-6 animate-slide-up transition-all">
-          <span className="hidden sm:inline text-white text-sm font-medium">Ready to start your journey?</span>
-          <Link href="/courses" className="btn bg-amber-500 text-white border-none py-2 px-6 rounded-full text-sm font-bold hover:bg-amber-600 transition-colors">
-            Explore Courses
-          </Link>
+      {/* Sticky Bottom Engagement Bar — hides on scroll past hero */}
+      {showBottomCta && (
+        <div className="fixed bottom-6 left-0 right-0 z-50 px-4 pointer-events-none flex justify-center animate-slide-up">
+          <div className="pointer-events-auto bg-slate-900 backdrop-blur-md border border-slate-700 rounded-full px-6 py-3 shadow-2xl flex items-center gap-4 sm:gap-6 transition-all">
+            <span className="hidden sm:inline text-white text-sm font-medium">Ready to start your journey?</span>
+            <Link href="/courses" className="btn bg-amber-500 text-white border-none py-2 px-6 rounded-full text-sm font-bold hover:bg-amber-600 transition-colors">
+              Explore Courses
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

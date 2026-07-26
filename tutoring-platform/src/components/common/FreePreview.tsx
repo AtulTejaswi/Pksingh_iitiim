@@ -7,7 +7,7 @@ const TODO_VIDEO_URL = '';
 export default function FreePreview() {
   return (
     <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <div className="bg-amber-50 rounded-3xl overflow-hidden shadow-sm border border-amber-100">
+      <div className="bg-amber-50 rounded-3xl overflow-hidden shadow-sm border border-amber-100 dark:text-slate-900">
         <div className="flex flex-col lg:flex-row">
           {/* Left Side: Content */}
           <div className="p-8 lg:p-12 lg:w-1/2 flex flex-col justify-center">

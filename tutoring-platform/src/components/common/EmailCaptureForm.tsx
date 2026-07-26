@@ -87,7 +87,7 @@ export default function EmailCaptureForm() {
         <Download className="w-4 h-4" />
         Download Free Study Guide
       </button>
-      <p className="text-xs text-slate-400 text-center">No spam. Unsubscribe anytime.</p>
+      <p className="text-xs text-slate-500 text-center">No spam. Unsubscribe anytime.</p>
     </form>
   );
 }

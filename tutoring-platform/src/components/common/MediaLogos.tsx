@@ -12,7 +12,7 @@ export default function MediaLogos() {
   return (
     <section className="py-12 border-y border-slate-200 bg-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p className="text-center text-xs font-bold uppercase tracking-[0.3em] text-slate-400 mb-8">
+        <p className="text-center text-xs font-bold uppercase tracking-[0.3em] text-slate-500 mb-8">
           As Featured In
         </p>
         <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6">
@@ -25,7 +25,7 @@ export default function MediaLogos() {
             </div>
           ))}
         </div>
-        <p className="text-center text-xs text-slate-400 mt-6">
+        <p className="text-center text-xs text-slate-500 mt-6">
           {/* TODO: Replace placeholder logo slots above with real media logos */}
           Logo placeholder — replace with actual publication logos
         </p>

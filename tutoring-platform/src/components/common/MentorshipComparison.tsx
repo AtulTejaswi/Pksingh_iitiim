@@ -40,23 +40,23 @@ export default function MentorshipComparison() {
             
             <div className="space-y-6 md:space-y-12">
               <div className="flex flex-col md:block h-auto md:h-10 justify-center">
-                <span className="md:hidden text-xs font-semibold text-slate-400 uppercase mb-1">Pace of Learning</span>
+                <span className="md:hidden text-xs font-semibold text-slate-500 uppercase mb-1">Pace of Learning</span>
                 <div className="flex items-center text-slate-600"><X className="w-5 h-5 text-slate-300 mr-2 flex-shrink-0" /> Fixed for 100+ students</div>
               </div>
               <div className="flex flex-col md:block h-auto md:h-10 justify-center">
-                <span className="md:hidden text-xs font-semibold text-slate-400 uppercase mb-1">Doubt Resolution</span>
+                <span className="md:hidden text-xs font-semibold text-slate-500 uppercase mb-1">Doubt Resolution</span>
                 <div className="flex items-center text-slate-600"><X className="w-5 h-5 text-slate-300 mr-2 flex-shrink-0" /> Queued or answered by TAs</div>
               </div>
               <div className="flex flex-col md:block h-auto md:h-10 justify-center">
-                <span className="md:hidden text-xs font-semibold text-slate-400 uppercase mb-1">Study Strategy</span>
+                <span className="md:hidden text-xs font-semibold text-slate-500 uppercase mb-1">Study Strategy</span>
                 <div className="flex items-center text-slate-600"><X className="w-5 h-5 text-slate-300 mr-2 flex-shrink-0" /> One-size-fits-all generic plan</div>
               </div>
               <div className="flex flex-col md:block h-auto md:h-10 justify-center">
-                <span className="md:hidden text-xs font-semibold text-slate-400 uppercase mb-1">Accountability</span>
+                <span className="md:hidden text-xs font-semibold text-slate-500 uppercase mb-1">Accountability</span>
                 <div className="flex items-center text-slate-600"><X className="w-5 h-5 text-slate-300 mr-2 flex-shrink-0" /> You're just a roll number</div>
               </div>
               <div className="flex flex-col md:block h-auto md:h-10 justify-center">
-                <span className="md:hidden text-xs font-semibold text-slate-400 uppercase mb-1">Exam Analysis</span>
+                <span className="md:hidden text-xs font-semibold text-slate-500 uppercase mb-1">Exam Analysis</span>
                 <div className="flex items-center text-slate-600"><X className="w-5 h-5 text-slate-300 mr-2 flex-shrink-0" /> Automated scorecard only</div>
               </div>
             </div>
