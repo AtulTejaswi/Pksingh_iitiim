@@ -86,7 +86,7 @@ export const REFERRAL_CONFIG = {
 
 /** WhatsApp community button configuration */
 export const WHATSAPP_CONFIG = {
-  communityLink: 'https://chat.whatsapp.com/join-community',
+  communityLink: 'https://chat.whatsapp.com/EyfnanzGYgK2EUycPqsrMH',
   enabled: true,
 } as const;
 
