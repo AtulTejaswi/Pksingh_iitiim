@@ -44,7 +44,7 @@ jobs:
           info=$(curl -sf -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
             "https://api.render.com/v1/services/${svc_id}")
           echo "Raw service info (first 200 chars): ${info:0:200}"
-          domain=$(echo "$info" | jq -r .service.defaultDomain // .defaultDomain // "")
+          domain=$(echo "$info" | jq -r '.service.defaultDomain // .defaultDomain // ""')
           echo "domain=$domain" >> $GITHUB_OUTPUT
 
       - name: Trigger Render deploy
