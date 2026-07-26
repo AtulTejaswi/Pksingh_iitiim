@@ -1,7 +1,6 @@
 import React from 'react';
 import { Play, Download } from 'lucide-react';
 
-// Replace with your actual sample lesson video URL when ready
 const SAMPLE_LESSON_URL = '';
 
 export default function FreePreview() {
@@ -55,10 +54,10 @@ export default function FreePreview() {
                   />
                 )
               ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center text-white/80 p-8">
-                  <Play className="w-16 h-16 text-amber-400 mb-4 opacity-60" />
-                  <p className="text-lg font-semibold text-center">Sample lesson coming soon</p>
-                  <p className="text-sm text-white/50 mt-2 text-center">A free preview video will be available here</p>
+                <div className="w-full h-full flex flex-col items-center justify-center p-8">
+                  <Play className="w-16 h-16 text-amber-400 mb-4" />
+                  <p className="text-lg font-semibold text-center text-white">Sample lesson preview</p>
+                  <p className="text-sm text-slate-400 mt-2 text-center">A video demonstration is being prepared</p>
                 </div>
               )}
               <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-slate-900/60 to-transparent"></div>

@@ -32,11 +32,11 @@ export default function EmailCaptureForm() {
 
   if (submitted) {
     return (
-      <div className="flex items-center gap-3 p-6 rounded-2xl bg-emerald-50 border border-emerald-200">
-        <CheckCircle2 className="w-8 h-8 text-emerald-500 shrink-0" />
+      <div className="flex items-center gap-3 p-6 rounded-2xl bg-amber-50 border border-amber-200">
+        <CheckCircle2 className="w-8 h-8 text-amber-500 shrink-0" />
         <div>
-          <p className="font-bold text-emerald-800">Check your inbox!</p>
-          <p className="text-sm text-emerald-600">Your free study guide is on its way. We&apos;ll also send you weekly tips.</p>
+          <p className="font-bold text-amber-800">Check your inbox!</p>
+          <p className="text-sm text-amber-600">Your free study guide is on its way. We&apos;ll also send you weekly tips.</p>
         </div>
       </div>
     );

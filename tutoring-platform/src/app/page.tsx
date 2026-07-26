@@ -160,7 +160,7 @@ export default function LandingPage() {
           <div className="hero-card p-8">
             <div className="space-y-6">
               <div className="flex items-center gap-4">
-                <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-white/80 bg-white shadow-md overflow-hidden">
+                <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-slate-200 bg-white shadow-md overflow-hidden">
                   <Image src="/images/pk-singh-photo.jpg" alt="PK Singh" width={80} height={80} className="object-cover" priority />
                 </div>
                 <div>
@@ -168,7 +168,7 @@ export default function LandingPage() {
                   <p className="text-xs text-slate-500 uppercase tracking-[0.3em] font-medium">IIT • IIM • Author</p>
                 </div>
                 <div className="ml-auto">
-                  <Image src="/images/pk_sir_logo.jpg" alt="Brand Logo" width={80} height={24} className="w-[80px] h-auto rounded-lg bg-white/80 px-1.5 py-1" />
+                  <Image src="/images/pk_sir_logo.jpg" alt="Brand Logo" width={80} height={24} className="w-[80px] h-auto rounded-lg bg-white/80 px-1.5 py-1 dark:bg-slate-800/80" />
                 </div>
               </div>
               <div className="rounded-2xl bg-amber-50 border border-amber-100 p-6 dark:text-slate-900">
@@ -181,7 +181,7 @@ export default function LandingPage() {
                   { title: 'Live Doubt Solving', description: 'Get answers, strategy checks and practice advice directly from the mentor.' },
                   { title: 'Real Exam Focus', description: 'Dedicated training for JEE, NEET, SAT, CAT and GMAT with real exam alignment.' },
                 ].map((item, i) => (
-                  <div key={item.title} className="rounded-2xl bg-white/80 border border-slate-200/60 p-5 hover:bg-white hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group">
+                  <div key={item.title} className="rounded-2xl bg-white/80 border border-slate-200/60 p-5 hover:bg-white hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group dark:bg-slate-800/80 dark:border-slate-700/60 dark:hover:bg-slate-800">
                     <div className="flex items-center gap-3 mb-1.5">
                       <span className="w-7 h-7 rounded-lg bg-slate-900 text-white text-xs font-bold flex items-center justify-center">{i + 1}</span>
                       <p className="text-sm font-bold text-slate-800">{item.title}</p>

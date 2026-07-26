@@ -31,7 +31,7 @@ export default function ScrollDepthCta() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden animate-slide-up">
-      <div className="mx-4 mb-20 rounded-2xl bg-white border border-slate-200 shadow-2xl p-5">
+      <div className="mx-4 mb-28 rounded-2xl bg-white border border-slate-200 shadow-2xl p-5">
         <button
           onClick={() => { setShow(false); setDismissed(true); }}
           className="absolute top-2 right-2 w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors"

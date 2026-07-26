@@ -134,7 +134,7 @@ export default function Testimonials() {
             </div>
             {t.rankCardImage && (
               <div className="mt-4 pt-4 border-t border-slate-100">
-                <a href={t.rankCardImage} target="_blank" rel="noopener noreferrer" className="group/rank inline-flex items-center gap-2 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors">
+                <a href={t.rankCardImage} target="_blank" rel="noopener noreferrer" className="group/rank inline-flex items-center gap-2 text-xs font-semibold text-amber-600 hover:text-amber-800 transition-colors">
                   <Image src={t.rankCardImage} alt={`${t.name} rank card`} width={32} height={24} className="rounded border border-slate-200 object-cover group-hover/rank:shadow-md transition-shadow" />
                   View scorecard
                 </a>

@@ -160,14 +160,48 @@ h4 { font-size: clamp(1rem, 1.5vw, 1.125rem); line-height: 1.4; }
   }
 }
 
-/* Dark-mode text contrast fix: ensure text stays dark on light backgrounds.
-   :where() keeps specificity 0 so explicit text utilities (text-white, text-amber-200) still override. */
-.dark :where([class*="bg-white"], [class*="bg-slate-50"], [class*="bg-slate-100"], [class*="bg-amber-50"], [class*="bg-orange-50"], [class*="bg-blue-50"], [class*="bg-emerald-50"], [class*="bg-green-50"], [class*="bg-purple-50"]) {
+/* ─── Dark Mode: Light-background sections get dark text ─── */
+/* :where() keeps specificity 0 so explicit utilities (text-white, text-amber-200) still win. */
+.dark :where(
+  [class*="bg-white"],
+  [class*="bg-slate-50"],
+  [class*="bg-slate-100"],
+  [class*="bg-amber-50"],
+  [class*="bg-orange-50"],
+  [class*="bg-blue-50"],
+  [class*="bg-emerald-50"],
+  [class*="bg-green-50"],
+  [class*="bg-purple-50"],
+  [style*="background: #FFFFFF"],
+  [style*="background:#FFFFFF"]
+) {
   color: #0F172A;
+  --text-on-light-bg: #0F172A;
+}
+/* Opacity-based text fragments inside light sections: use solid dark color instead */
+.dark :where(
+  [class*="bg-white"],
+  [class*="bg-slate-50"]
+) :where(
+  [class*="text-white/"],
+  [style*="color: rgba(255,255,255,"]
+) {
+  color: #334155 !important;
+}
+/* White borders on light backgrounds become invisible — use slate borders in dark mode */
+.dark :where(
+  [class*="bg-white"],
+  [class*="bg-slate-50"]
+) :where(
+  [class*="border-white/"],
+  [style*="border-color: rgba(255,255,255,"]
+) {
+  border-color: #E2E8F0 !important;
 }
 /* Nested dark-background cards inside light sections: restore light text */
 .dark :where([class*="bg-white"], [class*="bg-slate-50"]) :where([class*="bg-slate-900"], [class*="bg-slate-950"], [class*="bg-gray-900"], [class*="bg-gray-950"]) {
   color: #F1F5F9;
+  --text-on-light-bg: #F1F5F9;
 }
 
 .muted { color: var(--text-muted); }

@@ -5,9 +5,9 @@ export default function MediaLogos() {
         <p className="text-center text-xs font-bold uppercase tracking-[0.3em] text-slate-500 mb-2">
           As Featured In
         </p>
-        <p className="text-center text-sm text-slate-600">
-          Publication logos coming soon
-        </p>
+        <div className="flex items-center justify-center gap-10 flex-wrap">
+          <span className="text-slate-300 text-sm font-medium">Media recognition details</span>
+        </div>
       </div>
     </section>
   );

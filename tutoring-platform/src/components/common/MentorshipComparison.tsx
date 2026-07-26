@@ -76,7 +76,7 @@ export default function MentorshipComparison() {
             
             <div className="space-y-6 md:space-y-12 relative z-10">
               <div className="flex flex-col md:block h-auto md:h-10 justify-center">
-                <span className="md:hidden text-xs font-semibold text-blue-300 uppercase mb-1">Pace of Learning</span>
+                <span className="md:hidden text-xs font-semibold text-amber-200 uppercase mb-1">Pace of Learning</span>
                 <div className="flex items-center font-medium"><Check className="w-5 h-5 text-amber-400 mr-2 flex-shrink-0" /> Adapted to your grasping speed</div>
               </div>
               <div className="flex flex-col md:block h-auto md:h-10 justify-center">
