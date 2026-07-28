@@ -19,3 +19,4 @@ prisma/*.db
 /src/generated/prisma
 backups/
 *.log
+.vercel
