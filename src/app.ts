@@ -49,16 +49,21 @@ app.use(cors({
   credentials: true,
 }));
 
-// JSON body limit
-app.use(express.json({ limit: '10mb' }));
+// JSON body limit — preserve raw body for webhook signature verification
+app.use(express.json({
+  limit: '10mb',
+  verify: (req: any, _res, buf) => {
+    req.rawBody = buf.toString();
+  },
+}));
 
 // Serve local uploads when running without Supabase storage
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
-// Global rate limit: 100 requests per 15 minutes per IP
+// Global rate limit: 60 requests per 15 minutes per IP
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 60,
   standardHeaders: true,
   legacyHeaders: false,
 }));
@@ -66,8 +71,15 @@ app.use(rateLimit({
 // Auth-specific stricter rate limit
 export const authRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 10,
   message: { error: 'Too many auth attempts, please try again later.' },
+});
+
+// Payment-initiation rate limit
+export const paymentRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  message: { error: 'Too many payment attempts, please try again later.' },
 });
 
 // Import Routes
@@ -81,6 +93,7 @@ import debugRoutes from './modules/debug/debug.routes';
 import cmsRoutes from './modules/cms/cms.routes';
 import backupRoutes from './modules/backup/backup.routes';
 import quotesRoutes from './modules/quotes/quotes.routes';
+import paymentRoutes from './modules/payments/payments.routes';
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -97,6 +110,7 @@ app.use('/api/cms', cmsRoutes);
 app.use('/api/debug', debugRoutes);
 app.use('/api/backup', backupRoutes);
 app.use('/api/quotes', quotesRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // Health check
 app.get('/health', (_req, res) => {
@@ -117,12 +131,24 @@ if (promClient) {
   });
 }
 
-// Sentry error handler should be before the 404 so errors are captured
+// Sentry error handler should be before our handlers so errors are captured
 if (Sentry) app.use(Sentry.Handlers.errorHandler());
 
-// 404 handler
-app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
+// Global 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' });
+});
 
-// (debug route removed)
+// Centralized error handler — catches any unhandled errors (Express 5 catches async rejects automatically)
+// Does not log 500-level errors here; controllers/app code should log as needed.
+app.use((err: any, req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  const statusCode = err.statusCode || 500;
+  const message = err.message || 'Internal server error';
+  res.status(statusCode).json({
+    status: statusCode,
+    message,
+    error_code: err.errorCode || 'UNKNOWN_ERROR',
+  });
+});
 
 export default app;

@@ -27,10 +27,17 @@ const resetPasswordSchema = z.object({
   path: ['confirmPassword'],
 });
 
+const refreshSchema = z.object({
+  refreshToken: z.string(),
+});
+
 const localJwtSecret = process.env.LOCAL_JWT_SECRET || 'local-secret';
 const useSupabase = Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.SUPABASE_JWT_SECRET);
 const jwtSecret = useSupabase ? process.env.SUPABASE_JWT_SECRET! : localJwtSecret;
 const resetJwtSecret = process.env.RESET_JWT_SECRET || jwtSecret;
+
+const ACCESS_TOKEN_EXPIRY = '15m';
+const REFRESH_TOKEN_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 const hashPassword = (password: string): string => {
   return crypto.scryptSync(password, 'local-salt', 64).toString('hex');
@@ -38,6 +45,17 @@ const hashPassword = (password: string): string => {
 
 const verifyPassword = (password: string, hash: string): boolean => {
   return hashPassword(password) === hash;
+};
+
+const signAccessToken = (userId: string): string => {
+  return jwt.sign({ sub: userId, userId }, jwtSecret, { expiresIn: ACCESS_TOKEN_EXPIRY });
+};
+
+const signRefreshToken = async (userId: string): Promise<string> => {
+  const token = randomUUID() + '-' + randomUUID();
+  const expiresAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRY_MS);
+  await prisma.refreshToken.create({ data: { userId, token, expiresAt } });
+  return token;
 };
 
 export const register = async (req: Request, res: Response): Promise<void> => {
@@ -100,13 +118,11 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
 export const login = async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body;
-  console.log(`Auth: login attempt for email=${email}`);
 
   if (useSupabase && supabase) {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-      console.warn('Auth: supabase signInWithPassword failed for', email, error);
       res.status(401).json({ error: 'Invalid email or password' });
       return;
     }
@@ -131,16 +147,16 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user || !user.passwordHash || !verifyPassword(password, user.passwordHash)) {
-      console.warn('Auth: local login failed for', email, { userFound: !!user });
       res.status(401).json({ error: 'Invalid email or password' });
       return;
     }
 
-    const token = jwt.sign({ sub: user.id, userId: user.id }, jwtSecret, { expiresIn: '7d' });
+    const accessToken = signAccessToken(user.id);
+    const refreshToken = await signRefreshToken(user.id);
 
     res.json({
-      accessToken: token,
-      refreshToken: null,
+      accessToken,
+      refreshToken,
       user: {
         id: user.id,
         email: user.email,
@@ -274,6 +290,49 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
   await prisma.user.update({ where: { id: user.id }, data: { passwordHash } });
 
   res.json({ message: 'Password has been reset successfully' });
+};
+
+export const refreshToken = async (req: Request, res: Response): Promise<void> => {
+  const result = refreshSchema.safeParse(req.body);
+  if (!result.success) {
+    res.status(400).json({ error: 'Refresh token is required' });
+    return;
+  }
+
+  const { refreshToken: token } = result.data;
+
+  const stored = await prisma.refreshToken.findUnique({ where: { token } });
+  if (!stored || stored.revokedAt || stored.expiresAt < new Date()) {
+    res.status(401).json({ error: 'Invalid or expired refresh token' });
+    return;
+  }
+
+  // Rotate: revoke old token
+  await prisma.refreshToken.update({
+    where: { id: stored.id },
+    data: { revokedAt: new Date() },
+  });
+
+  // Issue new pair
+  const accessToken = signAccessToken(stored.userId);
+  const newRefreshToken = await signRefreshToken(stored.userId);
+
+  res.json({ accessToken, refreshToken: newRefreshToken });
+};
+
+export const logout = async (req: AuthRequest, res: Response): Promise<void> => {
+  if (!req.user) {
+    res.status(401).json({ error: 'Not authenticated' });
+    return;
+  }
+
+  // Revoke all refresh tokens for the user (clean logout = revoke all sessions)
+  await prisma.refreshToken.updateMany({
+    where: { userId: req.user.id, revokedAt: null },
+    data: { revokedAt: new Date() },
+  });
+
+  res.json({ message: 'Logged out successfully' });
 };
 
 export const listUsers = async (req: AuthRequest, res: Response): Promise<void> => {

@@ -77,6 +77,24 @@ async function startServer() {
         process.exit(1);
       }
     }
+
+    // Warn if Razorpay is not configured (payment integration pending)
+    if (!process.env.RAZORPAY_KEY_ID) {
+      console.warn('Warning: RAZORPAY_KEY_ID is not set — payment endpoints will be unavailable.');
+    }
+
+    // Prevent test keys in production / live keys in development
+    const razorpayKey = process.env.RAZORPAY_KEY_ID || '';
+    if (razorpayKey.startsWith('rzp_test_') && process.env.NODE_ENV === 'production') {
+      console.error('Fatal: RAZORPAY_KEY_ID is a test key (rzp_test_*) but NODE_ENV=production.');
+      console.error('Set live key (rzp_live_*) for production.');
+      process.exit(1);
+    }
+    if (razorpayKey.startsWith('rzp_live_') && process.env.NODE_ENV !== 'production') {
+      console.error('Fatal: RAZORPAY_KEY_ID is a live key (rzp_live_*) but NODE_ENV is not production.');
+      console.error('Set test key (rzp_test_*) for development.');
+      process.exit(1);
+    }
   };
   validateEnv();
   try {

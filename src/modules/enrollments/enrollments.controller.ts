@@ -21,6 +21,27 @@ export const enroll = async (req: AuthRequest, res: Response): Promise<void> => 
 
   const { courseId } = result.data;
 
+  const course = await prisma.course.findUnique({
+    where: { id: courseId },
+    select: { id: true, isFree: true, status: true },
+  });
+
+  if (!course || course.status !== 'PUBLISHED') {
+    res.status(404).json({ error: 'Course not found' });
+    return;
+  }
+
+  // Free courses: enroll directly. Paid courses: require a successful payment.
+  if (!course.isFree) {
+    const paidOrder = await prisma.order.findFirst({
+      where: { userId: req.user.id, courseId, status: 'Success' },
+    });
+    if (!paidOrder) {
+      res.status(402).json({ error: 'Payment required — complete checkout before enrolling' });
+      return;
+    }
+  }
+
   try {
     const enrollment = await prisma.enrollment.create({
       data: {
