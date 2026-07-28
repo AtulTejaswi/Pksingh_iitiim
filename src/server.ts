@@ -8,10 +8,11 @@ import { tryAutoRestore, autoBackup } from './modules/backup/backup.controller';
 const PORT = process.env.PORT || 4000;
 
 const ensureAdminUser = async () => {
-  const email = process.env.ADMIN_EMAIL || 'admin@pksingh.com';
-  const password = process.env.ADMIN_PASSWORD || 'adminpassword123';
-  if (process.env.NODE_ENV === 'production' && !process.env.ADMIN_PASSWORD) {
-    console.warn('ADMIN_PASSWORD not set, using default fallback. Set this env var in production.');
+  const email = process.env.ADMIN_EMAIL;
+  const password = process.env.ADMIN_PASSWORD;
+  if (!email || !password) {
+    console.warn('ADMIN_EMAIL or ADMIN_PASSWORD not set — skipping admin user creation. Set both in production.');
+    return;
   }
 
   const hashPassword = (password: string): string => {
@@ -43,7 +44,10 @@ const ensureAdminUser = async () => {
 
 async function startServer() {
   // Validate environment on startup. In production, fail fast for
-  // partially configured Supabase (helps avoid silent auth breakage).
+  // partially configured Supabase or placeholder credentials.
+  const PLACEHOLDER_PASSWORD = 'changeme_replace_in_production';
+  const PLACEHOLDER_EMAIL = 'admin@example.com';
+
   const validateEnv = () => {
     const hasSupabaseUrl = Boolean(process.env.SUPABASE_URL);
     const hasSupabaseServiceKey = Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY);
@@ -58,6 +62,20 @@ async function startServer() {
 
     if (partialSupabase) {
       console.warn('Warning: Supabase appears partially configured. Falling back to local JWT secret.');
+    }
+
+    // Reject placeholder credentials in production
+    if (process.env.NODE_ENV === 'production') {
+      if (process.env.ADMIN_PASSWORD === PLACEHOLDER_PASSWORD) {
+        console.error('Fatal: ADMIN_PASSWORD is still set to the placeholder value from .env.example.');
+        console.error('Set a real password via Render environment variables.');
+        process.exit(1);
+      }
+      if (process.env.ADMIN_EMAIL === PLACEHOLDER_EMAIL) {
+        console.error('Fatal: ADMIN_EMAIL is still set to the placeholder value from .env.example.');
+        console.error('Set a real email via Render environment variables.');
+        process.exit(1);
+      }
     }
   };
   validateEnv();

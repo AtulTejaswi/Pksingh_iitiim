@@ -3,8 +3,8 @@
 Quick instructions for running and troubleshooting the backend (non-technical friendly).
 
 Prerequisites
-- Node.js 18+ and npm
-- SQLite (included via Prisma — DB file is stored locally using `DATABASE_URL`)
+- Node.js 20+ and npm
+- PostgreSQL (local or remote — configured via `DATABASE_URL`)
 
 Local development (backend)
 
@@ -26,7 +26,7 @@ npm start
 ```
 
 Common env vars (see `.env` file)
-- `DATABASE_URL` — SQLite or your DB connection string
+- `DATABASE_URL` — PostgreSQL connection string (e.g. `postgresql://postgres:postgres@localhost:5432/pksingh`)
 - `LOCAL_JWT_SECRET` — secret used for local JWT tokens (default set in code)
 - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET` — only set these together if you use Supabase Auth. If `SUPABASE_URL`/`SERVICE_ROLE_KEY` are set but `SUPABASE_JWT_SECRET` is missing, server will warn in development and fail to start in production.
 - `ADMIN_EMAIL`, `ADMIN_PASSWORD` — used to seed initial admin user on first run
@@ -35,7 +35,7 @@ Troubleshooting
 - If users cannot sign in: check backend logs for startup warnings about Supabase envs. If present, either set `SUPABASE_JWT_SECRET` or remove Supabase envs to use local auth.
 - To inspect a failing login flow manually:
 ```bash
-curl -X POST http://localhost:4000/api/auth/login -H "Content-Type: application/json" -d '{"email":"admin@pksingh.com","password":"adminpassword123"}'
+curl -X POST http://localhost:4000/api/auth/login -H "Content-Type: application/json" -d '{"email":"admin@example.com","password":"changeme_replace_in_production"}'
 ```
 
 Support

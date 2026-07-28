@@ -8,7 +8,7 @@ const hashPassword = (password: string): string => {
 };
 
 async function main() {
-  const email = process.env.ADMIN_EMAIL || 'admin@pksingh.com';
+  const email = process.env.ADMIN_EMAIL;
   const password = process.env.ADMIN_PASSWORD;
   if (!password) {
     console.error('Error: ADMIN_PASSWORD environment variable is required.');
