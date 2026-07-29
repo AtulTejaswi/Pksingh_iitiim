@@ -93,7 +93,10 @@ export const reorderLessons = async (req: AuthRequest, res: Response): Promise<v
 };
 
 export const markProgress = async (req: AuthRequest, res: Response): Promise<void> => {
-  if (!req.user) return;
+  if (!req.user) {
+    res.status(401).json({ message: 'Unauthorized' });
+    return;
+  }
   const lessonId = req.params.id as string;
   const progress = await prisma.lessonProgress.upsert({
     where: { userId_lessonId: { userId: req.user.id, lessonId } },

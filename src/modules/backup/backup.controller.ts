@@ -123,7 +123,7 @@ async function importAllData(data: BackupData): Promise<void> {
   await prisma.course.deleteMany();
   await prisma.category.deleteMany();
   await prisma.event.deleteMany();
-    await prisma.fAQ.deleteMany();
+  await prisma.fAQ.deleteMany();
   await prisma.testimonial.deleteMany();
   await prisma.announcement.deleteMany();
   await prisma.user.deleteMany();

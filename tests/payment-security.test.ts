@@ -1,12 +1,8 @@
 import crypto from 'crypto';
 import request from 'supertest';
 import app from '../src/app';
-import { prisma } from '../src/config/db';
 
 describe('Payment Security', () => {
-  afterAll(async () => {
-    await prisma.$disconnect();
-  });
 
   // ─── An unauthenticated request to a protected payment endpoint ──
   it('POST /api/payments/create-order — rejects unauthenticated', async () => {

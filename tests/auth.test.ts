@@ -1,11 +1,7 @@
 import request from 'supertest';
 import app from '../src/app';
-import { prisma } from '../src/config/db';
 
 describe('Auth endpoints', () => {
-  afterAll(async () => {
-    await prisma.$disconnect();
-  });
 
   it('POST /api/auth/register — should reject weak password', async () => {
     const res = await request(app).post('/api/auth/register').send({

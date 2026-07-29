@@ -7,7 +7,7 @@ import fs from 'fs';
 import { AppError } from '../../utils/errors';
 
 const ALLOWED_MIMES = [
-  'image/jpeg', 'image/png', 'image/webp', 'image/gif',
+  'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml',
   'video/mp4', 'video/webm',
   'application/pdf',
   'application/msword',

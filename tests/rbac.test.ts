@@ -41,4 +41,3 @@ describe('RBAC — Admin-only routes', () => {
     expect(res.status).toBe(401);
   });
 });
-});

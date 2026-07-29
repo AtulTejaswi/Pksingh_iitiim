@@ -72,6 +72,7 @@ model Course {
   enrollments  Enrollment[]
   reviews      Review[]
   orders       Order[]
+  certificates Certificate[]
 
   @@index([status])
   @@index([categoryId])
@@ -235,7 +236,8 @@ model Certificate {
   pdfUrl       String?
 
   user         User     @relation(fields: [userId], references: [id])
-  
+  course       Course   @relation(fields: [courseId], references: [id])
+
   @@unique([userId, courseId])
   @@map("certificates")
 }

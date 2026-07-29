@@ -1,11 +1,7 @@
 import request from 'supertest';
 import app from '../src/app';
-import { prisma } from '../src/config/db';
 
 describe('Courses endpoints', () => {
-  afterAll(async () => {
-    await prisma.$disconnect();
-  });
 
   it('GET /api/courses — should list courses', async () => {
     const res = await request(app).get('/api/courses');
