@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://pksingh-backend.onrender.com/api';
 
 // Blog slugs — keep in sync with src/app/blog/[slug]/page.tsx
 const blogSlugs = [
@@ -19,6 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}`, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
     { url: `${base}/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
     { url: `${base}/courses`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${base}/results`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
     { url: `${base}/mentor-journey`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
     { url: `${base}/blog`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
     { url: `${base}/faq`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },

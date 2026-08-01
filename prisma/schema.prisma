@@ -23,16 +23,18 @@ datasource db {
 // ─── USERS ───────────────────────────────────────────────────────────────────
 
 model User {
-  id            String   @id @default(uuid())
-  supabaseId    String   @unique          // Links to Supabase Auth UID or local auth identifier
-  passwordHash  String?                           // Local development password hash
-  email         String   @unique
-  fullName      String
-  role          String   @default("STUDENT")
-  avatarUrl     String?
-  country       String?                  // "IN" or "US" for content targeting
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id              String   @id @default(uuid())
+  supabaseId      String   @unique          // Links to Supabase Auth UID or local auth identifier
+  passwordHash    String?                           // Local development password hash
+  email           String   @unique
+  fullName        String
+  role            String   @default("STUDENT")
+  avatarUrl       String?
+  country         String?                  // "IN" or "US" for content targeting
+  referralCode    String?  @unique         // Per-user code used to share the referral program
+  referredByCode  String?                  // Referrer's code captured at signup (for reward tracking)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   enrollments   Enrollment[]
   progress      LessonProgress[]
@@ -357,17 +359,35 @@ model FAQ {
 }
 
 model Testimonial {
-  id          String   @id @default(uuid())
-  name        String
-  studentPhoto String?
-  rank        String?
-  achievement String?
-  review      String
-  status      String @default("DRAFT")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String   @id @default(uuid())
+  name          String
+  studentPhoto  String?
+  rank          String?
+  achievement   String?
+  review        String
+  status        String   @default("DRAFT")   // DRAFT | PENDING_REVIEW | PUBLISHED
+  isVerified    Boolean  @default(false)     // Has linked proof (scorecard/video) on file
+  proofUrl      String?                      // Linked proof: scorecard image/video, required when isVerified
+  verifiedAt    DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@map("cms_testimonials")
+}
+
+// ─── EMAIL LEADS (newsletter / study-guide capture) ──────────────────────────
+
+model Lead {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  whatsapp     String?
+  source       String   @default("newsletter") // e.g. "newsletter" | "study-guide" | "dashboard"
+  subscribedAt DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("leads")
 }
 
 // ─── EVENTS & HELPDESK ──────────────────────────────────────────────────────

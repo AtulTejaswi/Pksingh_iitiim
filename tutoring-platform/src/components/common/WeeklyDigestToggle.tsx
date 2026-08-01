@@ -1,10 +1,63 @@
 'use client';
 
-import React from 'react';
-import { Bell, MessageCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { Bell, Mail } from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
 
 export default function WeeklyDigestToggle() {
-  const [enabled, setEnabled] = React.useState(true);
+  const { user } = useAuth();
+  const [enabled, setEnabled] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<{ type: 'ok' | 'error'; text: string } | null>(null);
+
+  const toggle = async () => {
+    if (saving) return;
+    setMessage(null);
+
+    if (!user?.email) {
+      setMessage({ type: 'error', text: 'Sign in to manage your email subscription.' });
+      return;
+    }
+
+    setSaving(true);
+    const next = !enabled;
+    try {
+      if (next) {
+        const res = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: user.fullName || user.email,
+            email: user.email,
+            source: 'dashboard',
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setMessage({ type: 'error', text: data.error || 'Could not subscribe right now.' });
+          return;
+        }
+      } else {
+        const res = await fetch(`/api/subscribe?email=${encodeURIComponent(user.email)}`, {
+          method: 'DELETE',
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setMessage({ type: 'error', text: data.error || 'Could not unsubscribe right now.' });
+          return;
+        }
+      }
+      setEnabled(next);
+      setMessage({
+        type: 'ok',
+        text: next ? 'Subscribed — weekly study tips will be emailed to you.' : 'Unsubscribed from weekly emails.',
+      });
+    } catch {
+      setMessage({ type: 'error', text: 'Could not reach the server. Please try again.' });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
@@ -14,16 +67,17 @@ export default function WeeklyDigestToggle() {
             <Bell className="w-5 h-5 text-amber-600" />
           </div>
           <div>
-            <h4 className="font-bold text-slate-900 text-sm">Weekly Progress Summary</h4>
-            <p className="text-xs text-slate-500 mt-1">Get a detailed progress report every Sunday via email and WhatsApp.</p>
+            <h4 className="font-bold text-slate-900 text-sm">Weekly Study Tips</h4>
+            <p className="text-xs text-slate-500 mt-1">A short email every week with exam tips and study guidance.</p>
           </div>
         </div>
         <button
-          onClick={() => setEnabled(!enabled)}
-          className={`relative w-11 h-6 rounded-full transition-colors duration-300 ${
+          onClick={toggle}
+          disabled={saving}
+          className={`relative w-11 h-6 rounded-full transition-colors duration-300 disabled:opacity-50 ${
             enabled ? 'bg-amber-500' : 'bg-slate-300'
           }`}
-          aria-label={`Weekly digest ${enabled ? 'enabled' : 'disabled'}`}
+          aria-label={`Weekly tips ${enabled ? 'enabled' : 'disabled'}`}
         >
           <span
             className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-300 ${
@@ -33,10 +87,16 @@ export default function WeeklyDigestToggle() {
         </button>
       </div>
       <div className="mt-4 pt-4 border-t border-slate-100">
-        <div className="flex items-center gap-2 text-xs text-slate-400">
-          <MessageCircle className="w-3.5 h-3.5" />
-          <span>WhatsApp digest: {enabled ? 'Active' : 'Inactive'} · Configure number in settings</span>
-        </div>
+        {message ? (
+          <p className={`text-xs font-medium ${message.type === 'ok' ? 'text-emerald-600' : 'text-red-600'}`}>
+            {message.text}
+          </p>
+        ) : (
+          <div className="flex items-center gap-2 text-xs text-slate-400">
+            <Mail className="w-3.5 h-3.5" />
+            <span>Emailed to {user?.email || 'your account email'}</span>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { Download, CheckCircle2 } from 'lucide-react';
 
 export default function EmailCaptureForm() {
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [whatsapp, setWhatsapp] = useState('');
@@ -12,19 +13,22 @@ export default function EmailCaptureForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     setLoading(true);
     try {
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, whatsapp: whatsapp || undefined }),
+        body: JSON.stringify({ name, email, whatsapp: whatsapp || undefined, source: 'study-guide' }),
       });
       if (res.ok) {
         setSubmitted(true);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || 'Something went wrong. Please try again.');
       }
     } catch {
-      // Fallback: still show success to avoid blocking the user
-      setSubmitted(true);
+      setError('Could not reach the server. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -35,8 +39,8 @@ export default function EmailCaptureForm() {
       <div className="flex items-center gap-3 p-6 rounded-2xl bg-amber-50 border border-amber-200">
         <CheckCircle2 className="w-8 h-8 text-amber-500 shrink-0" />
         <div>
-          <p className="font-bold text-amber-800">Check your inbox!</p>
-          <p className="text-sm text-amber-600">Your free study guide is on its way. We&apos;ll also send you weekly tips.</p>
+          <p className="font-bold text-amber-800">You&apos;re on the list!</p>
+          <p className="text-sm text-amber-600">We&apos;ll email you the study guide and weekly exam tips.</p>
         </div>
       </div>
     );
@@ -80,12 +84,14 @@ export default function EmailCaptureForm() {
           className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400"
         />
       </div>
+      {error && <p className="text-sm text-red-600 font-medium">{error}</p>}
       <button
         type="submit"
-        className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-500 text-white font-bold py-3 px-6 hover:bg-amber-600 transition-colors shadow-sm"
+        disabled={loading}
+        className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-500 text-white font-bold py-3 px-6 hover:bg-amber-600 transition-colors shadow-sm disabled:opacity-60"
       >
         <Download className="w-4 h-4" />
-        Download Free Study Guide
+        {loading ? 'Subscribing…' : 'Download Free Study Guide'}
       </button>
       <p className="text-xs text-slate-500 text-center">No spam. Unsubscribe anytime.</p>
     </form>

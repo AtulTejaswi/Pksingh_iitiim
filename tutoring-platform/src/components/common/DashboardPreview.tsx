@@ -1,8 +1,26 @@
-import React from 'react';
-import Link from 'next/link';
-import { User, BookOpen, CheckCircle, Flame, Calendar, Clock, ChevronRight } from 'lucide-react';
+'use client';
 
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { User, BookOpen, CheckCircle, Flame, Calendar, Clock, ChevronRight, Sparkles } from 'lucide-react';
+
+const DEMO_STATES = [
+  { courses: 3, lessons: 47, streak: 12, progress: 68 },
+  { courses: 4, lessons: 56, streak: 13, progress: 74 },
+  { courses: 5, lessons: 68, streak: 14, progress: 81 },
+];
+
+/** Animated sample dashboard shown to visitors — clearly labeled as a preview. */
 export default function DashboardPreview() {
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setStep((s) => (s + 1) % DEMO_STATES.length), 2400);
+    return () => clearInterval(id);
+  }, []);
+
+  const demo = DEMO_STATES[step];
+
   return (
     <section className="py-24 bg-slate-900 overflow-hidden relative">
       {/* Decorative background elements */}
@@ -13,15 +31,19 @@ export default function DashboardPreview() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex flex-col lg:flex-row items-center gap-16">
-          
+
           {/* Left Side: Mockup */}
           <div className="w-full lg:w-3/5" style={{ perspective: '1000px' }}>
             <div className="shadow-2xl rounded-2xl overflow-hidden bg-white border border-slate-200" style={{ transform: 'rotateY(-5deg) rotateX(5deg) rotate(-1deg)' }}>
-              
+
               {/* Dashboard Top Bar */}
               <div className="bg-slate-50 border-b border-slate-200 p-4 flex justify-between items-center">
                 <div className="font-outfit font-bold text-slate-800">LearnPortal</div>
                 <div className="flex items-center gap-3">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    Sample Preview
+                  </span>
                   <span className="text-sm font-medium text-slate-600 font-inter">Arjun M.</span>
                   <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
                     <User className="w-4 h-4" />
@@ -35,17 +57,17 @@ export default function DashboardPreview() {
                 <div className="grid grid-cols-3 gap-4 mb-8">
                   <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center justify-center">
                     <BookOpen className="w-5 h-5 text-amber-500 mb-2" />
-                    <span className="text-2xl font-bold text-slate-800">3</span>
+                    <span className="text-2xl font-bold text-slate-800">{demo.courses}</span>
                     <span className="text-xs text-slate-500 mt-1 text-center">Courses Enrolled</span>
                   </div>
                   <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center justify-center">
                     <CheckCircle className="w-5 h-5 text-amber-500 mb-2" />
-                    <span className="text-2xl font-bold text-slate-800">47</span>
+                    <span className="text-2xl font-bold text-slate-800">{demo.lessons}</span>
                     <span className="text-xs text-slate-500 mt-1 text-center">Lessons Completed</span>
                   </div>
                   <div className="bg-white p-4 rounded-xl border border-amber-100 shadow-sm flex flex-col items-center justify-center bg-amber-50/30">
                     <Flame className="w-5 h-5 text-amber-500 mb-2" />
-                    <span className="text-2xl font-bold text-amber-600">12 days</span>
+                    <span className="text-2xl font-bold text-amber-600">{demo.streak} days</span>
                     <span className="text-xs text-slate-500 mt-1 text-center">Current Streak</span>
                   </div>
                 </div>
@@ -54,10 +76,10 @@ export default function DashboardPreview() {
                 <div className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm mb-6">
                   <div className="flex justify-between items-center mb-3">
                     <h4 className="font-semibold text-slate-800 font-outfit">JEE Advanced Mechanics</h4>
-                    <span className="text-sm font-bold text-amber-600">68% Complete</span>
+                    <span className="text-sm font-bold text-amber-600">{demo.progress}% Complete</span>
                   </div>
                   <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-amber-500 rounded-full w-[68%]"></div>
+                    <div className="h-full bg-amber-500 rounded-full" style={{ width: `${demo.progress}%` }}></div>
                   </div>
                 </div>
 
@@ -97,6 +119,9 @@ export default function DashboardPreview() {
 
           {/* Right Side: Text & CTA */}
           <div className="w-full lg:w-2/5 text-center lg:text-left">
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-amber-300 mb-5">
+              Sample Dashboard Preview
+            </span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-6 leading-tight">
               Your Personalized Learning Command Center
             </h2>

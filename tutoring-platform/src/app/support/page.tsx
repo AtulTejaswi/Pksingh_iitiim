@@ -22,7 +22,7 @@ export default function SupportPage() {
             <BookOpen className="w-8 h-8 text-blue-600 mb-4" />
             <h2 className="text-lg font-semibold text-slate-900 mb-2">Browse without signing in</h2>
             <p className="text-slate-600 text-sm mb-4">
-              Explore all published courses, read descriptions, and watch free preview lessons before you enroll.
+              Explore all published courses and read descriptions before you enroll.
             </p>
             <Link
               href="/courses"
@@ -51,8 +51,8 @@ export default function SupportPage() {
               For mentorship inquiries or technical issues, email{' '}
               <a href="mailto:support@pksingh.com" className="text-blue-600 hover:text-blue-800">
                 support@pksingh.com
-              </a>{' '}
-              (update this address in production to your real inbox).
+              </a>
+              .
             </p>
           </div>
         </div>

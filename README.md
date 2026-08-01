@@ -1,123 +1,81 @@
 # PK Singh Tutoring Platform
 
-Quick instructions for running and troubleshooting the backend (non-technical friendly).
+Online coaching platform for JEE, NEET, SAT, CAT and GMAT preparation —
+structured courses, mentorship and live classes by PK Singh.
 
-Prerequisites
-- Node.js 20+ and npm
-- PostgreSQL (local or remote — configured via `DATABASE_URL`)
+- **Live site:** https://pksingh-iitiim.vercel.app/
+- **Frontend:** Next.js app in [`tutoring-platform/`](tutoring-platform/)
+- **Backend API:** Express + Prisma + PostgreSQL (Supabase) at the repo root
 
-Local development (backend)
+## Repo layout
 
-1. Install dependencies (first time):
+```
+tutoring-platform/   Next.js frontend (deployed on Vercel)
+src/                 Express backend API (routes, middleware, modules)
+prisma/              Database schema and migrations
+tests/               Jest unit/integration tests + Playwright e2e
+scripts/             Maintenance and data scripts
+```
+
+## Quick start (contributors)
+
+Prerequisites: Node.js 20+, PostgreSQL (local or remote).
+
+### 1. Backend
+
 ```bash
 npm install
-npm run postinstall
+cp .env.example .env        # then fill in your own values
+npm run db:push             # sync DB schema (prisma db push)
+npm run dev                 # API on http://localhost:4000
 ```
 
-2. Start backend in development mode:
+> All secrets live in environment variables only. There are **no** hardcoded
+> fallback credentials in the codebase. In production the server fails to start
+> if required secrets (`LOCAL_JWT_SECRET`/`SUPABASE_*`) or `ADMIN_PASSWORD` are
+> missing or still set to example values. See `.env.example` for the full list.
+
+### 2. Frontend
+
 ```bash
-npm run dev
+cd tutoring-platform
+cp .env.local.example .env.local   # if present
+npm install
+npm run dev                # UI on http://localhost:3000
 ```
 
-3. Start production-like server (after `npm run build`):
+Frontend deploy instructions (Vercel project settings) live in
+[`tutoring-platform/AGENTS.md`](tutoring-platform/AGENTS.md).
+
+## Environment variables
+
+See `.env.example` for names and comments. Never commit real values.
+
+## Tests
+
 ```bash
-npm run build
-npm start
+npm test                 # backend unit/integration tests (Jest)
+npm run test:e2e         # Playwright e2e (needs E2E_ADMIN_PASSWORD)
 ```
 
-Common env vars (see `.env` file)
-- `DATABASE_URL` — PostgreSQL connection string (e.g. `postgresql://postgres:postgres@localhost:5432/pksingh`)
-- `LOCAL_JWT_SECRET` — secret used for local JWT tokens (default set in code)
-- `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET` — only set these together if you use Supabase Auth. If `SUPABASE_URL`/`SERVICE_ROLE_KEY` are set but `SUPABASE_JWT_SECRET` is missing, server will warn in development and fail to start in production.
-- `ADMIN_EMAIL`, `ADMIN_PASSWORD` — used to seed initial admin user on first run
+E2E tests require a real admin credential via `E2E_ADMIN_PASSWORD` — they
+refuse to run with example passwords.
 
-Troubleshooting
-- If users cannot sign in: check backend logs for startup warnings about Supabase envs. If present, either set `SUPABASE_JWT_SECRET` or remove Supabase envs to use local auth.
-- To inspect a failing login flow manually:
-```bash
-curl -X POST http://localhost:4000/api/auth/login -H "Content-Type: application/json" -d '{"email":"admin@example.com","password":"changeme_replace_in_production"}'
-```
+## Deployment
 
-Support
-- If you need help, paste backend logs (the console output where `npm run dev` was started) and I will assist.
+- Frontend: **Vercel** (project `pksingh-iitiim`, root directory `tutoring-platform/`)
+- Backend API: hosted separately; `FRONTEND_URL`/`BACKEND_URL` env vars point the
+  frontend at it.
+- Vercel is the single production deployment target. If you add a second host,
+  document why here and keep this section current.
 
----
-This README focuses on the backend. Frontend (Next.js) run steps are in `tutoring-platform/README.md`.
-# Tutoring Platform Backend
+## Monitoring & errors
 
-This is a complete backend API for a tutoring platform (JEE, NEET, SAT, etc.) built with Node.js, Express, Prisma, and Supabase.
+- `SENTRY_DSN` (backend) and `NEXT_PUBLIC_SENTRY_DSN` (frontend) enable Sentry.
+- `/health` reports DB connectivity; Prometheus metrics at `/metrics`.
+- See `monitoring/` for sample scrape and alerting configs.
 
-## Tech Stack
-- **Runtime**: Node.js 20
-- **Framework**: Express 4
-- **Database**: PostgreSQL (via Supabase)
-- **ORM**: Prisma
-- **Auth**: Supabase Auth (JWT)
-- **Storage**: Supabase Storage
-- **Validation**: Zod
-- **Testing**: Jest + Supertest
+## Reporting issues
 
-## Setup Instructions for Beginners
-
-Since you are adding contents and have no coding knowledge, follow these steps to get your backend online:
-
-### 1. Create a Supabase Account
-1. Go to [Supabase](https://supabase.com/) and create a free account.
-2. Create a new "Project".
-3. Once the project is created, go to **Project Settings -> API**.
-   - Copy the `Project URL` (This is your `SUPABASE_URL`)
-   - Copy the `anon` `public` key (This is your `SUPABASE_ANON_KEY`)
-   - Copy the `service_role` `secret` key (This is your `SUPABASE_SERVICE_ROLE_KEY`)
-   - Copy the `JWT Secret` from **Project Settings -> API -> JWT Settings** (This is your `SUPABASE_JWT_SECRET`)
-4. Go to **Project Settings -> Database**.
-   - Copy the `Connection String (URI)` (This is your `DATABASE_URL`). Make sure to replace `[YOUR-PASSWORD]` with your actual database password.
-5. Go to **Storage** in the left sidebar.
-   - Click "New Bucket" and name it exactly `media`.
-   - Make sure to check the box to make the bucket **Public**.
-
-### 2. Configure Environment Variables
-1. Open the `.env.example` file in this folder.
-2. Save it as `.env` (just rename it, keep it in the same folder).
-3. Paste all the keys you copied from Supabase into the correct variables.
-
-### 3. Setup the Database
-1. Open a terminal or command prompt in this folder.
-2. Run this command to upload your database structure to Supabase:
-   ```bash
-   npx prisma db push
-   ```
-   *(This tells Prisma to create all the tables for your courses, lessons, etc. based on your schema)*
-
-### 4. Run the Server Locally
-To start the API on your own computer:
-```bash
-npm run dev
-```
-The server will start at `http://localhost:4000`.
-
-### 5. Deploying Online
-If you want the API to be available on the internet (which you need for a real app), you can use a free service like **Render** or **Railway**.
-1. Create a GitHub account, and upload this folder as a new repository.
-2. Sign up on [Render.com](https://render.com/).
-3. Click "New Web Service" and connect your GitHub repo.
-4. Set the "Build Command" to: `npm install && npm run build`
-5. Set the "Start Command" to: `npm start`
-6. Important: In the Render dashboard, go to "Environment", and add ALL the variables from your `.env` file one by one.
-7. Click Deploy!
-
-## API Usage
-You can use tools like Postman to interact with the `/api/auth`, `/api/courses`, and `/api/lessons` endpoints, or connect a Frontend (like Next.js) to it.
-
-## Monitoring and Error Reporting
-
-Server-side:
-- `SENTRY_DSN` — set this in your deployment environment to enable backend error reporting via Sentry.
-- Prometheus metrics are exposed at `/metrics` when `prom-client` is available.
-- Health check available at `/health` which reports DB connectivity.
-
-Frontend:
-- `NEXT_PUBLIC_SENTRY_DSN` — set this to enable client-side error reporting for the Next.js app.
-- The frontend initializes Sentry in `tutoring-platform/src/lib/sentry.client.ts`.
-
-See `monitoring/prometheus-scrape.yml` for a sample Prometheus scrape config, and `monitoring/alerting.md` for PagerDuty/email alerting examples.
-
+Open an issue or PR. For security-sensitive bugs (secrets, auth, payments),
+contact the maintainers privately — do not paste real credentials into issues.

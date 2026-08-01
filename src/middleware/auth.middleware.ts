@@ -1,23 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../config/db';
+import { resolveJwtSecret } from '../utils/jwtSecret';
 
 export interface AuthRequest extends Request {
   user?: { id: string; supabaseId: string; role: string; email: string };
 }
-
-const resolveJwtSecret = (): string | undefined => {
-  const hasSupabaseCfg = Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
-  const useSupabase = Boolean(hasSupabaseCfg && process.env.SUPABASE_JWT_SECRET);
-
-  if (useSupabase) {
-    return process.env.SUPABASE_JWT_SECRET;
-  }
-  if (hasSupabaseCfg && !process.env.SUPABASE_JWT_SECRET) {
-    console.warn('Warning: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set, but SUPABASE_JWT_SECRET is missing. Falling back to LOCAL_JWT_SECRET.');
-  }
-  return process.env.LOCAL_JWT_SECRET || 'local-secret';
-};
 
 const attachUserFromToken = async (req: AuthRequest, token: string): Promise<boolean> => {
   const secret = resolveJwtSecret();

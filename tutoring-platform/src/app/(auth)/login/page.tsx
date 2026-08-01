@@ -7,7 +7,7 @@ import { useAuth } from '@/lib/auth-context';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, LoginInput } from '@/lib/validators';
-import { LogIn, Key, Mail, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { LogIn, Key, Mail, AlertTriangle } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 export default function LoginPage() {
@@ -15,7 +15,6 @@ export default function LoginPage() {
   const { login, user } = useAuth();
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
-  const [adminAutoTried, setAdminAutoTried] = useState(false);
 
   const {
     register,
@@ -54,29 +53,6 @@ export default function LoginPage() {
       setSuccessMsg('Your password has been updated. Please sign in with your new password.');
     }
   }, [user, router]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const params = new URLSearchParams(window.location.search);
-    const shouldAuto = (params.get('adminQuick') === '1' || params.get('adminQuick') === 'true');
-    if (shouldAuto && !user && !adminAutoTried) {
-      setAdminAutoTried(true);
-      (async () => {
-        try {
-          const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@pksingh.com';
-          const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'adminpassword123';
-          const profile = await login({ email: adminEmail, password: adminPassword });
-          if (profile.role === 'SUPER_ADMIN') {
-            router.push('/admin/dashboard');
-          } else {
-            router.push('/my-courses');
-          }
-        } catch (err: any) {
-          setErrorMsg('Auto-login failed: ' + (err?.message || 'Unable to sign in'));
-        }
-      })();
-    }
-  }, [user, login, router, adminAutoTried]);
 
   const onSubmit = async (data: LoginInput) => {
     setErrorMsg('');

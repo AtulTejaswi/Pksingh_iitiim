@@ -151,6 +151,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password: data.password,
         fullName: data.fullName,
         country: data.country,
+        referralCode: data.referralCode || undefined,
       });
 
       // Log in immediately

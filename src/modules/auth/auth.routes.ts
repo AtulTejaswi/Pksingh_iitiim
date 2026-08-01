@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { register, login, refreshToken, logout, getMe, listUsers, promoteToAdmin, demoteFromAdmin, requestPasswordReset, resetPassword, exportUsers } from './auth.controller';
+import { register, login, refreshToken, logout, getMe, listUsers, promoteToAdmin, demoteFromAdmin, requestPasswordReset, resetPassword, exportUsers, getReferralInfo } from './auth.controller';
 import { authenticate } from '../../middleware/auth.middleware';
 import { superAdminOnly } from '../../middleware/rbac.middleware';
 
@@ -15,6 +15,7 @@ router.post('/reset-password', resetPassword);
 // Protected
 router.get('/me', authenticate, getMe);
 router.post('/logout', authenticate, logout);
+router.get('/referral', authenticate, getReferralInfo);
 
 // Admin helpers
 router.get('/users', authenticate, superAdminOnly, listUsers);

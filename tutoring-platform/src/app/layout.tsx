@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     template: '%s | PK Singh',
   },
   description:
-    'PK Singh — IIT + IIM alumnus, bestselling author and 1:1 mentor for JEE, NEET, SAT, CAT and GMAT aspirants. 10,000+ students mentored. Premium exam mentorship.',
+    'PK Singh — IIT + IIM alumnus, bestselling author and 1:1 mentor for JEE, NEET, SAT, CAT and GMAT aspirants. Exam-focused mentorship with verified student outcomes.',
   keywords: ['JEE mentor', 'NEET coaching', 'SAT preparation', 'CAT coaching', 'GMAT prep', 'IIT', 'IIM', 'PK Singh', 'exam mentorship', 'physics tutor', 'chemistry tutor', 'math tutor', 'online tutoring India'],
   authors: [{ name: 'PK Singh' }],
   creator: 'PK Singh',
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'PK Singh | IIT + IIM Mentor, Bestselling Author',
     description:
-      'Premium 1:1 mentorship for JEE, NEET, SAT, CAT and GMAT — from an IIT + IIM alumnus who has mentored 10,000+ students.',
+      'Premium 1:1 mentorship for JEE, NEET, SAT, CAT and GMAT — from an IIT + IIM alumnus. Verified student outcomes.',
     url: siteUrl,
     siteName: 'PK Singh Mentorship',
     locale: 'en_IN',
@@ -125,12 +125,6 @@ export default function RootLayout({
             logo: `${siteUrl}/images/pk_sir_logo.jpg`,
             description: 'Premium 1:1 and cohort-based mentorship for competitive exam aspirants (JEE, NEET, SAT, CAT, GMAT).',
             address: { '@type': 'PostalAddress', addressLocality: 'Mumbai', addressCountry: 'IN' },
-            aggregateRating: {
-              '@type': 'AggregateRating',
-              ratingValue: '4.9',
-              reviewCount: '247',
-              bestRating: '5',
-            },
           }),
         }} />
         {/* Course catalog structured data */}
@@ -141,13 +135,13 @@ export default function RootLayout({
             name: 'PK Singh Courses',
             description: 'Premium exam preparation courses for JEE, NEET, SAT, CAT, and GMAT.',
             url: `${siteUrl}/courses`,
-            numberOfItems: 40,
+            numberOfItems: 9,
             itemListElement: [
               { '@type': 'ListItem', position: 1, name: 'JEE Advanced Physics Masterclass', url: `${siteUrl}/courses` },
-              { '@type': 'ListItem', position: 2, name: 'NEET Chemistry Bootcamp', url: `${siteUrl}/courses` },
-              { '@type': 'ListItem', position: 3, name: 'SAT Math Excellence', url: `${siteUrl}/courses` },
-              { '@type': 'ListItem', position: 4, name: 'CAT Quantitative Aptitude', url: `${siteUrl}/courses` },
-              { '@type': 'ListItem', position: 5, name: 'GMAT Data Sufficiency', url: `${siteUrl}/courses` },
+              { '@type': 'ListItem', position: 2, name: 'NEET Physics Complete', url: `${siteUrl}/courses` },
+              { '@type': 'ListItem', position: 3, name: 'SAT Physics Prep', url: `${siteUrl}/courses` },
+              { '@type': 'ListItem', position: 4, name: 'JEE Organic Chemistry', url: `${siteUrl}/courses` },
+              { '@type': 'ListItem', position: 5, name: 'NEET Chemistry Complete', url: `${siteUrl}/courses` },
             ],
           }),
         }} />

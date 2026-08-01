@@ -29,7 +29,10 @@ router.post('/announcements', cmsController.createAnnouncement);
 // FAQs
 router.post('/faqs', cmsController.createFaq);
 
-// Testimonials
+// Testimonials (admin)
+router.get('/testimonials/all', cmsController.getTestimonialsAll);
 router.post('/testimonials', cmsController.createTestimonial);
+router.put('/testimonials/:id', cmsController.updateTestimonial);
+router.delete('/testimonials/:id', cmsController.deleteTestimonial);
 
 export default router;

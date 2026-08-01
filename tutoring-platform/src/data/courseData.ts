@@ -10,7 +10,6 @@ export interface StaticCourse {
   priceLabel: string; // 'Free' | '₹2,999/mo' etc.
   examTags: string[];
   lessonCount: number;
-  enrollmentCount: number;
   isFree: boolean;
   status: 'PUBLISHED';
   thumbnailUrl: null;
@@ -32,7 +31,6 @@ export const staticCourses: StaticCourse[] = [
     priceLabel: '₹3,499/mo',
     examTags: ['JEE_ADVANCED', 'JEE_MAINS'],
     lessonCount: 64,
-    enrollmentCount: 1250,
     isFree: false,
     status: 'PUBLISHED',
     thumbnailUrl: null,
@@ -54,7 +52,6 @@ export const staticCourses: StaticCourse[] = [
       'Weekly JEE Advanced pattern mock tests',
       '1-on-1 doubt resolution sessions'
     ],
-    _count: { lessons: 64, enrollments: 1250 }
   },
   {
     id: 'phy-neet-complete',
@@ -68,7 +65,6 @@ export const staticCourses: StaticCourse[] = [
     priceLabel: '₹1,999/mo',
     examTags: ['NEET'],
     lessonCount: 48,
-    enrollmentCount: 3400,
     isFree: false,
     status: 'PUBLISHED',
     thumbnailUrl: null,
@@ -90,7 +86,6 @@ export const staticCourses: StaticCourse[] = [
       'Previous 10 Years NEET question analysis',
       '24/7 community doubt forum access'
     ],
-    _count: { lessons: 48, enrollments: 3400 }
   },
   {
     id: 'phy-sat-prep',
@@ -104,7 +99,6 @@ export const staticCourses: StaticCourse[] = [
     priceLabel: 'Free',
     examTags: ['SAT'],
     lessonCount: 24,
-    enrollmentCount: 890,
     isFree: true,
     status: 'PUBLISHED',
     thumbnailUrl: null,
@@ -126,7 +120,6 @@ export const staticCourses: StaticCourse[] = [
       'Formula cheat sheets and quick revision guides',
       'Time management techniques for the exam'
     ],
-    _count: { lessons: 24, enrollments: 890 }
   },
   {
     id: 'chem-jee-organic',
@@ -140,7 +133,6 @@ export const staticCourses: StaticCourse[] = [
     priceLabel: '₹2,999/mo',
     examTags: ['JEE_ADVANCED', 'JEE_MAINS'],
     lessonCount: 56,
-    enrollmentCount: 2100,
     isFree: false,
     status: 'PUBLISHED',
     thumbnailUrl: null,
@@ -162,7 +154,6 @@ export const staticCourses: StaticCourse[] = [
       'Mechanistic approach to organic synthesis',
       'Advanced level problem-solving sessions'
     ],
-    _count: { lessons: 56, enrollments: 2100 }
   },
   {
     id: 'chem-neet-complete',
@@ -176,7 +167,6 @@ export const staticCourses: StaticCourse[] = [
     priceLabel: '₹1,999/mo',
     examTags: ['NEET'],
     lessonCount: 52,
-    enrollmentCount: 4200,
     isFree: false,
     status: 'PUBLISHED',
     thumbnailUrl: null,
@@ -198,7 +188,6 @@ export const staticCourses: StaticCourse[] = [
       'Interactive flashcards for inorganic chemistry',
       'Chapter-wise NEET mock tests'
     ],
-    _count: { lessons: 52, enrollments: 4200 }
   },
   {
     id: 'chem-ap-accelerator',
@@ -212,7 +201,6 @@ export const staticCourses: StaticCourse[] = [
     priceLabel: '₹9,999/mo',
     examTags: ['AP_CHEMISTRY'],
     lessonCount: 30,
-    enrollmentCount: 150,
     isFree: false,
     status: 'PUBLISHED',
     thumbnailUrl: null,
@@ -234,7 +222,6 @@ export const staticCourses: StaticCourse[] = [
       'In-depth review of Free Response Questions (FRQs)',
       'Premium access to all AP practice materials'
     ],
-    _count: { lessons: 30, enrollments: 150 }
   },
   {
     id: 'math-jee-adv-calculus',
@@ -248,7 +235,6 @@ export const staticCourses: StaticCourse[] = [
     priceLabel: '₹3,499/mo',
     examTags: ['JEE_ADVANCED', 'JEE_MAINS'],
     lessonCount: 64,
-    enrollmentCount: 1800,
     isFree: false,
     status: 'PUBLISHED',
     thumbnailUrl: null,
@@ -270,7 +256,6 @@ export const staticCourses: StaticCourse[] = [
       'Weekly doubt clearing live streams',
       'Peer-to-peer competitive mock tests'
     ],
-    _count: { lessons: 64, enrollments: 1800 }
   },
   {
     id: 'math-cat-gmat-quant',
@@ -284,7 +269,6 @@ export const staticCourses: StaticCourse[] = [
     priceLabel: '₹2,499/mo',
     examTags: ['CAT', 'GMAT'],
     lessonCount: 40,
-    enrollmentCount: 2800,
     isFree: false,
     status: 'PUBLISHED',
     thumbnailUrl: null,
@@ -306,7 +290,6 @@ export const staticCourses: StaticCourse[] = [
       'Topic-wise sectional adaptive tests',
       'Detailed video solutions for previous year questions'
     ],
-    _count: { lessons: 40, enrollments: 2800 }
   },
   {
     id: 'math-ap-calculus',
@@ -320,7 +303,6 @@ export const staticCourses: StaticCourse[] = [
     priceLabel: 'Free',
     examTags: ['AP_CALCULUS'],
     lessonCount: 24,
-    enrollmentCount: 450,
     isFree: true,
     status: 'PUBLISHED',
     thumbnailUrl: null,
@@ -342,7 +324,6 @@ export const staticCourses: StaticCourse[] = [
       'Practice with real AP exam Free Response Questions',
       'Free comprehensive formula and theorem sheet'
     ],
-    _count: { lessons: 24, enrollments: 450 }
   }
 ];
 

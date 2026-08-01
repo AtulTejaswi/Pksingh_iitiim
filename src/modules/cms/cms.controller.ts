@@ -123,10 +123,27 @@ export const getFaqs = async (req: Request, res: Response): Promise<void> => {
 // ─── TESTIMONIALS ───────────────────────────────────────────────────────────
 
 export const createTestimonial = async (req: Request, res: Response): Promise<void> => {
-  const { name, studentPhoto, rank, achievement, review, status } = req.body;
+  const { name, studentPhoto, rank, achievement, review, status, isVerified, proofUrl } = req.body;
+
+  // A testimonial cannot be marked verified without linked proof.
+  if (isVerified && !proofUrl) {
+    res.status(400).json({ error: 'isVerified requires a linked proofUrl (scorecard image or video).' });
+    return;
+  }
+
   try {
     const testimonial = await prisma.testimonial.create({
-      data: { name, studentPhoto, rank, achievement, review, status }
+      data: {
+        name,
+        studentPhoto,
+        rank,
+        achievement,
+        review,
+        status,
+        isVerified: Boolean(isVerified),
+        proofUrl: proofUrl ?? null,
+        verifiedAt: isVerified ? new Date() : null,
+      }
     });
     res.status(201).json(testimonial);
   } catch (error: any) {
@@ -134,13 +151,67 @@ export const createTestimonial = async (req: Request, res: Response): Promise<vo
   }
 };
 
+export const updateTestimonial = async (req: Request, res: Response): Promise<void> => {
+  const id = String(req.params.id);
+  const { name, studentPhoto, rank, achievement, review, status, isVerified, proofUrl } = req.body;
+
+  if (isVerified && !proofUrl) {
+    res.status(400).json({ error: 'isVerified requires a linked proofUrl (scorecard image or video).' });
+    return;
+  }
+
+  try {
+    const testimonial = await prisma.testimonial.update({
+      where: { id },
+      data: {
+        name,
+        studentPhoto,
+        rank,
+        achievement,
+        review,
+        status,
+        isVerified: isVerified === undefined ? undefined : Boolean(isVerified),
+        proofUrl: proofUrl === undefined ? undefined : (proofUrl ?? null),
+        verifiedAt: isVerified ? new Date() : isVerified === false ? null : undefined,
+      },
+    });
+    res.json(testimonial);
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+/** Public route — only fully verified, published testimonials are ever shown. */
 export const getTestimonials = async (req: Request, res: Response): Promise<void> => {
   try {
     const testimonials = await prisma.testimonial.findMany({
-      where: { status: 'PUBLISHED' }
+      where: { status: 'PUBLISHED', isVerified: true },
+      orderBy: { createdAt: 'desc' }
     });
     res.json(testimonials);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+/** Admin route — full list including pending/unverified for moderation. */
+export const getTestimonialsAll = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const testimonials = await prisma.testimonial.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json(testimonials);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const deleteTestimonial = async (req: Request, res: Response): Promise<void> => {
+  const id = String(req.params.id);
+  try {
+    await prisma.testimonial.delete({ where: { id } });
+    res.json({ message: 'Testimonial deleted' });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
   }
 };

@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { adminEmail, adminPassword } from './admin_creds.mjs';
 
 const base = (process.env.BASE || 'http://localhost:4000/api').trim();
 
@@ -37,8 +38,7 @@ async function uploadFile(token, lessonId, filePath, title) {
 (async function run(){
   console.log('base:', base);
   console.log('Logging in');
-  const password = process.env.E2E_ADMIN_PASSWORD || 'adminpassword123';
-  const loginRes = await fetch(`${base}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'admin@pksingh.com', password }) });
+  const loginRes = await fetch(`${base}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: adminEmail(), password: adminPassword() }) });
   const login = await loginRes.json();
   console.log('login response raw:', login);
   const token = login.accessToken;

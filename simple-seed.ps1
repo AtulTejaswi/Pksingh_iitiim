@@ -1,5 +1,14 @@
 # Simple PowerShell script to seed data and start backend
 
+# Admin credentials come from the environment or a freshly generated random
+# value (never a hardcoded/example password).
+$seedAdminPassword = $env:ADMIN_PASSWORD
+if (-not $seedAdminPassword) {
+  $seedAdminPassword = -join ((48..57) + (97..122) + (65..90) | Get-Random -Count 24 | ForEach-Object { [char]$_ })
+  Write-Host "ADMIN_PASSWORD not set. Using a generated dev-only password for this seed run." -ForegroundColor Yellow
+}
+$seedAdminEmail = if ($env:ADMIN_EMAIL) { $env:ADMIN_EMAIL } else { 'admin@pksingh.com' }
+
 # Kill any existing backend processes
 $processes = Get-Process -Name "node" -ErrorAction SilentlyContinue
 foreach ($proc in $processes) {
@@ -33,10 +42,10 @@ async function main() {
   const admin = await prisma.user.create({
     data: {
       supabaseId: 'seed-admin-id',
-      email: 'admin@pksingh.com',
+      email: __ADMIN_EMAIL__,
       fullName: 'PK Singh Admin',
       role: 'SUPER_ADMIN',
-      passwordHash: hashPassword('adminpassword123'),
+      passwordHash: hashPassword(__ADMIN_PASSWORD__),
     }
   });
 
@@ -85,7 +94,7 @@ async function main() {
   }
 
   console.log('SUCCESS: Comprehensive demo data seeded!');
-  console.log('Admin credentials: admin@pksingh.com / adminpassword123');
+  console.log('Admin seeded (password not printed — see ADMIN_PASSWORD env).');
 }
 
 main()
@@ -99,6 +108,7 @@ main()
 @
 
 # Write seed script to file
+$seedScript = $seedScript.Replace('__ADMIN_PASSWORD__', "'$seedAdminPassword'").Replace('__ADMIN_EMAIL__', "'$seedAdminEmail'")
 $seedScript | Out-File -FilePath "seed-simple.ts" -Encoding utf8
 
 Write-Host "Seed script created" -ForegroundColor Green
@@ -122,7 +132,7 @@ if ($healthResponse.StatusCode -eq 200) {
 }
 
 # Login and test
-$token = ((Invoke-WebRequest -Uri "http://localhost:4000/api/auth/login" -Method POST -Body '{"email":"admin@pksingh.com","password":"adminpassword123"}' -ContentType "application/json" -UseBasicParsing -TimeoutSec 5).Content | ConvertFrom-Json).accessToken
+$token = ((Invoke-WebRequest -Uri "http://localhost:4000/api/auth/login" -Method POST -Body "{`"email`":`"$seedAdminEmail`",`"password`":`"$seedAdminPassword`"}" -ContentType "application/json" -UseBasicParsing -TimeoutSec 5).Content | ConvertFrom-Json).accessToken
 $headers = @{ Authorization = "Bearer $token" }
 
 # Check courses

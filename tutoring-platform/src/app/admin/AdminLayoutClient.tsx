@@ -5,7 +5,7 @@ import ProtectedRoute from '@/components/common/ProtectedRoute';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, BookOpen, Users, Settings, LogOut, Menu, X, ArrowLeft } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Users, Settings, LogOut, Menu, X, ArrowLeft, MessageSquareQuote } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
@@ -20,6 +20,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const menuItems = [
     { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/courses', label: 'Courses', icon: BookOpen },
+    { href: '/admin/testimonials', label: 'Testimonials', icon: MessageSquareQuote },
     { href: '/admin/students', label: 'Students', icon: Users },
     { href: '/admin/settings', label: 'Settings', icon: Settings },
   ];

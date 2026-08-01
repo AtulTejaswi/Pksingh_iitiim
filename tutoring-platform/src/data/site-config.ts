@@ -2,26 +2,37 @@
 // EDITABLE CONFIG — All business numbers/copy live here. Edit freely.
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Platform-wide stats displayed in the Stats section and Trust Badges */
+/**
+ * Platform-wide stats shown in the Stats section.
+ *
+ * These are NOT hardcoded claims. Each value is read from an env override so the
+ * owner can publish confirmed numbers. With no env vars set, every value is 0 and
+ * the homepage renders honest "coming soon" states instead of fabricated counts.
+ * Set e.g. NEXT_PUBLIC_LEARNERS_MENTORED=5000 once the business can verify it.
+ */
 export const SITE_STATS = {
-  /** Number shown in "Learners Mentored" stat card */
-  learnersMentored: 10000,
-  /** Number shown in "Interactive Courses" stat card */
-  interactiveCourses: 40,
-  /** Number shown in "Lesson Modules" stat card */
-  lessonModules: 500,
-  /** Number shown in "Free Resources" stat card */
-  freeResources: 100,
+  /** Number shown in "Learners Mentored" stat card (set via NEXT_PUBLIC_LEARNERS_MENTORED) */
+  learnersMentored: Number(process.env.NEXT_PUBLIC_LEARNERS_MENTORED) || 0,
+  /** Number shown in "Interactive Courses" stat card (set via NEXT_PUBLIC_INTERACTIVE_COURSES) */
+  interactiveCourses: Number(process.env.NEXT_PUBLIC_INTERACTIVE_COURSES) || 0,
+  /** Number shown in "Lesson Modules" stat card (set via NEXT_PUBLIC_LESSON_MODULES) */
+  lessonModules: Number(process.env.NEXT_PUBLIC_LESSON_MODULES) || 0,
+  /** Number shown in "Free Resources" stat card (set via NEXT_PUBLIC_FREE_RESOURCES) */
+  freeResources: Number(process.env.NEXT_PUBLIC_FREE_RESOURCES) || 0,
 } as const;
 
-/** Upcoming cohort details — drives the CohortBanner component */
+/**
+ * Upcoming cohort details — drives the CohortBanner component.
+ * Seat counts come from env overrides so no fabricated number is shown by default.
+ * When seats are not configured, the banner shows a generic limited-cohort message.
+ */
 export const COHORT_CONFIG = {
   /** ISO date string for cohort start: YYYY-MM-DD */
   upcomingStartDate: '2026-09-01',
-  /** Total seats in the cohort */
-  totalSeats: 50,
-  /** Seats already filled — shown as seatsLeft = totalSeats - filledSeats */
-  filledSeats: 28,
+  /** Total seats in the cohort (set via NEXT_PUBLIC_COHORT_TOTAL_SEATS) */
+  totalSeats: Number(process.env.NEXT_PUBLIC_COHORT_TOTAL_SEATS) || 0,
+  /** Seats already filled (set via NEXT_PUBLIC_COHORT_FILLED_SEATS) */
+  filledSeats: Number(process.env.NEXT_PUBLIC_COHORT_FILLED_SEATS) || 0,
   /** Display label for the cohort (e.g. "Fall 2026") */
   cohortLabel: 'Fall 2026',
 } as const;
@@ -65,8 +76,8 @@ export const PRICING_CONFIG = {
     price: '₹9,999',
     priceSuffix: '/mo',
     currency: 'INR',
-    cta: 'Book a Discovery Call',
-    ctaHref: '/signup',
+    cta: 'Contact to Enroll',
+    ctaHref: '/support',
     features: [
       'Everything in Live Cohort',
       'Personal 1:1 sessions with PK Singh',
@@ -84,18 +95,38 @@ export const REFERRAL_CONFIG = {
   enabled: true,
 } as const;
 
-/** WhatsApp community button configuration */
+/**
+ * WhatsApp community button configuration.
+ *
+ * IMPORTANT (owner action): confirm `communityLink` is a real, active invite.
+ * For Phase 3, per-exam-track segmentation was considered: the owner should
+ * decide between (a) keeping one general community link, or (b) providing one
+ * invite per track (JEE / NEET / SAT / CAT-GMAT) or a Discord/Telegram server.
+ * Until real per-track invites are provided, a single link is shown — we do NOT
+ * fabricate track-specific invite URLs.
+ */
 export const WHATSAPP_CONFIG = {
   communityLink: 'https://chat.whatsapp.com/EyfnanzGYgK2EUycPqsrMH',
   enabled: true,
 } as const;
 
-/** Social media links — update with actual handles before launch */
+/**
+ * Direct WhatsApp chat number (for the wa.me/ link). Set via
+ * NEXT_PUBLIC_WHATSAPP_NUMBER (e.g. "9198xxxxxxxx"). Leave empty to hide the
+ * direct-chat link — the community invite link is always the safe fallback.
+ * No placeholder numbers are hardcoded.
+ */
+export const WHATSAPP_DIRECT_NUMBER =
+  (typeof process !== 'undefined' ? process.env.NEXT_PUBLIC_WHATSAPP_NUMBER : '') || '';
+
+/** Social media links — set to real, active handles (confirmed by the owner). */
 export const SOCIAL_LINKS = {
   instagram: 'https://instagram.com/pksinghmentor',
   youtube: 'https://youtube.com/@pksinghmentor',
   linkedin: 'https://linkedin.com/in/pksinghmentor',
-  whatsapp: 'https://wa.me/919999999999',
+  whatsapp: WHATSAPP_DIRECT_NUMBER
+    ? `https://wa.me/${WHATSAPP_DIRECT_NUMBER}`
+    : WHATSAPP_CONFIG.communityLink,
 } as const;
 
 /** Contact & support */

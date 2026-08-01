@@ -15,12 +15,16 @@ export default function SignupPage() {
   const { registerUser } = useAuth();
   const [errorMsg, setErrorMsg] = useState('');
 
+  const referralFromUrl =
+    typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('ref') || '' : '';
+
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<SignupInput>({
     resolver: zodResolver(signupSchema),
+    defaultValues: { referralCode: referralFromUrl },
   });
 
   const onSubmit = async (data: SignupInput) => {

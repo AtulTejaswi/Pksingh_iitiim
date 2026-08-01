@@ -6,13 +6,34 @@ import { z } from 'zod';
 import { formatZodError } from '../../utils/formatZodError';
 import crypto, { randomUUID } from 'crypto';
 import jwt from 'jsonwebtoken';
+import { resolveJwtSecret } from '../../utils/jwtSecret';
 
 const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   fullName: z.string().min(2).max(100),
   country: z.enum(['IN', 'US']).optional(),
+  referralCode: z.string().trim().min(3).max(32).optional(),
 });
+
+/** Generate a short, human-friendly referral code from the user id. */
+const generateReferralCode = (userId: string): string => {
+  const hash = crypto.createHash('sha256').update(userId).digest('hex');
+  const raw = hash.slice(0, 8).toUpperCase();
+  return `PK${raw}`;
+};
+
+const ensureUniqueReferralCode = async (userId: string): Promise<string> => {
+  let code = generateReferralCode(userId);
+  let attempts = 0;
+  while (attempts < 5) {
+    const existing = await prisma.user.findUnique({ where: { referralCode: code } });
+    if (!existing) return code;
+    code = `PK${crypto.createHash('sha256').update(`${userId}-${attempts}`).digest('hex').slice(0, 8).toUpperCase()}`;
+    attempts += 1;
+  }
+  return code;
+};
 
 const resetRequestSchema = z.object({
   email: z.string().email(),
@@ -31,13 +52,19 @@ const refreshSchema = z.object({
   refreshToken: z.string(),
 });
 
-const localJwtSecret = process.env.LOCAL_JWT_SECRET || 'local-secret';
 const useSupabase = Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.SUPABASE_JWT_SECRET);
-const jwtSecret = useSupabase ? process.env.SUPABASE_JWT_SECRET! : localJwtSecret;
-const resetJwtSecret = process.env.RESET_JWT_SECRET || jwtSecret;
+const resolvedJwtSecret = resolveJwtSecret();
+if (!resolvedJwtSecret) {
+  console.error('Fatal: No JWT signing secret configured. Set LOCAL_JWT_SECRET or the full SUPABASE_* set.');
+  process.exit(1);
+}
+const jwtSecret: string = resolvedJwtSecret;
+const resetJwtSecret: string = process.env.RESET_JWT_SECRET || jwtSecret;
 
 const ACCESS_TOKEN_EXPIRY = '15m';
 const REFRESH_TOKEN_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+const REFERRAL_REWARD_COPY = 'Refer a friend, both get 1 free 1:1 session';
 
 const hashPassword = (password: string): string => {
   return crypto.scryptSync(password, 'local-salt', 64).toString('hex');
@@ -65,7 +92,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  const { email, password, fullName, country } = result.data;
+  const { email, password, fullName, country, referralCode } = result.data;
 
   if (useSupabase && supabase) {
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
@@ -79,6 +106,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    const referralCodeToSet = await ensureUniqueReferralCode(authData.user.id);
     const user = await prisma.user.create({
       data: {
         supabaseId: authData.user.id,
@@ -86,12 +114,14 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         fullName,
         country: country ?? null,
         role: 'STUDENT',
+        referralCode: referralCodeToSet,
+        referredByCode: referralCode ?? null,
       },
     });
 
     res.status(201).json({
       message: 'Registration successful',
-      user: { id: user.id, email: user.email, role: user.role },
+      user: { id: user.id, email: user.email, role: user.role, referralCode: user.referralCode },
     });
     return;
   }
@@ -107,12 +137,41 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       fullName,
       country: country ?? null,
       role: 'STUDENT',
+      referredByCode: referralCode ?? null,
     },
   });
 
+  // Local-auth path: assign the code after creation since we keyed off the id.
+  const referralCodeToSet = await ensureUniqueReferralCode(user.id);
+  await prisma.user.update({ where: { id: user.id }, data: { referralCode: referralCodeToSet } });
+
   res.status(201).json({
     message: 'Registration successful',
-    user: { id: user.id, email: user.email, role: user.role },
+    user: { id: user.id, email: user.email, role: user.role, referralCode: referralCodeToSet },
+  });
+};
+
+export const getReferralInfo = async (req: AuthRequest, res: Response): Promise<void> => {
+  const user = await prisma.user.findUnique({
+    where: { id: req.user!.id },
+    select: { referralCode: true, referredByCode: true },
+  });
+
+  if (!user || !user.referralCode) {
+    const code = await ensureUniqueReferralCode(req.user!.id);
+    await prisma.user.update({ where: { id: req.user!.id }, data: { referralCode: code } });
+    res.json({ referralCode: code, totalReferrals: 0, rewardDescription: REFERRAL_REWARD_COPY });
+    return;
+  }
+
+  const totalReferrals = await prisma.user.count({
+    where: { referredByCode: user.referralCode },
+  });
+
+  res.json({
+    referralCode: user.referralCode,
+    totalReferrals,
+    rewardDescription: REFERRAL_REWARD_COPY,
   });
 };
 

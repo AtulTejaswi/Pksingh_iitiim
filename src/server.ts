@@ -45,15 +45,23 @@ const ensureAdminUser = async () => {
 async function startServer() {
   // Validate environment on startup. In production, fail fast for
   // partially configured Supabase or placeholder credentials.
-  const PLACEHOLDER_PASSWORD = 'changeme_replace_in_production';
+  const PLACEHOLDER_PASSWORDS = ['changeme_replace_in_production', 'adminpassword123'];
   const PLACEHOLDER_EMAIL = 'admin@example.com';
 
   const validateEnv = () => {
     const hasSupabaseUrl = Boolean(process.env.SUPABASE_URL);
     const hasSupabaseServiceKey = Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY);
     const hasSupabaseJwt = Boolean(process.env.SUPABASE_JWT_SECRET);
+    const hasLocalJwt = Boolean(process.env.LOCAL_JWT_SECRET);
 
     const partialSupabase = (hasSupabaseUrl || hasSupabaseServiceKey) && !hasSupabaseJwt;
+
+    // No hardcoded JWT secret fallbacks exist anywhere in the codebase. In
+    // production, fail startup loudly if no signing secret is available.
+    if (process.env.NODE_ENV === 'production' && !hasLocalJwt && !hasSupabaseJwt) {
+      console.error('Fatal: No JWT signing secret configured. Set LOCAL_JWT_SECRET (or the full SUPABASE_* set).');
+      process.exit(1);
+    }
     if (process.env.NODE_ENV === 'production' && partialSupabase) {
       console.error('Fatal: Supabase is partially configured (SUPABASE_URL or SERVICE_ROLE_KEY set but SUPABASE_JWT_SECRET is missing).');
       console.error('In production this is unsafe. Please set SUPABASE_JWT_SECRET or unset Supabase envs.');
@@ -66,9 +74,9 @@ async function startServer() {
 
     // Reject placeholder credentials in production
     if (process.env.NODE_ENV === 'production') {
-      if (process.env.ADMIN_PASSWORD === PLACEHOLDER_PASSWORD) {
-        console.error('Fatal: ADMIN_PASSWORD is still set to the placeholder value from .env.example.');
-        console.error('Set a real password via Render environment variables.');
+      if (PLACEHOLDER_PASSWORDS.includes(process.env.ADMIN_PASSWORD || '')) {
+        console.error('Fatal: ADMIN_PASSWORD is still set to a known placeholder/example value.');
+        console.error('Set a real password via deployment environment variables.');
         process.exit(1);
       }
       if (process.env.ADMIN_EMAIL === PLACEHOLDER_EMAIL) {

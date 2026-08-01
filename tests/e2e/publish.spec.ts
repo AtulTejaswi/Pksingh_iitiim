@@ -2,12 +2,16 @@ import { test, expect, request } from '@playwright/test';
 
 test.describe('Courses Publish Flow E2E', () => {
   const base = process.env.E2E_API_BASE || 'http://localhost:4000/api';
+  const adminPassword = process.env.E2E_ADMIN_PASSWORD;
+  if (!adminPassword) {
+    throw new Error('E2E_ADMIN_PASSWORD must be set to run publish e2e tests (no hardcoded credentials allowed).');
+  }
 
   test('admin can create, publish, and published course appears in list', async () => {
     const apiContext = await request.newContext();
 
     const login = await apiContext.post(`${base}/auth/login`, {
-      data: { email: 'admin@pksingh.com', password: 'adminpassword123' },
+      data: { email: process.env.E2E_ADMIN_EMAIL || 'admin@pksingh.com', password: adminPassword },
     });
     expect(login.ok()).toBeTruthy();
     const loginBody = await login.json();

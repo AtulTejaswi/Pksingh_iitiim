@@ -94,6 +94,7 @@ import cmsRoutes from './modules/cms/cms.routes';
 import backupRoutes from './modules/backup/backup.routes';
 import quotesRoutes from './modules/quotes/quotes.routes';
 import paymentRoutes from './modules/payments/payments.routes';
+import leadsRoutes from './modules/leads/leads.routes';
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -111,6 +112,7 @@ app.use('/api/debug', debugRoutes);
 app.use('/api/backup', backupRoutes);
 app.use('/api/quotes', quotesRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/leads', leadsRoutes);
 
 // Health check
 app.get('/health', (_req, res) => {

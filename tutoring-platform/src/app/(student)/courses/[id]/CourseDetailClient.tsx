@@ -228,10 +228,12 @@ export default function CourseDetailClient({ params }: { params: Promise<{ id: s
                 <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-blue-500" /> Syllabus Size</span>
                 <span className="font-semibold text-slate-900">{course.lessons?.length || 0} Lecture modules</span>
               </div>
-              <div className="flex items-center justify-between text-slate-600">
-                <span className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5 text-blue-500" /> Community Enrolled</span>
-                <span className="font-semibold text-slate-900">{course._count?.enrollments || 0} active student researchers</span>
-              </div>
+              {!!course._count?.enrollments && (
+                <div className="flex items-center justify-between text-slate-600">
+                  <span className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5 text-blue-500" /> Community Enrolled</span>
+                  <span className="font-semibold text-slate-900">{course._count.enrollments} active student researchers</span>
+                </div>
+              )}
               <div className="flex items-start gap-1.5 text-slate-400 mt-4 leading-normal">
                 <Award className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
                 <span>Gain complete lifetime access to all worksheets and derived notes immediately upon joining.</span>

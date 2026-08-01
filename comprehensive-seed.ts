@@ -2,6 +2,7 @@
 // This creates realistic courses for Physics, Chemistry, and Math
 
 import { PrismaClient } from '@prisma/client';
+import crypto from 'crypto';
 
 const prisma = new PrismaClient();
 
@@ -19,8 +20,14 @@ async function main() {
   await prisma.tag.deleteMany();
   await prisma.user.deleteMany();
 
-  // Create default admin user
-  const adminPassword = 'adminpassword123';
+  // Create default admin user. Password comes from ADMIN_PASSWORD env —
+  // never hardcode credentials. Exit loudly if missing.
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminPassword) {
+    console.error('Error: ADMIN_PASSWORD environment variable is required to seed the admin user.');
+    process.exit(1);
+  }
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@pksingh.com';
   const hashPassword = (password: string): string => {
     return crypto.scryptSync(password, 'local-salt', 64).toString('hex');
   };
@@ -28,7 +35,7 @@ async function main() {
   const admin = await prisma.user.create({
     data: {
       supabaseId: 'seed-admin-id',
-      email: 'admin@pksingh.com',
+      email: adminEmail,
       fullName: 'PK Singh Admin',
       role: 'SUPER_ADMIN',
       passwordHash: hashPassword(adminPassword),

@@ -15,22 +15,23 @@ import WisdomSlideshow from '@/components/common/WisdomSlideshow';
 import MentorshipComparison from '@/components/common/MentorshipComparison';
 import MediaLogos from '@/components/common/MediaLogos';
 import CohortBanner from '@/components/common/CohortBanner';
-import FaqSection from '@/components/common/FaqSection';
+import FaqTeaser from '@/components/common/FaqTeaser';
 import WhatsAppButton from '@/components/common/WhatsAppButton';
 import ExitIntentModal from '@/components/common/ExitIntentModal';
 import ScrollDepthCta from '@/components/common/ScrollDepthCta';
-import EmailCaptureForm from '@/components/common/EmailCaptureForm';
+import ReferralSection from '@/components/common/ReferralSection';
 import { getStaticFeaturedCourses } from '@/data/courseData';
 import { useScrollAnimation, useCountUp } from '@/hooks/useScrollAnimation';
 import { useGetCourses, useGetPublicStats } from '@/hooks/useCourses';
 import { useState, useEffect } from 'react';
-import { BookOpen, GraduationCap, Award, CheckCircle2, ChevronRight, Zap, Target, Search, Flame, Gift } from 'lucide-react';
+import { BookOpen, GraduationCap, Award, CheckCircle2, ChevronRight, Zap, Target, Search, Flame, Download } from 'lucide-react';
 import SiteFooter from '@/components/common/SiteFooter';
 import { SITE_STATS } from '@/data/site-config';
 
-function StatCard({ icon: Icon, value, targetValue, label, color, span, isVisible }: any) {
-  const animatedValue = useCountUp(targetValue, 2000, isVisible);
-  const displayValue = !isVisible ? value : targetValue > 0 ? `${animatedValue}+` : value;
+function StatCard({ icon: Icon, value, suffix, label, sublabel, color, span, isVisible }: any) {
+  const animatedValue = useCountUp(value, 2000, isVisible);
+  const displayValue =
+    value > 0 ? `${isVisible ? animatedValue : value}${suffix}` : '—';
 
   return (
     <div className={`group relative overflow-hidden rounded-3xl border border-white/15 bg-white/05 p-7 backdrop-blur-md hover:bg-white/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] ${span}`}>
@@ -41,6 +42,9 @@ function StatCard({ icon: Icon, value, targetValue, label, color, span, isVisibl
       <div className="relative mt-auto">
         <p className="text-4xl font-black text-white tracking-tight">{displayValue}</p>
         <p className="mt-2 text-xs text-white/70 uppercase tracking-[0.2em] font-bold">{label}</p>
+        {value === 0 && sublabel ? (
+          <p className="mt-2 text-xs text-white/40 font-medium">{sublabel}</p>
+        ) : null}
       </div>
     </div>
   );
@@ -121,8 +125,8 @@ export default function LandingPage() {
                 href="#free-preview"
                 className="btn btn-ghost px-10 py-4 text-sm font-bold flex items-center gap-2 text-slate-700 border-slate-300 hover:bg-slate-50"
               >
-                Watch Free Lesson
-                <span className="inline-block w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+                Get the Free Study Guide
+                <Download className="w-4 h-4" />
               </a>
             </div>
 
@@ -143,16 +147,16 @@ export default function LandingPage() {
 
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="rounded-2xl bg-slate-50 border border-slate-200 p-6 text-center hover:shadow-md hover:border-slate-300 transition-all duration-300">
-                <p className="text-3xl font-bold text-slate-900">23+</p>
-                <p className="text-sm text-slate-600 mt-2">Years of experience</p>
+                <p className="text-3xl font-bold text-slate-900">JEE · NEET · SAT</p>
+                <p className="text-sm text-slate-600 mt-2">Exam-focused curriculum</p>
               </div>
               <div className="rounded-2xl bg-slate-50 border border-slate-200 p-6 text-center hover:shadow-md hover:border-slate-300 transition-all duration-300">
                 <p className="text-3xl font-bold text-slate-900">Bestselling</p>
                 <p className="text-sm text-slate-600 mt-2">UK & USA books</p>
               </div>
               <div className="rounded-2xl bg-slate-50 border border-slate-200 p-6 text-center hover:shadow-md hover:border-slate-300 transition-all duration-300">
-                <p className="text-3xl font-bold text-slate-900">Global</p>
-                <p className="text-sm text-slate-600 mt-2">Consulting exposure</p>
+                <p className="text-3xl font-bold text-slate-900">6+ years</p>
+                <p className="text-sm text-slate-600 mt-2">Teaching experience</p>
               </div>
             </div>
           </div>
@@ -200,7 +204,7 @@ export default function LandingPage() {
         <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
         <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
         <div className="animate-marquee flex items-center gap-12 px-4">
-          <span className="flex items-center gap-2 text-sm font-semibold text-slate-700 whitespace-nowrap"><Target className="w-4 h-4 text-amber-600" /> 10,000+ Students Mentored</span>
+          <span className="flex items-center gap-2 text-sm font-semibold text-slate-700 whitespace-nowrap"><Target className="w-4 h-4 text-amber-600" /> JEE · NEET · SAT · CAT · GMAT</span>
           <span className="flex items-center gap-2 text-sm font-semibold text-slate-700 whitespace-nowrap"><Award className="w-4 h-4 text-amber-600" /> #1 Bestselling Author</span>
           <span className="flex items-center gap-2 text-sm font-semibold text-slate-700 whitespace-nowrap"><Zap className="w-4 h-4 text-amber-600" /> IIT & IIM Alumni Network</span>
           <span className="flex items-center gap-2 text-sm font-bold text-amber-800 whitespace-nowrap bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">"Focus on effort, not the outcome."</span>
@@ -210,10 +214,8 @@ export default function LandingPage() {
       {/* Wisdom Strip */}
       <WisdomSlideshow variant="strip" />
 
-      {/* Free Sample Lesson / Lead Magnet */}
-      <div id="free-preview">
-        <FreePreview />
-      </div>
+      {/* Free Study Guide Lead Magnet */}
+      <FreePreview />
 
       {/* Gamification / Streaks Callout */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-12">
@@ -233,8 +235,12 @@ export default function LandingPage() {
           <div className="relative z-10 shrink-0">
             <div className="bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-6 text-center shadow-[0_8px_32px_rgba(0,0,0,0.1)]">
               <Flame className="w-12 h-12 text-amber-200 mx-auto mb-2 animate-pulse" />
-              <div className="text-4xl font-black text-white">12 Day</div>
-              <div className="text-sm font-semibold text-amber-200 uppercase tracking-widest mt-1">Current Streak</div>
+              <div className="text-3xl font-black text-white leading-tight">Start your<br />streak today</div>
+              <div className="text-sm font-semibold text-amber-200 uppercase tracking-widest mt-1">
+                <Link href="/signup" className="underline decoration-amber-300/60 underline-offset-4 hover:text-amber-100">
+                  Sign up free
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -254,26 +260,27 @@ export default function LandingPage() {
           <div className="relative grid gap-5 p-10 md:grid-cols-4 grid-rows-[auto]">
             <StatCard 
               icon={BookOpen} 
-              value={`${SITE_STATS.learnersMentored.toLocaleString()}+`} 
-              targetValue={stats?.enrollments ?? stats?.students ?? SITE_STATS.learnersMentored} 
-              label="Learners mentored" 
+              value={stats?.students ?? SITE_STATS.learnersMentored}
+              suffix="+"
+              label="Learners mentored"
+              sublabel="Verified count published when confirmed"
               color="from-amber-400/20 to-amber-500/10 text-amber-200" 
               span="md:col-span-2 md:row-span-2" 
               isVisible={statsAnim.isVisible} 
             />
             <StatCard 
               icon={Flame} 
-              value={`${SITE_STATS.interactiveCourses}+`} 
-              targetValue={stats?.publishedCourses ?? SITE_STATS.interactiveCourses} 
-              label="Interactive Courses" 
+              value={stats?.publishedCourses ?? SITE_STATS.interactiveCourses}
+              suffix=""
+              label="Courses in catalog" 
               color="from-amber-400/20 to-amber-500/10 text-amber-200" 
               span="md:col-span-1 md:row-span-1" 
               isVisible={statsAnim.isVisible} 
             />
             <StatCard 
               icon={Award} 
-              value={`${SITE_STATS.lessonModules}+`} 
-              targetValue={stats?.publishedLessons ?? SITE_STATS.lessonModules} 
+              value={stats?.publishedLessons ?? SITE_STATS.lessonModules}
+              suffix=""
               label="Lesson modules" 
               color="from-amber-400/20 to-amber-500/10 text-amber-200" 
               span="md:col-span-1 md:row-span-1" 
@@ -281,9 +288,10 @@ export default function LandingPage() {
             />
             <StatCard 
               icon={Target} 
-              value={`${SITE_STATS.freeResources}% Free Resources`} 
-              targetValue={0} 
-              label="Available Study Guides" 
+              value={stats?.enrollments ?? SITE_STATS.freeResources}
+              suffix=""
+              label="Free study guides" 
+              sublabel="Unlock on signup"
               color="from-amber-400/20 to-amber-500/10 text-amber-200" 
               span="md:col-span-2 md:row-span-1" 
               isVisible={statsAnim.isVisible} 
@@ -325,14 +333,19 @@ export default function LandingPage() {
             </div>
             
             <div className="mt-10 flex items-center gap-6">
-              <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center border border-amber-500/30">
-                <div className="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center cursor-pointer hover:bg-amber-400 transition-colors shadow-[0_0_20px_rgba(245,158,11,0.5)]">
-                  <div className="w-0 h-0 border-t-8 border-b-8 border-l-[12px] border-t-transparent border-b-transparent border-l-slate-900 ml-1"></div>
+              <Link href="/mentor-journey" className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center border border-amber-500/30 group">
+                <div className="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center cursor-pointer hover:bg-amber-400 transition-colors shadow-[0_0_20px_rgba(245,158,11,0.5)] group-hover:scale-110 transition-transform">
+                  <ChevronRight className="w-5 h-5 text-slate-900 ml-0.5" />
                 </div>
-              </div>
+              </Link>
               <div>
-                <p className="text-white font-bold">Watch My Story</p>
-                <p className="text-slate-400 text-sm">2 min masterclass</p>
+                <Link href="/mentor-journey" className="text-white font-bold hover:text-amber-400 transition-colors">
+                  Read the Mentor&apos;s Journey
+                </Link>
+                <p className="text-slate-400 text-sm">From IIT & IIM to mentoring thousands</p>
+                <Link href="/about" className="text-amber-400 text-sm font-semibold hover:text-amber-300 transition-colors inline-flex items-center gap-1 mt-1">
+                  About PK Singh <ChevronRight className="w-3 h-3" />
+                </Link>
               </div>
             </div>
           </div>
@@ -376,17 +389,6 @@ export default function LandingPage() {
 
       {/* Pricing Section */}
       <PricingSection />
-
-      {/* Trust Badges near pricing */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-8 mb-8">
-        <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-500">
-          <span className="flex items-center gap-1.5 text-slate-500">🔒 Secure payment</span>
-          <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-          <span className="flex items-center gap-1.5 text-slate-500">↩️ 7-day refund policy</span>
-          <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-          <span className="flex items-center gap-1.5 text-slate-500">🛡️ SSL encrypted</span>
-        </div>
-      </div>
 
       {/* Testimonials (Upgraded) */}
       <Testimonials />
@@ -513,84 +515,11 @@ export default function LandingPage() {
       {/* Dashboard Preview Section */}
       <DashboardPreview />
 
-      {/* About — PK Singh */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <span className="inline-block px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold uppercase tracking-[0.3em] mb-5">About</span>
-            <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-5 tracking-tight">PK Singh — <span className="text-amber-600">Mentor & Author</span></h3>
-            <p className="text-slate-700 leading-relaxed mb-4 text-lg">
-              PK Singh blends deep technical mastery with practical exam strategy. An IIT + IIM alumnus, bestselling author and experienced mentor, he focuses on clarity, speed and exam-specific problem solving to help ambitious students secure top ranks.
-            </p>
-            <p className="text-slate-600 leading-relaxed">
-              Over 23 years of professional leadership and 6+ years teaching; authored books for UK/USA audiences and consulted with global institutions. His teaching emphasizes core understanding, memory anchors and exam-smart practice.
-            </p>
-            <div className="mt-8 flex items-center gap-4">
-              <Link href="/mentor-journey" className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-slate-900 text-white font-bold text-sm transition-all duration-300 hover:bg-slate-800 hover:shadow-lg shadow-md">
-                Mentor&apos;s Journey <ChevronRight className="w-4 h-4" />
-              </Link>
-              <Link href="/courses" className="inline-flex items-center gap-2 px-8 py-3 rounded-full border border-slate-300 text-slate-700 font-bold text-sm transition-all duration-300 hover:bg-slate-50 hover:shadow-md">
-                View Courses
-              </Link>
-            </div>
-          </div>
-
-          <div className="rounded-3xl p-8 bg-gradient-to-br from-slate-50 to-white border border-slate-200 shadow-sm flex flex-col items-center">
-            <div className="w-36 h-36 rounded-full overflow-hidden mb-5 border-4 border-white shadow-lg">
-              <Image src="/images/pk-singh-photo.jpg" alt="PK Singh" width={160} height={160} className="object-cover" />
-            </div>
-            <h4 className="text-sm uppercase text-amber-700 font-bold tracking-[0.24em] mb-4">Snapshot</h4>
-            <ul className="text-slate-700 text-sm space-y-3 text-center w-full">
-              {[
-                { label: 'Credentials', value: 'IIT alumnus; IIM Calcutta MBA' },
-                { label: 'Experience', value: '23+ years industry, 6+ years academia' },
-                { label: 'Books', value: 'Bestselling titles in UK & USA' },
-                { label: 'Roots', value: 'Based in Mumbai; teaching globally' },
-              ].map((item) => (
-                <li key={item.label} className="py-2.5 px-4 rounded-xl bg-white/60 border border-slate-100 text-slate-700">
-                  <span className="text-slate-500 text-[10px] uppercase tracking-wider block">{item.label}</span>
-                  <span className="font-semibold text-slate-800">{item.value}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-
       {/* Referral Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20 bg-amber-50/50">
-        <div className="max-w-2xl mx-auto text-center">
-          <div className="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
-            <Gift className="w-7 h-7 text-amber-600" />
-          </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
-            Refer & Earn
-          </h2>
-          <p className="text-lg text-slate-600 mb-6">Refer a friend, both get 1 free 1:1 session</p>
-          <p className="text-sm text-slate-500 mb-8">Share your unique referral code with friends. When they sign up, you both earn a free session.</p>
-          <div className="max-w-sm mx-auto bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-            <label htmlFor="referral-code" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Your Referral Code</label>
-            <div className="flex gap-2">
-              <input id="referral-code" readOnly value="PK-REF-001" className="flex-1 text-center font-mono font-bold text-lg bg-slate-50 border border-slate-200 rounded-xl py-3 text-slate-900" />
-              <button onClick={() => navigator.clipboard.writeText('PK-REF-001')} className="px-4 py-3 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-colors whitespace-nowrap">
-                Copy
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ReferralSection />
 
-      {/* FAQ */}
-      <FaqSection />
-
-      {/* Free Study Guide Email Capture */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-16 pb-28">
-        <div className="max-w-md mx-auto bg-white rounded-3xl border border-slate-200 p-8 shadow-lg">
-          <h3 className="text-2xl font-bold text-slate-900 text-center mb-2">Free Study Guide</h3>
-          <p className="text-sm text-slate-500 text-center mb-6">Get your comprehensive exam preparation notes + weekly tips.</p>
-          <EmailCaptureForm />
-        </div>
-      </section>
+      {/* FAQ teaser → full FAQ lives on /faq */}
+      <FaqTeaser />
 
       {/* Fixed Position Components */}
       <WhatsAppButton />

@@ -6,7 +6,7 @@ export default function TrustBadges() {
     { icon: GraduationCap, label: "IIT Alumnus" },
     { icon: Award, label: "IIM Calcutta MBA" },
     { icon: BookOpen, label: "Bestselling Author" },
-    { icon: Users, label: "10,000+ Mentored" },
+    { icon: Users, label: "Global Mentor Network" },
   ];
 
   return (
