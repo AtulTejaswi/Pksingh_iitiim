@@ -1,0 +1,23 @@
+name: Check Render Build Logs
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  logs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch recent deploy logs
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+        run: |
+          latest=$(curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys?limit=1")
+          dep_id=$(echo "$latest" | jq -r '.[0].deploy.id // .[0].id')
+          echo "Deploy: $dep_id"
+          curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            "https://api.render.com/v1/deploys/${dep_id}/logs" | head -100
