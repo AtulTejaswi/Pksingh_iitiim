@@ -1,0 +1,20 @@
+name: Check Render Deploy Status
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: List recent deploys
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+        run: |
+          curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys?limit=5" | \
+            jq -r '.[] | "\(.deploy.id // .id) status=\(.deploy.status // .status) created=\(.deploy.createdAt // .createdAt) commit=\(.deploy.commit.message // .commit.message // "")"'
