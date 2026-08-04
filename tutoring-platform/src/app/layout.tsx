@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Outfit, Inter } from "next/font/google";
 import "./globals.css";
 import ClientProviders from "@/components/common/ClientProviders";
+import { SITE_URL } from "@/lib/config";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -13,7 +14,7 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://pksingh-iitiim.vercel.app';
+const siteUrl = SITE_URL;
 
 export const viewport: Viewport = {
   width: 'device-width',

@@ -119,11 +119,17 @@ export const WHATSAPP_CONFIG = {
 export const WHATSAPP_DIRECT_NUMBER =
   (typeof process !== 'undefined' ? process.env.NEXT_PUBLIC_WHATSAPP_NUMBER : '') || '';
 
-/** Social media links — set to real, active handles (confirmed by the owner). */
+/**
+ * Social media links. The handles below are env-driven and EMPTY by default —
+ * the previously shipped `pksinghmentor` handles (instagram/youtube/linkedin)
+ * were verified to be dead accounts (no such profiles exist). We do NOT render
+ * fake links. Set e.g. NEXT_PUBLIC_INSTAGRAM_URL to a real, active profile URL
+ * to re-enable each icon; empty values are hidden in the UI.
+ */
 export const SOCIAL_LINKS = {
-  instagram: 'https://instagram.com/pksinghmentor',
-  youtube: 'https://youtube.com/@pksinghmentor',
-  linkedin: 'https://linkedin.com/in/pksinghmentor',
+  instagram: process.env.NEXT_PUBLIC_INSTAGRAM_URL || '',
+  youtube: process.env.NEXT_PUBLIC_YOUTUBE_URL || '',
+  linkedin: process.env.NEXT_PUBLIC_LINKEDIN_URL || '',
   whatsapp: WHATSAPP_DIRECT_NUMBER
     ? `https://wa.me/${WHATSAPP_DIRECT_NUMBER}`
     : WHATSAPP_CONFIG.communityLink,

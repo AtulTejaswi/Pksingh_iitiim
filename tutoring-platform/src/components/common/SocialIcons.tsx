@@ -10,7 +10,7 @@ export default function SocialIcons({ className = '' }: { className?: string }) 
     { href: SOCIAL_LINKS.youtube, icon: Video, label: 'YouTube' },
     { href: SOCIAL_LINKS.linkedin, icon: User, label: 'LinkedIn' },
     { href: SOCIAL_LINKS.whatsapp, icon: MessageCircle, label: 'WhatsApp' },
-  ];
+  ].filter((link) => link.href && link.href.length > 0);
 
   return (
     <div className={`flex items-center gap-3 ${className}`}>

@@ -215,13 +215,19 @@ export default function CoursesCatalog() {
       </div>
 
       {isLoading ? (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div
-              key={i}
-              className="rounded-2xl border border-slate-200 bg-slate-50 h-96 animate-pulse"
-            />
-          ))}
+        <div>
+          <p className="text-slate-500 text-sm mb-4 flex items-center gap-2">
+            <span className="w-4 h-4 border-2 border-slate-300 border-t-amber-500 rounded-full animate-spin" />
+            Loading courses from the server...
+          </p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div
+                key={i}
+                className="rounded-2xl border border-slate-200 bg-slate-50 h-96 animate-pulse"
+              />
+            ))}
+          </div>
         </div>
       ) : filteredCourses.length === 0 ? (
         <div className="text-center py-24 px-6 rounded-3xl bg-gradient-to-b from-white to-slate-50 border border-slate-200 shadow-sm max-w-3xl mx-auto">
