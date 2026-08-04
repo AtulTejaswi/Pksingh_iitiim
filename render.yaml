@@ -1,0 +1,55 @@
+# Render Blueprint — reproduce the backend web service from this repo.
+# Free-tier PostgreSQL is also declared for reproducible provisioning.
+#
+# IMPORTANT: Only keys/placeholders live here. Real secret VALUES are set in
+# the Render dashboard (or the service's environment) and never committed.
+services:
+  - type: web
+    name: pksingh-backend
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install --include=dev && npm run build && npx prisma db push
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "20.10.0"
+      - key: PORT
+        value: "4000"
+      - key: FRONTEND_URL
+        value: https://pksingh-iitiim.vercel.app
+      - key: DATABASE_URL
+        sync: false # set in dashboard — points at pksingh-db (or external PG)
+      - key: LOCAL_JWT_SECRET
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_JWT_SECRET
+        sync: false
+      - key: RESET_JWT_SECRET
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+
+databases:
+  - name: pksingh-db
+    plan: free
+    databaseName: pksingh
+    user: pksingh
