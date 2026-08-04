@@ -5,6 +5,7 @@ import { useGetCourse } from '@/hooks/useCourses';
 import { useDeleteLesson } from '@/hooks/useLessons';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { getErrorMessage } from '@/lib/safe-toast';
 import {
   ArrowLeft,
   Plus,
@@ -31,8 +32,8 @@ export default function AdminLessonsPage({ params }: { params: Promise<{ id: str
             toast.success('Lesson deleted');
             if (expandedLessonId === id) setExpandedLessonId(null);
           },
-          onError: (err: { response?: { data?: { error?: string } } }) => {
-            toast.error(err.response?.data?.error || 'Failed to delete lesson');
+          onError: (err: Error) => {
+            toast.error(getErrorMessage(err, 'Failed to delete lesson'));
           },
         }
       );

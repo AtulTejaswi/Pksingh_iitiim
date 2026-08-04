@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { lessonSchema, LessonInput } from '@/lib/validators';
 import { toast } from 'sonner';
+import { getErrorMessage } from '@/lib/safe-toast';
 import Link from 'next/link';
 import { ArrowLeft, Save, Edit3 } from 'lucide-react';
 
@@ -46,8 +47,8 @@ export default function EditLessonPage({ params }: { params: Promise<{ id: strin
           toast.success('Lecture module updated successfully!');
           router.push(`/admin/courses/${courseId}/lessons`);
         },
-        onError: (err: { response?: { data?: { error?: string } } }) => {
-          toast.error(err.response?.data?.error || 'Failed to update lesson');
+        onError: (err: Error) => {
+          toast.error(getErrorMessage(err, 'Failed to update lesson'));
         },
       }
     );

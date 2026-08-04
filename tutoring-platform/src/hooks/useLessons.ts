@@ -102,7 +102,7 @@ export function useCreateLesson() {
       const r = await apiClient.post<{ lesson: Lesson }>('/lessons', data);
       return r.data.lesson;
     },
-    onSuccess: (_data, variables: { courseId?: string }) => {
+    onSuccess: (_data, variables) => {
       qc.invalidateQueries({ queryKey: ['lessons', variables.courseId] });
       qc.invalidateQueries({ queryKey: ['course', variables.courseId] });
     },
@@ -130,7 +130,7 @@ export function useDeleteLesson() {
     mutationFn: async ({ id, courseId }: { id: string; courseId?: string }) => {
       await apiClient.delete(`/lessons/${id}`);
     },
-    onSuccess: (_data, variables: { courseId?: string }) => {
+    onSuccess: (_data, variables) => {
       qc.invalidateQueries({ queryKey: ['lessons', variables.courseId] });
       if (variables.courseId) qc.invalidateQueries({ queryKey: ['course', variables.courseId] });
     },

@@ -10,6 +10,7 @@ import {
   useDeleteNote,
 } from '@/hooks/useLessons';
 import { toast } from 'sonner';
+import { getErrorMessage } from '@/lib/safe-toast';
 import { Plus, Trash, FileText, Link2, PlusCircle, ExternalLink } from 'lucide-react';
 
 interface LessonResourcesPanelProps {
@@ -68,8 +69,8 @@ export default function LessonResourcesPanel({ lessonId, courseId, lessonTitle }
           refetch();
           e.target.value = '';
         },
-        onError: (err: { response?: { data?: { error?: string } } }) => {
-          toast.error(err.response?.data?.error || 'Upload failed');
+        onError: (err: Error) => {
+          toast.error(getErrorMessage(err, 'Upload failed'));
           e.target.value = '';
         },
       }
@@ -95,8 +96,8 @@ export default function LessonResourcesPanel({ lessonId, courseId, lessonTitle }
           setLinkUrl('');
           refetch();
         },
-        onError: (err: { response?: { data?: { error?: string } } }) => {
-          toast.error(err.response?.data?.error || 'Failed to attach link');
+        onError: (err: Error) => {
+          toast.error(getErrorMessage(err, 'Failed to attach link'));
         },
       }
     );
@@ -118,8 +119,8 @@ export default function LessonResourcesPanel({ lessonId, courseId, lessonTitle }
           setNoteContent('');
           refetch();
         },
-        onError: (err: { response?: { data?: { error?: string } } }) => {
-          toast.error(err.response?.data?.error || 'Failed to add note');
+        onError: (err: Error) => {
+          toast.error(getErrorMessage(err, 'Failed to add note'));
         },
       }
     );

@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { getErrorMessage } from '@/lib/safe-toast';
 import { useAuth } from '@/lib/auth-context';
 import { useGetCourse } from '@/hooks/useCourses';
 import { useGetLesson, useMarkLessonProgress } from '@/hooks/useLessons';
@@ -58,8 +59,8 @@ export default function LessonPlayer({ courseId, lessonId, mode }: LessonPlayerP
     }
     markProgress(lessonId, {
       onSuccess: () => toast.success('Lesson marked as complete!'),
-      onError: (err: { response?: { data?: { error?: string } } }) => {
-        toast.error(err.response?.data?.error || 'Failed to update progress');
+      onError: (err: Error) => {
+        toast.error(getErrorMessage(err, 'Failed to update progress'));
       },
     });
   };
