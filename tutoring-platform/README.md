@@ -47,9 +47,11 @@ npx tsc --noEmit   # typecheck
 The backend runs on **Render's free tier**. Expect occasional **20-40s cold-start
 delays** after ~15 minutes of inactivity. This is mitigated, not eliminated:
 
-- **Warm-up cron** — `vercel.json` schedules `/api/cron/warmup` every 12 minutes
-  during expected traffic hours (roughly 8am–11pm IST), which pings the backend
-  `/health` endpoint to keep the free instance warm.
+- **Warm-up cron** — `vercel.json` schedules `/api/cron/warmup` once daily
+  (~7:45am IST) to ping the backend `/health` endpoint. Note: on Vercel **Hobby**
+  plan, cron jobs are limited to once per day, so the warm-up cannot run every
+  few minutes to fully prevent idle spin-down — it mainly pre-warms the first
+  morning request.
 - **Fast-fail frontend fallback** — all backend fetches use an 8s timeout + a
   single retry (`src/lib/backend-fetch.ts` for server routes, `src/lib/api-client.ts`
   for the browser API client), so a cold start fails fast into the existing
