@@ -1,21 +1,19 @@
 import type { NextConfig } from "next";
+import { API_BASE_URL, BACKEND_BASE_URL } from "./src/lib/config";
 
 const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   async rewrites() {
     return [
       {
         source: '/api/:path*',
-        destination: 'https://pksingh-backend.onrender.com/api/:path*',
+        destination: `${API_BASE_URL}/:path*`,
       },
       {
         source: '/uploads/:path*',
-        destination: 'https://pksingh-backend.onrender.com/uploads/:path*',
+        destination: `${BACKEND_BASE_URL}/uploads/:path*`,
       },
     ];
   },

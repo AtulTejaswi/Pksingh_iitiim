@@ -1,9 +1,9 @@
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://pksingh-iitiim.vercel.app';
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+import { API_BASE_URL, SITE_URL } from '@/lib/config';
+import { fetchBackend } from '@/lib/backend-fetch';
 
 export const SITE_CONFIG = {
-  url: siteUrl,
-  apiUrl,
+  url: SITE_URL,
+  apiUrl: API_BASE_URL,
   name: 'PK Singh',
   fullName: 'PK Singh | Mentor, Author, IITian',
   description:
@@ -23,7 +23,7 @@ export interface CourseMetadata {
 
 export async function fetchCourseMetadata(courseId: string): Promise<CourseMetadata | null> {
   try {
-    const res = await fetch(`${apiUrl}/courses/${courseId}`);
+    const res = await fetchBackend(`/courses/${courseId}`);
     if (!res.ok) return null;
     const data = await res.json();
     return data.course || data;

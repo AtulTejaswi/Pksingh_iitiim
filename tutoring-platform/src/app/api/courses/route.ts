@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { staticCourses } from '@/data/courseData';
-
-const BACKEND_API = process.env.NEXT_PUBLIC_API_URL || 'https://pksingh-backend.onrender.com/api';
+import { fetchBackend } from '@/lib/backend-fetch';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -9,7 +8,7 @@ export async function GET(request: Request) {
   const examTag = searchParams.get('examTag');
 
   try {
-    const res = await fetch(`${BACKEND_API}/courses?${searchParams.toString()}`, { next: { revalidate: 60 } });
+    const res = await fetchBackend(`/courses?${searchParams.toString()}`, { next: { revalidate: 60 } });
     if (res.ok) {
       const data = await res.json();
       return NextResponse.json(data);

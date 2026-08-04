@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://pksingh-backend.onrender.com/api';
+import { fetchBackend } from '@/lib/backend-fetch';
 
 export async function GET() {
   try {
-    const res = await fetch(`${API_BASE}/quotes`, { next: { revalidate: 300 } });
+    const res = await fetchBackend('/quotes', { next: { revalidate: 300 } });
     if (!res.ok) throw new Error(`Backend returned ${res.status}`);
     const data = await res.json();
     return NextResponse.json(data);

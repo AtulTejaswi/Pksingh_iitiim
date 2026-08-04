@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { fetchBackend } from '@/lib/backend-fetch';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/subscribe — email capture (Free Study Guide + Weekly Tips)
@@ -7,7 +8,6 @@ import { NextRequest, NextResponse } from 'next/server';
 // DELETE /api/subscribe?email=... — unsubscribes an email address.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const BACKEND_API = process.env.BACKEND_URL || 'https://pksingh-backend.onrender.com/api';
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'A valid email address is required' }, { status: 400 });
     }
 
-    const res = await fetch(`${BACKEND_API}/leads`, {
+    const res = await fetchBackend('/leads', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, whatsapp: body.whatsapp?.trim() || undefined, source: body.source || 'newsletter' }),
@@ -47,7 +47,7 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
-    const res = await fetch(`${BACKEND_API}/leads/${encodeURIComponent(email)}`, {
+    const res = await fetchBackend(`/leads/${encodeURIComponent(email)}`, {
       method: 'DELETE',
       cache: 'no-store',
     });

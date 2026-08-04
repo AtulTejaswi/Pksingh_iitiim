@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://pksingh-backend.onrender.com/api';
+import { SITE_URL } from '@/lib/config';
+import { fetchBackend } from '@/lib/backend-fetch';
 
 // Blog slugs — keep in sync with src/app/blog/[slug]/page.tsx
 const blogSlugs = [
@@ -13,7 +13,7 @@ const blogSlugs = [
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://pksingh-iitiim.vercel.app';
+  const base = SITE_URL;
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${base}`, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
@@ -36,7 +36,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   try {
-    const res = await fetch(`${API_URL}/courses`);
+    const res = await fetchBackend('/courses');
     const data = await res.json();
     const courses = data.courses || data;
     if (Array.isArray(courses)) {
