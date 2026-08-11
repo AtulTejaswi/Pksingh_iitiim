@@ -10,33 +10,23 @@ jobs:
   diagnose:
     runs-on: ubuntu-latest
     steps:
-      - name: Retry a fresh deploy and stream its build log
+      - name: Raw API probes
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
           RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
         run: |
-          resp=$(curl -s -X POST -H "Authorization: Bearer ${RENDER_API_KEY}" \
+          echo "=== GET deploys list (raw, first 400 chars) ==="
+          curl -s -w "\nHTTP:%{http_code}\n" -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys?limit=3" | head -c 600
+
+          echo ""
+          echo "=== POST fresh deploy (raw) ==="
+          curl -s -w "\nHTTP:%{http_code}\n" -X POST \
+            -H "Authorization: Bearer ${RENDER_API_KEY}" \
             -H "Content-Type: application/json" -d '{}' \
-            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys")
-          echo "Trigger response: $resp"
-          dep_id=$(echo "$resp" | jq -r '.deploy.id // empty')
-          echo "Triggered deploy: ${dep_id}"
-          for i in $(seq 1 40); do
-            sleep 15
-            st=$(curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
-              "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys/${dep_id}" | jq -r '.deploy.status // .status // "unknown"')
-            echo "[$i] status=$st"
-            if [ "$st" = "live" ] || [ "$st" = "build_failed" ] || [ "$st" = "update_failed" ] || [ "$st" = "canceled" ]; then
-              break
-            fi
-          done
-          echo "=== Tail build logs for ${dep_id} (deploy-id based) ==="
-          now=$(date -u +%s)
-          start=$((now - 1800))
-          curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
-            "https://api.render.com/v1/logs?resourceId=${dep_id}&startTime=${start}&endTime=${now}&limit=500" | \
-            jq -r '.logs[]? | "\(.timestamp // "") [\(.type // "")] \(.message // "")"' | tail -250
-          echo "=== Tail build logs (service-id based) ==="
-          curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
-            "https://api.render.com/v1/logs?resourceId=${RENDER_SERVICE_ID}&type=build&startTime=${start}&endTime=${now}&limit=500" | \
-            jq -r '.logs[]? | "\(.timestamp // "") [\(.type // "")] \(.message // "")"' | tail -250
+            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys" | head -c 600
+
+          echo ""
+          echo "=== GET /logs raw for service ==="
+          curl -s -w "\nHTTP:%{http_code}\n" -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            "https://api.render.com/v1/logs?resourceId=${RENDER_SERVICE_ID}&limit=20" | head -c 800
