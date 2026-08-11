@@ -10,31 +10,33 @@ jobs:
   diagnose:
     runs-on: ubuntu-latest
     steps:
+      - name: List Postgres databases
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        run: |
+          echo "=== Postgres instances ==="
+          curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            "https://api.render.com/v1/postgres" | jq -r '.[] | [.postgres.id, .postgres.name, .postgres.plan, .postgres.databaseName, .postgres.status, .postgres.suspended, .postgres.createdAt] | @tsv'
+
       - name: Fetch service and deployment info
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
           RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
         run: |
-          echo "=== Service info (raw) ==="
-          curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
-            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}"
-
-          echo ""
           echo "=== Last deploys ==="
           curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
-            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys?limit=10" | \
+            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys?limit=6" | \
             jq -r '.[] | [.deploy.id, .deploy.status, .deploy.createdAt, .deploy.commit.message] | @tsv'
 
-      - name: Fetch build logs for latest deploys
+      - name: Fetch build logs for latest deploys (service-id based)
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
           RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
         run: |
-          deploys=$(curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
-            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys?limit=4")
-          for dep_id in $(echo "$deploys" | jq -r '.[].deploy.id'); do
+          for dep_id in $(curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys?limit=3" | jq -r '.[].deploy.id'); do
             echo "==================== DEPLOY $dep_id BUILD LOGS ===================="
             curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
-              "https://api.render.com/v1/logs?resourceId=${dep_id}&type=build&limit=200" | \
-              jq -r '.logs[]? | "\(.timestamp // "") [\(.type // "")] \(.message // "")"' | tail -150
+              "https://api.render.com/v1/logs?resourceId=${RENDER_SERVICE_ID}&type=build&limit=300" | \
+              jq -r '.logs[]? | "\(.timestamp // "") [\(.type // "")] \(.message // "")"' | tail -200
           done
