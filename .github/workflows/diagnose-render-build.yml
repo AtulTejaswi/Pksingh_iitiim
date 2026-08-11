@@ -10,22 +10,6 @@ jobs:
   diagnose:
     runs-on: ubuntu-latest
     steps:
-      - name: Discover log resource types
-        env:
-          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
-          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
-        run: |
-          echo "=== Logs values (types + resources) ==="
-          curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
-            "https://api.render.com/v1/logs/values" | head -c 3000
-          echo ""
-          echo "=== All recent logs for service (last 10 min window) ==="
-          now=$(date -u +%s)
-          start=$((now - 900))
-          curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
-            "https://api.render.com/v1/logs?resourceId=${RENDER_SERVICE_ID}&startTime=${start}&endTime=${now}&limit=300" | \
-            jq -r '.logs[]? | "\(.timestamp // "") [\(.type // "")] \(.message // "")"' | tail -250
-
       - name: Retry a fresh deploy and stream its build log
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
@@ -34,24 +18,25 @@ jobs:
           resp=$(curl -s -X POST -H "Authorization: Bearer ${RENDER_API_KEY}" \
             -H "Content-Type: application/json" -d '{}' \
             "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys")
-          dep_id=$(echo "$resp" | jq -r '.id // empty')
+          echo "Trigger response: $resp"
+          dep_id=$(echo "$resp" | jq -r '.deploy.id // empty')
           echo "Triggered deploy: ${dep_id}"
           for i in $(seq 1 40); do
             sleep 15
             st=$(curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
-              "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys/${dep_id}" | jq -r '.status // "unknown"')
+              "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys/${dep_id}" | jq -r '.deploy.status // .status // "unknown"')
             echo "[$i] status=$st"
             if [ "$st" = "live" ] || [ "$st" = "build_failed" ] || [ "$st" = "update_failed" ] || [ "$st" = "canceled" ]; then
               break
             fi
           done
-          echo "=== Tail build logs for ${dep_id} ==="
+          echo "=== Tail build logs for ${dep_id} (deploy-id based) ==="
           now=$(date -u +%s)
           start=$((now - 1800))
           curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
             "https://api.render.com/v1/logs?resourceId=${dep_id}&startTime=${start}&endTime=${now}&limit=500" | \
-            jq -r '.logs[]? | "\(.timestamp // "") [\(.type // "")] \(.message // "")"' | tail -220
-          echo "=== Also try service-id based build logs ==="
+            jq -r '.logs[]? | "\(.timestamp // "") [\(.type // "")] \(.message // "")"' | tail -250
+          echo "=== Tail build logs (service-id based) ==="
           curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
             "https://api.render.com/v1/logs?resourceId=${RENDER_SERVICE_ID}&type=build&startTime=${start}&endTime=${now}&limit=500" | \
-            jq -r '.logs[]? | "\(.timestamp // "") [\(.type // "")] \(.message // "")"' | tail -220
+            jq -r '.logs[]? | "\(.timestamp // "") [\(.type // "")] \(.message // "")"' | tail -250
