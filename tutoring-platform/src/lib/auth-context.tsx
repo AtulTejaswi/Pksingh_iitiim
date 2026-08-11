@@ -4,6 +4,27 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { apiClient } from './api-client';
 import { LoginInput, SignupInput } from './validators';
 
+// Turns an axios error into a message that's actually true. A network-level
+// failure (timeout, cold start, DNS) previously fell through to a hardcoded
+// "Login failed" / raw JSON dump, which reads exactly like a credentials
+// problem even when the real cause is the backend waking up.
+const getFriendlyAuthError = (error: any, fallback: string): string => {
+  if (!error?.response) {
+    if (error?.code === 'ECONNABORTED' || /timeout/i.test(error?.message || '')) {
+      return 'The server is starting up (this can take up to a minute on first use). Please try again in a few seconds.';
+    }
+    return 'Could not reach the server. Please check your connection and try again.';
+  }
+
+  const status = error.response.status;
+  const rawError = error.response.data?.error;
+  const msg = typeof rawError === 'string' ? rawError : (rawError ? JSON.stringify(rawError) : '');
+
+  if (status >= 500) return msg || 'The server hit an unexpected error. Please try again in a moment.';
+  if (status === 503) return msg || 'Service is temporarily unavailable. Please try again shortly.';
+  return msg || fallback;
+};
+
 interface UserProfile {
   id: string;
   email: string;
@@ -134,9 +155,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     } catch (error: any) {
       setUser(null);
-      const rawError = error.response?.data?.error;
-      const msg = typeof rawError === 'string' ? rawError : (rawError ? JSON.stringify(rawError) : 'Login failed');
-      throw new Error(msg);
+      throw new Error(getFriendlyAuthError(error, 'Invalid email or password. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -157,9 +176,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Log in immediately
       await login({ email: data.email, password: data.password });
     } catch (error: any) {
-      const rawError = error.response?.data?.error;
-      const msg = typeof rawError === 'string' ? rawError : (rawError ? JSON.stringify(rawError) : 'Registration failed');
-      throw new Error(msg);
+      if (error?.response?.status === 409) {
+        throw new Error('An account with this email already exists. Try signing in instead.');
+      }
+      throw new Error(getFriendlyAuthError(error, 'Registration failed. Please try again.'));
     } finally {
       setLoading(false);
     }

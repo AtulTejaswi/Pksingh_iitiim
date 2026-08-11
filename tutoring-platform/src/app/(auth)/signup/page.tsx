@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import { warmupBackend } from '@/lib/api-client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signupSchema, SignupInput } from '@/lib/validators';
@@ -14,6 +15,10 @@ export default function SignupPage() {
   const router = useRouter();
   const { registerUser } = useAuth();
   const [errorMsg, setErrorMsg] = useState('');
+
+  useEffect(() => {
+    warmupBackend();
+  }, []);
 
   const referralFromUrl =
     typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('ref') || '' : '';
@@ -33,8 +38,8 @@ export default function SignupPage() {
       await registerUser(data);
       toast.success('Account created successfully! Welcome to PK Singh.');
       router.push('/my-courses');
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Registration failed. Please try again.');
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Registration failed. Please try again.');
     }
   };
 

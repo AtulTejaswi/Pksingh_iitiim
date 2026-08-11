@@ -1,18 +1,22 @@
 import axios from 'axios';
 import { API_BASE_URL } from '@/lib/config';
 
-// Render free tier cold-starts are slow. Fail fast after 8s and retry once so
-// the UI falls through to static fallback instead of hanging for 30-60s.
-const REQUEST_TIMEOUT_MS = 8000;
-const MAX_RETRIES = 1;
+// Render free tier cold-starts can take 30-60s. Give requests enough room
+// to survive a cold start.
+const REQUEST_TIMEOUT_MS = 20000;
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: REQUEST_TIMEOUT_MS,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { 'Content-Type': 'application/json' },
 });
+
+// Best-effort warm-up ping — call this from any page about to need the API
+// (login/signup on mount) so a cold Render instance gets a head start.
+export const warmupBackend = () => {
+  if (typeof window === 'undefined') return;
+  apiClient.get('/health', { timeout: 25000 }).catch(() => {});
+};
 
 // Request interceptor: Inject Bearer token
 apiClient.interceptors.request.use(
@@ -28,23 +32,29 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Retry interceptor: single retry for idempotent (GET) requests that fail fast
-// (network error or 5xx) — helps surface static fallback on cold starts.
+// Retry interceptor: retry idempotent GETs that fail with a network error or
+// 5xx, and retry mutating requests only when the request never reached the
+// server at all (no response), to avoid double-submitting mutations.
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const config = error?.config as (Record<string, unknown> & { _retried?: boolean }) | undefined;
     const method = typeof config?.method === 'string' ? config.method.toLowerCase() : '';
     const status = error?.response?.status as number | undefined;
+    const gotNoResponse = !error?.response;
     const isIdempotent = method === 'get';
+
     const shouldRetry =
       !!config &&
       !config._retried &&
-      isIdempotent &&
-      (!status || status >= 500);
+      (
+        (isIdempotent && (!status || status >= 500)) ||
+        (!isIdempotent && gotNoResponse)
+      );
 
     if (shouldRetry) {
       config._retried = true;
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       try {
         return await apiClient(config as never);
       } catch (retryError) {

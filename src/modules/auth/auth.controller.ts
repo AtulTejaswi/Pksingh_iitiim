@@ -129,26 +129,35 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   const passwordHash = hashPassword(password);
   const localId = randomUUID();
 
-  const user = await prisma.user.create({
-    data: {
-      supabaseId: localId,
-      passwordHash,
-      email,
-      fullName,
-      country: country ?? null,
-      role: 'STUDENT',
-      referredByCode: referralCode ?? null,
-    },
-  });
+  try {
+    const user = await prisma.user.create({
+      data: {
+        supabaseId: localId,
+        passwordHash,
+        email,
+        fullName,
+        country: country ?? null,
+        role: 'STUDENT',
+        referredByCode: referralCode ?? null,
+      },
+    });
 
-  // Local-auth path: assign the code after creation since we keyed off the id.
-  const referralCodeToSet = await ensureUniqueReferralCode(user.id);
-  await prisma.user.update({ where: { id: user.id }, data: { referralCode: referralCodeToSet } });
+    const referralCodeToSet = await ensureUniqueReferralCode(user.id);
+    await prisma.user.update({ where: { id: user.id }, data: { referralCode: referralCodeToSet } });
 
-  res.status(201).json({
-    message: 'Registration successful',
-    user: { id: user.id, email: user.email, role: user.role, referralCode: referralCodeToSet },
-  });
+    res.status(201).json({
+      message: 'Registration successful',
+      user: { id: user.id, email: user.email, role: user.role, referralCode: referralCodeToSet },
+    });
+  } catch (err: any) {
+    // Prisma unique constraint violation on `email`.
+    if (err?.code === 'P2002') {
+      res.status(409).json({ error: 'An account with this email already exists. Try signing in instead.' });
+      return;
+    }
+    console.error('Auth: register DB error', err);
+    res.status(503).json({ error: 'Registration service is temporarily unavailable. Please try again shortly.' });
+  }
 };
 
 export const getReferralInfo = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -226,8 +235,12 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       },
     });
   } catch (err) {
+    // Anything landing here is an infrastructure failure (DB unreachable,
+    // connection pool exhausted, etc.) — not a bad password, since the
+    // credential check earlier in the function already returns its own 401
+    // directly without throwing.
     console.error('Auth: login DB error', err);
-    res.status(401).json({ error: 'Invalid email or password' });
+    res.status(503).json({ error: 'Login service is temporarily unavailable. Please try again in a few seconds.' });
   }
 };
 

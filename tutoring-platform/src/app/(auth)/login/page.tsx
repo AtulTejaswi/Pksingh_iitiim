@@ -2,19 +2,25 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import { warmupBackend } from '@/lib/api-client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, LoginInput } from '@/lib/validators';
 import { LogIn, Key, Mail, AlertTriangle } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const { login, user } = useAuth();
-  const [errorMsg, setErrorMsg] = useState('');
-  const [successMsg, setSuccessMsg] = useState('');
+  const searchParams = useSearchParams();
+  const [errorMsg, setErrorMsg] = useState(() => (searchParams.get('expired') ? 'Your session has expired. Please sign in again.' : ''));
+  const [successMsg, setSuccessMsg] = useState(() => (searchParams.get('resetSuccess') ? 'Your password has been updated. Please sign in with your new password.' : ''));
+
+  useEffect(() => {
+    warmupBackend();
+  }, []);
 
   const {
     register,
@@ -44,14 +50,6 @@ export default function LoginPage() {
         router.push('/my-courses');
       }
     }
-
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('expired')) {
-      setErrorMsg('Your session has expired. Please sign in again.');
-    }
-    if (params.get('resetSuccess')) {
-      setSuccessMsg('Your password has been updated. Please sign in with your new password.');
-    }
   }, [user, router]);
 
   const onSubmit = async (data: LoginInput) => {
@@ -67,14 +65,13 @@ export default function LoginPage() {
       } else {
         router.push('/my-courses');
       }
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Invalid email or password. Please try again.');
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Invalid email or password. Please try again.');
     }
   };
 
 return (
-  <Suspense fallback={null}>
-<div className="min-h-screen bg-gradient-to-b from-blue-50 to-slate-50 flex flex-col items-center justify-center px-4 relative">
+  <div className="min-h-screen bg-gradient-to-b from-blue-50 to-slate-50 flex flex-col items-center justify-center px-4 relative">
       <div className="max-w-md w-full bg-white shadow-md border border-slate-200 rounded-xl p-8 relative overflow-hidden">
         {/* Glow accent bar */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-sky-400"></div>
@@ -85,7 +82,7 @@ return (
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold high-contrast">Sign In</h2>
           <p className="muted text-xs sm:text-sm mt-2 leading-relaxed">
-            Welcome back to PK Singh. Let's continue your training!
+            Welcome back to PK Singh. Let&apos;s continue your training!
           </p>
         </div>
 
@@ -161,13 +158,20 @@ return (
         </form>
 
         <p className="text-center text-xs text-slate-500 mt-6 leading-relaxed">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link href="/signup" className="text-blue-600 hover:text-blue-800 font-semibold transition-colors">
             Enroll Free
           </Link>
         </p>
       </div>
     </div>
-  </Suspense>
 );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  );
 }
