@@ -10,33 +10,48 @@ jobs:
   diagnose:
     runs-on: ubuntu-latest
     steps:
-      - name: List Postgres databases
-        env:
-          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
-        run: |
-          echo "=== Postgres instances ==="
-          curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
-            "https://api.render.com/v1/postgres" | jq -r '.[] | [.postgres.id, .postgres.name, .postgres.plan, .postgres.databaseName, .postgres.status, .postgres.suspended, .postgres.createdAt] | @tsv'
-
-      - name: Fetch service and deployment info
+      - name: Discover log resource types
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
           RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
         run: |
-          echo "=== Last deploys ==="
+          echo "=== Logs values (types + resources) ==="
           curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
-            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys?limit=6" | \
-            jq -r '.[] | [.deploy.id, .deploy.status, .deploy.createdAt, .deploy.commit.message] | @tsv'
+            "https://api.render.com/v1/logs/values" | head -c 3000
+          echo ""
+          echo "=== All recent logs for service (last 10 min window) ==="
+          now=$(date -u +%s)
+          start=$((now - 900))
+          curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            "https://api.render.com/v1/logs?resourceId=${RENDER_SERVICE_ID}&startTime=${start}&endTime=${now}&limit=300" | \
+            jq -r '.logs[]? | "\(.timestamp // "") [\(.type // "")] \(.message // "")"' | tail -250
 
-      - name: Fetch build logs for latest deploys (service-id based)
+      - name: Retry a fresh deploy and stream its build log
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
           RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
         run: |
-          for dep_id in $(curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
-            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys?limit=3" | jq -r '.[].deploy.id'); do
-            echo "==================== DEPLOY $dep_id BUILD LOGS ===================="
-            curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
-              "https://api.render.com/v1/logs?resourceId=${RENDER_SERVICE_ID}&type=build&limit=300" | \
-              jq -r '.logs[]? | "\(.timestamp // "") [\(.type // "")] \(.message // "")"' | tail -200
+          resp=$(curl -s -X POST -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            -H "Content-Type: application/json" -d '{}' \
+            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys")
+          dep_id=$(echo "$resp" | jq -r '.id // empty')
+          echo "Triggered deploy: ${dep_id}"
+          for i in $(seq 1 40); do
+            sleep 15
+            st=$(curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
+              "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys/${dep_id}" | jq -r '.status // "unknown"')
+            echo "[$i] status=$st"
+            if [ "$st" = "live" ] || [ "$st" = "build_failed" ] || [ "$st" = "update_failed" ] || [ "$st" = "canceled" ]; then
+              break
+            fi
           done
+          echo "=== Tail build logs for ${dep_id} ==="
+          now=$(date -u +%s)
+          start=$((now - 1800))
+          curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            "https://api.render.com/v1/logs?resourceId=${dep_id}&startTime=${start}&endTime=${now}&limit=500" | \
+            jq -r '.logs[]? | "\(.timestamp // "") [\(.type // "")] \(.message // "")"' | tail -220
+          echo "=== Also try service-id based build logs ==="
+          curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            "https://api.render.com/v1/logs?resourceId=${RENDER_SERVICE_ID}&type=build&startTime=${start}&endTime=${now}&limit=500" | \
+            jq -r '.logs[]? | "\(.timestamp // "") [\(.type // "")] \(.message // "")"' | tail -220
