@@ -4,6 +4,7 @@ import { prisma } from './config/db';
 import crypto from 'crypto';
 import { ensureDemoData } from './seed-demo';
 import { tryAutoRestore, autoBackup } from './modules/backup/backup.controller';
+import { checkEnvGuards } from './utils/envSecurity';
 
 const PORT = process.env.PORT || 4000;
 
@@ -45,8 +46,12 @@ const ensureAdminUser = async () => {
 async function startServer() {
   // Validate environment on startup. In production, fail fast for
   // partially configured Supabase or placeholder credentials.
-  const PLACEHOLDER_PASSWORDS = ['changeme_replace_in_production', 'adminpassword123'];
-  const PLACEHOLDER_EMAIL = 'admin@example.com';
+  const guard = checkEnvGuards(process.env as NodeJS.ProcessEnv);
+  if (guard.fatal) {
+    console.error(guard.message);
+    console.error('Set real values via deployment environment variables before booting in production.');
+    process.exit(1);
+  }
 
   const validateEnv = () => {
     const hasSupabaseUrl = Boolean(process.env.SUPABASE_URL);
@@ -56,34 +61,10 @@ async function startServer() {
 
     const partialSupabase = (hasSupabaseUrl || hasSupabaseServiceKey) && !hasSupabaseJwt;
 
-    // No hardcoded JWT secret fallbacks exist anywhere in the codebase. In
-    // production, fail startup loudly if no signing secret is available.
-    if (process.env.NODE_ENV === 'production' && !hasLocalJwt && !hasSupabaseJwt) {
-      console.error('Fatal: No JWT signing secret configured. Set LOCAL_JWT_SECRET (or the full SUPABASE_* set).');
-      process.exit(1);
-    }
-    if (process.env.NODE_ENV === 'production' && partialSupabase) {
-      console.error('Fatal: Supabase is partially configured (SUPABASE_URL or SERVICE_ROLE_KEY set but SUPABASE_JWT_SECRET is missing).');
-      console.error('In production this is unsafe. Please set SUPABASE_JWT_SECRET or unset Supabase envs.');
-      process.exit(1);
-    }
-
+    // Warn if Supabase appears partially configured. (Hard failures are handled
+    // by checkEnvGuards above; this path only warns for non-production.)
     if (partialSupabase) {
       console.warn('Warning: Supabase appears partially configured. Falling back to local JWT secret.');
-    }
-
-    // Reject placeholder credentials in production
-    if (process.env.NODE_ENV === 'production') {
-      if (PLACEHOLDER_PASSWORDS.includes(process.env.ADMIN_PASSWORD || '')) {
-        console.error('Fatal: ADMIN_PASSWORD is still set to a known placeholder/example value.');
-        console.error('Set a real password via deployment environment variables.');
-        process.exit(1);
-      }
-      if (process.env.ADMIN_EMAIL === PLACEHOLDER_EMAIL) {
-        console.error('Fatal: ADMIN_EMAIL is still set to the placeholder value from .env.example.');
-        console.error('Set a real email via Render environment variables.');
-        process.exit(1);
-      }
     }
 
     // Warn if Razorpay is not configured (payment integration pending)
