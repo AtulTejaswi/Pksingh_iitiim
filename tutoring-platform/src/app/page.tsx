@@ -28,7 +28,16 @@ import { BookOpen, GraduationCap, Award, CheckCircle2, ChevronRight, Zap, Target
 import SiteFooter from '@/components/common/SiteFooter';
 import { SITE_STATS } from '@/data/site-config';
 
-function StatCard({ icon: Icon, value, suffix, label, sublabel, color, span, isVisible }: any) {
+function StatCard({ icon: Icon, value, suffix, label, sublabel, color, span, isVisible }: {
+  icon: React.ComponentType<{ className?: string }>;
+  value: number;
+  suffix?: string;
+  label: string;
+  sublabel?: string;
+  color: string;
+  span: string;
+  isVisible: boolean;
+}) {
   const animatedValue = useCountUp(value, 2000, isVisible);
   const displayValue =
     value > 0 ? `${isVisible ? animatedValue : value}${suffix}` : '—';
@@ -54,7 +63,7 @@ export default function LandingPage() {
   const { data: courses, isLoading } = useGetCourses();
   const { data: stats } = useGetPublicStats();
 
-  const statsAnim = useScrollAnimation();
+  const { ref: statsAnimRef, isVisible: statsAnimIsVisible } = useScrollAnimation();
   const [showBottomCta, setShowBottomCta] = useState(true);
 
   useEffect(() => {
@@ -207,7 +216,7 @@ export default function LandingPage() {
           <span className="flex items-center gap-2 text-sm font-semibold text-slate-700 whitespace-nowrap"><Target className="w-4 h-4 text-amber-600" /> JEE · NEET · SAT · CAT · GMAT</span>
           <span className="flex items-center gap-2 text-sm font-semibold text-slate-700 whitespace-nowrap"><Award className="w-4 h-4 text-amber-600" /> #1 Bestselling Author</span>
           <span className="flex items-center gap-2 text-sm font-semibold text-slate-700 whitespace-nowrap"><Zap className="w-4 h-4 text-amber-600" /> IIT & IIM Alumni Network</span>
-          <span className="flex items-center gap-2 text-sm font-bold text-amber-800 whitespace-nowrap bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">"Focus on effort, not the outcome."</span>
+          <span className="flex items-center gap-2 text-sm font-bold text-amber-800 whitespace-nowrap bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">&ldquo;Focus on effort, not the outcome.&rdquo;</span>
         </div>
       </section>
 
@@ -253,7 +262,7 @@ export default function LandingPage() {
       <MediaLogos />
 
       {/* Stats Section with Scroll Animation & Live / Fallback counters */}
-      <section ref={statsAnim.ref} className="relative py-16 px-4 sm:px-6 lg:px-8">
+      <section ref={statsAnimRef} className="relative py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto overflow-hidden rounded-[2.5rem] bg-slate-900 text-white shadow-2xl relative">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(217,119,6,0.08),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(217,119,6,0.06),transparent_40%)]"></div>
           <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-amber-500/05 to-transparent"></div>
@@ -266,7 +275,7 @@ export default function LandingPage() {
               sublabel="Verified count published when confirmed"
               color="from-amber-400/20 to-amber-500/10 text-amber-200" 
               span="md:col-span-2 md:row-span-2" 
-              isVisible={statsAnim.isVisible} 
+              isVisible={statsAnimIsVisible} 
             />
             <StatCard 
               icon={Flame} 
@@ -275,7 +284,7 @@ export default function LandingPage() {
               label="Courses in catalog" 
               color="from-amber-400/20 to-amber-500/10 text-amber-200" 
               span="md:col-span-1 md:row-span-1" 
-              isVisible={statsAnim.isVisible} 
+              isVisible={statsAnimIsVisible} 
             />
             <StatCard 
               icon={Award} 
@@ -284,7 +293,7 @@ export default function LandingPage() {
               label="Lesson modules" 
               color="from-amber-400/20 to-amber-500/10 text-amber-200" 
               span="md:col-span-1 md:row-span-1" 
-              isVisible={statsAnim.isVisible} 
+              isVisible={statsAnimIsVisible} 
             />
             <StatCard 
               icon={Target} 
@@ -294,7 +303,7 @@ export default function LandingPage() {
               sublabel="Unlock on signup"
               color="from-amber-400/20 to-amber-500/10 text-amber-200" 
               span="md:col-span-2 md:row-span-1" 
-              isVisible={statsAnim.isVisible} 
+              isVisible={statsAnimIsVisible} 
             />
           </div>
         </div>
@@ -318,14 +327,14 @@ export default function LandingPage() {
           <div>
             <span className="inline-block px-3 py-1 rounded-full bg-white/10 border border-white/20 text-slate-300 text-xs font-bold uppercase tracking-[0.3em] mb-6">Meet Your Mentor</span>
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.1] mb-8">
-              "Excellence is not an act, but a <span className="text-amber-500 italic font-serif">daily habit.</span>"
+              &ldquo;Excellence is not an act, but a <span className="text-amber-500 italic font-serif">daily habit.</span>&rdquo;
             </h2>
             <div className="space-y-6 text-lg text-slate-300 leading-relaxed max-w-xl">
               <p>
-                As an IIT and IIM alumnus, I've walked the path you are on right now. The pressure, the overwhelming syllabus, the fear of falling behind — I know it intimately.
+                As an IIT and IIM alumnus, I&apos;ve walked the path you are on right now. The pressure, the overwhelming syllabus, the fear of falling behind — I know it intimately.
               </p>
               <p>
-                But over my 23 years of professional leadership and teaching, I've distilled the noise into a clear, repeatable framework. I don't just teach you formulas; I teach you how to think, how to break down complex problems, and how to build the unshakable confidence required to conquer JEE, NEET, SAT, and beyond.
+                But over my 23 years of professional leadership and teaching, I&apos;ve distilled the noise into a clear, repeatable framework. I don&apos;t just teach you formulas; I teach you how to think, how to break down complex problems, and how to build the unshakable confidence required to conquer JEE, NEET, SAT, and beyond.
               </p>
               <p className="text-amber-400 font-semibold italic">
                 Welcome to the mentorship that changes the trajectory of your career.
@@ -463,7 +472,7 @@ export default function LandingPage() {
           </div>
         ) : (
           <div className="grid md:grid-cols-3 gap-8 animate-fade-in-up">
-            {featuredCourses.map((course: any) => (
+            {featuredCourses.map((course) => (
               <div
                 key={course.id}
                 className="rounded-3xl border border-slate-200 bg-white shadow-sm hover:shadow-2xl hover:-translate-y-2 hover:border-amber-300 transition-all duration-500 overflow-hidden flex flex-col group cursor-pointer"

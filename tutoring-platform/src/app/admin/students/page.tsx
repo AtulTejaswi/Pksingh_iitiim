@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { apiClient } from '@/lib/api-client';
-import { useGetAllEnrollments, useDeleteEnrollment, useGetCourses } from '@/hooks/useCourses';
+import { useGetAllEnrollments, useDeleteEnrollment, useGetCourses, type AdminEnrollment } from '@/hooks/useCourses';
 import { toast } from 'sonner';
 import { Users, Search, Filter, Trash2, BookOpen, ShieldAlert, Mail, Calendar, Download } from 'lucide-react';
 import ConfirmModal from '@/components/admin/ConfirmModal';
@@ -34,8 +34,9 @@ export default function AdminStudentsPage() {
       link.remove();
       window.URL.revokeObjectURL(url);
       toast.success('Enrollments exported successfully');
-    } catch (error: any) {
-      toast.error(error?.response?.data?.error || 'Failed to export enrollments');
+    } catch (error) {
+      const e = error as { response?: { data?: { error?: string } } };
+      toast.error(e?.response?.data?.error || 'Failed to export enrollments');
     } finally {
       setIsExporting(false);
     }
@@ -48,8 +49,9 @@ export default function AdminStudentsPage() {
         toast.success(`Removed ${deleteTarget.name} from ${deleteTarget.course}`);
         setDeleteTarget(null);
       },
-      onError: (err: any) => {
-        toast.error(err.response?.data?.error || 'Failed to unenroll student');
+      onError: (err) => {
+        const e = err as { response?: { data?: { error?: string } } };
+        toast.error(e.response?.data?.error || 'Failed to unenroll student');
         setDeleteTarget(null);
       },
     });
@@ -57,7 +59,7 @@ export default function AdminStudentsPage() {
 
   const filteredEnrollments = useMemo(() => {
     if (!enrollments) return [];
-    return enrollments.filter((enrollment: any) => {
+    return enrollments.filter((enrollment: AdminEnrollment) => {
       const user = enrollment.user;
       const matchesSearch =
         user.fullName.toLowerCase().includes(search.toLowerCase()) ||
@@ -105,7 +107,7 @@ export default function AdminStudentsPage() {
             className="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm outline-none appearance-none cursor-pointer"
           >
             <option value="">All Courses</option>
-            {courses?.map((course: any) => (
+            {courses?.map((course) => (
               <option key={course.id} value={course.id}>
                 {course.title}
               </option>
@@ -142,7 +144,7 @@ export default function AdminStudentsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredEnrollments.map((enrollment: any) => (
+                {filteredEnrollments.map((enrollment: AdminEnrollment) => (
                   <tr key={enrollment.id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
@@ -168,7 +170,10 @@ export default function AdminStudentsPage() {
                     <td className="px-4 py-3 hidden md:table-cell">
                       <span className="text-xs text-slate-400 flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
-                        {new Date(enrollment.enrolledAt || enrollment.createdAt).toLocaleDateString()}
+                        {(() => {
+                          const dateStr = enrollment.enrolledAt || enrollment.createdAt;
+                          return dateStr ? new Date(dateStr).toLocaleDateString() : '—';
+                        })()}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">

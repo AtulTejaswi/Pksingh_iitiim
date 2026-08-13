@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import Image from 'next/image';
 
 interface ImageWithFallbackProps {
   src: string | null | undefined;
@@ -13,12 +14,13 @@ export default function ImageWithFallback({ src, alt, initials, className = '' }
 
   if (src && !error) {
     return (
-      <img
+      <Image
         src={src}
         alt={alt}
+        fill
+        sizes="(max-width: 768px) 50vw, 300px"
         className={className}
         onError={() => setError(true)}
-        loading="lazy"
       />
     );
   }

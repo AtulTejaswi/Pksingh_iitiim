@@ -12,7 +12,7 @@ export default function ClientProviders({ children }: { children: React.ReactNod
     try {
       // dynamic import to avoid SSR issues
       import('@/lib/sentry.client').then((m) => m.initSentryClient?.());
-    } catch (e) {
+    } catch {
       // ignore
     }
   }, []);

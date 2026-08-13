@@ -53,7 +53,7 @@ export default function MentorshipComparison() {
               </div>
               <div className="flex flex-col md:block h-auto md:h-10 justify-center">
                 <span className="md:hidden text-xs font-semibold text-slate-500 uppercase mb-1">Accountability</span>
-                <div className="flex items-center text-slate-600"><X className="w-5 h-5 text-slate-300 mr-2 flex-shrink-0" /> You're just a roll number</div>
+                <div className="flex items-center text-slate-600"><X className="w-5 h-5 text-slate-300 mr-2 flex-shrink-0" /> You&apos;re just a roll number</div>
               </div>
               <div className="flex flex-col md:block h-auto md:h-10 justify-center">
                 <span className="md:hidden text-xs font-semibold text-slate-500 uppercase mb-1">Exam Analysis</span>

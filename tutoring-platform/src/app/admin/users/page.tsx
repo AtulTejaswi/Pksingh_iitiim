@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useGetUsers, usePromoteUser, useDemoteUser } from '@/hooks/useUsers';
+import { useGetUsers, usePromoteUser, useDemoteUser, type User } from '@/hooks/useUsers';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
 
@@ -28,8 +28,9 @@ export default function AdminUsersPage() {
       link.remove();
       window.URL.revokeObjectURL(url);
       toast.success('Users exported successfully');
-    } catch (error: any) {
-      toast.error(error?.response?.data?.error || 'Failed to export users');
+    } catch (error) {
+      const e = error as { response?: { data?: { error?: string } } };
+      toast.error(e?.response?.data?.error || 'Failed to export users');
     } finally {
       setIsExporting(false);
     }
@@ -66,7 +67,7 @@ export default function AdminUsersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm text-slate-900">
-              {users?.map((u: any) => (
+              {users?.map((u: User) => (
                 <tr key={u.id}>
                   <td className="px-4 py-3">
                     <div className="font-semibold">{u.fullName || u.email}</div>
@@ -80,7 +81,10 @@ export default function AdminUsersPage() {
                         type="button"
                         onClick={() => promote.mutate(u.id, {
                           onSuccess: () => toast.success('User promoted to admin'),
-                          onError: (err: any) => toast.error(err?.response?.data?.error || 'Failed to promote user'),
+                          onError: (err) => {
+                            const e = err as { response?: { data?: { error?: string } } };
+                            toast.error(e?.response?.data?.error || 'Failed to promote user');
+                          },
                         })}
                         className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-500 transition-all"
                       >
@@ -91,7 +95,10 @@ export default function AdminUsersPage() {
                         type="button"
                         onClick={() => demote.mutate(u.id, {
                           onSuccess: () => toast.success('User demoted to student'),
-                          onError: (err: any) => toast.error(err?.response?.data?.error || 'Failed to demote user'),
+                          onError: (err) => {
+                            const e = err as { response?: { data?: { error?: string } } };
+                            toast.error(e?.response?.data?.error || 'Failed to demote user');
+                          },
                         })}
                         className="rounded-xl bg-red-600 px-3 py-2 text-xs font-semibold text-white hover:bg-red-500 transition-all"
                       >

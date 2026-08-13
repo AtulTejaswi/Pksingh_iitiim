@@ -36,8 +36,9 @@ export default function NewLessonPage({ params }: { params: Promise<{ id: string
         toast.success('Lesson created — expand it to add videos, PDFs, and notes.');
         router.push(`/admin/courses/${courseId}/lessons`);
       },
-      onError: (err: any) => {
-        toast.error(err.response?.data?.error || 'Failed to create lesson');
+      onError: (err) => {
+        const e = err as { response?: { data?: { error?: string } } };
+        toast.error(e.response?.data?.error || 'Failed to create lesson');
       },
     });
   };

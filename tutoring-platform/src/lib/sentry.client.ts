@@ -11,7 +11,6 @@ export function initSentryClient() {
     });
   } catch (e) {
     // swallow errors to avoid breaking the app
-    // eslint-disable-next-line no-console
     console.warn('Sentry client init failed', e);
   }
 }

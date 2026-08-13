@@ -11,10 +11,16 @@ import Link from 'next/link';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
-  const [token, setToken] = useState('');
   const [serverMessage, setServerMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(() => {
+    if (typeof window === 'undefined') return '';
+    const tokenParam = new URLSearchParams(window.location.search).get('token') || '';
+    return tokenParam ? '' : 'Missing password reset token.';
+  });
+  const [token] = useState(() => {
+    if (typeof window === 'undefined') return '';
+    return new URLSearchParams(window.location.search).get('token') || '';
+  });
 
   const {
     register,
@@ -28,13 +34,7 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const params = new URLSearchParams(window.location.search);
-    const tokenParam = params.get('token') || '';
-    setToken(tokenParam);
-    setValue('token', tokenParam);
-    if (!tokenParam) {
-      setErrorMessage('Missing password reset token.');
-    }
+    setValue('token', new URLSearchParams(window.location.search).get('token') || '');
   }, [setValue]);
 
   const onSubmit = async (data: ResetPasswordInput) => {
@@ -43,12 +43,12 @@ export default function ResetPasswordPage() {
     try {
       const response = await apiClient.post('/auth/reset-password', data);
       setServerMessage(response.data.message || 'Your password has been reset successfully.');
-      setIsSuccess(true);
       setTimeout(() => {
         router.push('/login?resetSuccess=1');
       }, 1200);
-    } catch (error: any) {
-      const rawError = error.response?.data?.error;
+    } catch (error) {
+      const err = error as { response?: { data?: { error?: unknown } } };
+      const rawError = err.response?.data?.error;
       setErrorMessage(typeof rawError === 'string' ? rawError : 'Unable to reset password.');
     }
   };

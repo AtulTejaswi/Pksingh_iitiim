@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { useGetCourses } from '@/hooks/useCourses';
+import { useGetCourses, type Course } from '@/hooks/useCourses';
 import Link from 'next/link';
 import { BookOpen, Users, Plus, ListChecks, Clock, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
@@ -37,10 +37,10 @@ export default function AdminDashboardPage() {
     };
   }, [courses]);
 
-  const recentCourses = useMemo(() => {
+  const recentCourses = useMemo<(Course & { createdAt?: string })[]>(() => {
     if (!courses) return [];
     return [...courses]
-      .sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+      .sort((a, b) => new Date((b as Course & { createdAt?: string }).createdAt || 0).getTime() - new Date((a as Course & { createdAt?: string }).createdAt || 0).getTime())
       .slice(0, 5);
   }, [courses]);
 
@@ -167,7 +167,7 @@ export default function AdminDashboardPage() {
             </div>
           ) : (
             <div className="divide-y divide-slate-100">
-              {recentCourses.map((course: any, idx: number) => (
+              {recentCourses.map((course, idx) => (
                 <Link
                   key={course.id || idx}
                   href={`/admin/courses/${course.id}/edit`}

@@ -1,16 +1,15 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Languages } from 'lucide-react';
 import type { Locale } from '@/lib/i18n';
 
 export default function LocaleToggle() {
-  const [locale, setLocale] = useState<Locale>('en');
-
-  useEffect(() => {
-    const saved = localStorage.getItem('locale') as Locale | null;
-    if (saved) setLocale(saved);
-  }, []);
+  const [locale, setLocale] = useState<Locale>(() => {
+    if (typeof window === 'undefined') return 'en';
+    const saved = window.localStorage.getItem('locale');
+    return saved === 'hi' || saved === 'en' ? saved : 'en';
+  });
 
   const toggle = () => {
     const next: Locale = locale === 'en' ? 'hi' : 'en';

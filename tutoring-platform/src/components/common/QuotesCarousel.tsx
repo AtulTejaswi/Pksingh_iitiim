@@ -49,7 +49,7 @@ export default function QuotesCarousel() {
         } else {
           setQuotes(fallbackQuotes);
         }
-      } catch (err) {
+      } catch {
         setQuotes(fallbackQuotes);
       } finally {
         setIsLoading(false);
@@ -147,7 +147,7 @@ export default function QuotesCarousel() {
               >
                 <Quote className="w-10 h-10 text-amber-200 mb-6" />
                 <p className="text-2xl sm:text-3xl lg:text-4xl font-serif italic text-slate-800 leading-[1.4] mb-8 font-medium">
-                  "{quote.text}"
+                  &ldquo;{quote.text}&rdquo;
                 </p>
                 <div className="flex flex-col items-center">
                   <div className="w-12 h-px bg-amber-300 mb-4"></div>

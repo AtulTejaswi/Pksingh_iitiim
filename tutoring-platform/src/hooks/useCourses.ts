@@ -31,7 +31,7 @@ export function useGetCourses(filters?: { subject?: string; examTag?: string; in
   return useQuery({
     queryKey: ['courses', filters],
     queryFn: async () => {
-      const params: any = {
+      const params: Record<string, unknown> = {
         ...filters,
         limit: 100, // Fetch all for browsing
       };
@@ -176,12 +176,19 @@ export function useGetPublicStats() {
 }
 
 // Fetch all enrollments (Admin)
+export interface AdminEnrollment {
+  id: string;
+  user: { id?: string; fullName: string; email: string };
+  course: { id: string; title: string };
+  enrolledAt?: string;
+  createdAt?: string;
+}
+
 export function useGetAllEnrollments(courseId?: string) {
   return useQuery({
     queryKey: ['all-enrollments', courseId],
     queryFn: async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const response = await apiClient.get<{ enrollments: any[] }>('/enrollments', {
+      const response = await apiClient.get<{ enrollments: AdminEnrollment[] }>('/enrollments', {
         params: { courseId },
       });
       return response.data.enrollments;

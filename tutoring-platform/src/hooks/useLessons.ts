@@ -127,7 +127,7 @@ export function useUpdateLesson() {
 export function useDeleteLesson() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, courseId }: { id: string; courseId?: string }) => {
+    mutationFn: async ({ id }: { id: string; courseId?: string }) => {
       await apiClient.delete(`/lessons/${id}`);
     },
     onSuccess: (_data, variables) => {

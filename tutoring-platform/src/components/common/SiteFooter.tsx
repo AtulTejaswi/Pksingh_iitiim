@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import SocialIcons from './SocialIcons';
-import { Mail, Phone } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import { CONTACT_CONFIG } from '@/data/site-config';
 
 const footerLinks = {

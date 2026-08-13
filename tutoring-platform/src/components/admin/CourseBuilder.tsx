@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import { useCreateCourse, useUpdateCourse, useGetCourse } from '@/hooks/useCourses';
 
-import { useGetLessons, useCreateLesson, useUpdateLesson, useDeleteLesson } from '@/hooks/useLessons';
+import { useGetLessons, useCreateLesson, useUpdateLesson, useDeleteLesson, type Lesson, type Media } from '@/hooks/useLessons';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
+import type { CourseInput } from '@/lib/validators';
 import { ArrowLeft, ArrowRight, Save, GripVertical, Plus, Trash2, Edit3, X, Check, Upload, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+import Image from 'next/image';
 import ConfirmModal from '@/components/admin/ConfirmModal';
 import LessonResourcesPanel from '@/components/admin/LessonResourcesPanel';
 import {
@@ -57,6 +58,15 @@ interface LessonFormData {
   notes: string;
 }
 
+interface BuilderLesson {
+  id: string;
+  title: string;
+  videoUrl: string;
+  duration: string;
+  notes: string;
+  sortOrder: number;
+}
+
 function SortableLessonCard({
   lesson,
   index,
@@ -66,11 +76,11 @@ function SortableLessonCard({
   onDelete,
   courseId,
 }: {
-  lesson: any;
+  lesson: BuilderLesson;
   index: number;
   isExpanded: boolean;
   onToggleExpand: () => void;
-  onEdit: (lesson: any) => void;
+  onEdit: (lesson: BuilderLesson) => void;
   onDelete: (id: string) => void;
   courseId: string;
 }) {
@@ -159,7 +169,6 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Step 2: Media
-  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState('');
   const [previewVideoUrl, setPreviewVideoUrl] = useState('');
   const [hours, setHours] = useState('');
@@ -172,9 +181,9 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
   const [enrollmentType, setEnrollmentType] = useState<'open' | 'signup'>('open');
 
   // Lesson editing
-  const [lessons, setLessons] = useState<any[]>([]);
+  const [lessons, setLessons] = useState<BuilderLesson[]>([]);
   const [showAddLesson, setShowAddLesson] = useState(false);
-  const [editingLesson, setEditingLesson] = useState<any>(null);
+  const [editingLesson, setEditingLesson] = useState<BuilderLesson | null>(null);
   const [expandedLessonId, setExpandedLessonId] = useState<string | null>(null);
   const [lessonForm, setLessonForm] = useState<LessonFormData>({ title: '', videoUrl: '', duration: '', notes: '' });
   const [deleteLessonId, setDeleteLessonId] = useState<string | null>(null);
@@ -209,15 +218,15 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
 
   useEffect(() => {
     if (isEdit && existingLessons) {
-      const mapped = existingLessons.map((l: any) => ({
+      const mapped = existingLessons.map((l: Lesson) => ({
         id: l.id,
         title: l.title,
-        videoUrl: l.media?.find((m: any) => m.type === 'YOUTUBE_LINK' || m.type === 'EXTERNAL_LINK')?.url || '',
+        videoUrl: l.media?.find((m: Media) => m.type === 'YOUTUBE_LINK' || m.type === 'EXTERNAL_LINK')?.url || '',
         duration: '',
         notes: l.description || '',
         sortOrder: l.sortOrder || 0,
       }));
-      setLessons(mapped.sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0)));
+      setLessons(mapped.sort((a: BuilderLesson, b: BuilderLesson) => (a.sortOrder || 0) - (b.sortOrder || 0)));
     }
   }, [isEdit, existingLessons]);
   /* eslint-enable react-hooks/set-state-in-effect */
@@ -242,11 +251,11 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
     return Object.keys(errs).length === 0;
   };
 
-  const buildCoursePayload = (published: boolean): any => {
-    const payload: any = {
+  const buildCoursePayload = (published: boolean): CourseInput => {
+    const payload: CourseInput = {
       title: title.trim(),
       description: description.trim(),
-      subject: subject as any,
+      subject: subject as CourseInput['subject'],
       examTags: examTags.length > 0 ? examTags : undefined,
       isFree,
       status: published ? 'PUBLISHED' : 'DRAFT',
@@ -338,14 +347,15 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
       setLessonForm({ title: '', videoUrl: '', duration: '', notes: '' });
       setEditingLesson(null);
       setShowAddLesson(false);
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error || 'Failed to save lesson');
+    } catch (err) {
+      const e = err as { response?: { data?: { error?: string } } };
+      toast.error(e?.response?.data?.error || 'Failed to save lesson');
     } finally {
       setSaving(false);
     }
   };
 
-  const handleEditLesson = (lesson: any) => {
+  const handleEditLesson = (lesson: BuilderLesson) => {
     setLessonForm({ title: lesson.title, videoUrl: lesson.videoUrl || '', duration: lesson.duration || '', notes: lesson.notes || '' });
     setEditingLesson(lesson);
     setShowAddLesson(true);
@@ -358,8 +368,9 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
       setLessons((prev) => prev.filter((l) => l.id !== deleteLessonId));
       toast.success('Lesson removed');
       setDeleteLessonId(null);
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error || 'Failed to delete lesson');
+    } catch (err) {
+      const e = err as { response?: { data?: { error?: string } } };
+      toast.error(e?.response?.data?.error || 'Failed to delete lesson');
       setDeleteLessonId(null);
     }
   };
@@ -390,7 +401,6 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
       e.target.value = '';
       return;
     }
-    setThumbnailFile(file);
     const reader = new FileReader();
     reader.onload = (ev) => setThumbnailPreview(ev.target?.result as string);
     reader.readAsDataURL(file);
@@ -490,7 +500,7 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              onBlur={() => { if (!title.trim()) setErrors((e) => ({ ...e, title: 'Course title is required' })); else setErrors((e) => { const { title, ...rest } = e; return rest; }); }}
+              onBlur={() => { if (!title.trim()) setErrors((e) => ({ ...e, title: 'Course title is required' })); else setErrors((e) => { const rest = { ...e }; delete rest.title; return rest; }); }}
               placeholder="e.g. JEE Physics — Electrostatics Masterclass"
               className={`w-full px-4 py-2.5 rounded-xl border text-sm outline-none transition-all placeholder:text-slate-400 bg-white focus:border-blue-500 text-slate-900 ${errors.title ? 'border-red-400' : 'border-slate-200'}`}
             />
@@ -504,7 +514,7 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              onBlur={() => { if (!description.trim()) setErrors((e) => ({ ...e, description: 'Description is required' })); else setErrors((e) => { const { description, ...rest } = e; return rest; }); }}
+              onBlur={() => { if (!description.trim()) setErrors((e) => ({ ...e, description: 'Description is required' })); else setErrors((e) => { const rest = { ...e }; delete rest.description; return rest; }); }}
               rows={4}
               maxLength={2000}
               placeholder="Brief overview of what this course covers (at least 10 characters)..."
@@ -525,7 +535,7 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
                 <button
                   key={s.value}
                   type="button"
-                  onClick={() => { setSubject(s.value); setErrors((e) => { const { subject, ...rest } = e; return rest; }); }}
+                  onClick={() => { setSubject(s.value); setErrors((e) => { const rest = { ...e }; delete rest.subject; return rest; }); }}
                   className={`p-4 rounded-xl border text-center transition-all ${
                     subject === s.value
                       ? 'border-blue-400 bg-blue-50 text-blue-700'
@@ -555,7 +565,7 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
                       setExamTags((prev) =>
                         prev.includes(exam.value) ? prev.filter((t) => t !== exam.value) : [...prev, exam.value]
                       );
-                      setErrors((e) => { const { examTags, ...rest } = e; return rest; });
+                      setErrors((e) => { const rest = { ...e }; delete rest.examTags; return rest; });
                     }}
                     className={`px-3 py-2 rounded-lg border text-xs font-semibold transition-all text-left ${
                       isSelected
@@ -611,10 +621,10 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
             >
               {thumbnailPreview ? (
                 <div className="relative inline-block">
-                  <img src={thumbnailPreview} alt="Thumbnail preview" className="max-h-40 rounded-lg mx-auto" />
+                  <Image src={thumbnailPreview} alt="Thumbnail preview" width={480} height={270} className="max-h-40 rounded-lg mx-auto object-contain" />
                   <button
                     type="button"
-                    onClick={(e) => { e.stopPropagation(); setThumbnailPreview(''); setThumbnailFile(null); }}
+                    onClick={(e) => { e.stopPropagation(); setThumbnailPreview(''); }}
                     className="absolute -top-2 -right-2 p-1 rounded-full bg-red-500 text-white"
                   >
                     <X className="w-3 h-3" />
@@ -855,7 +865,7 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
           <div className="p-5 rounded-xl border border-slate-200 bg-white shadow-sm space-y-4">
             <div className="flex items-start gap-4">
               {thumbnailPreview ? (
-                <img src={thumbnailPreview} alt="" className="w-20 h-20 rounded-lg object-cover shrink-0" />
+                <Image src={thumbnailPreview} alt="" width={80} height={80} className="w-20 h-20 rounded-lg object-cover shrink-0" />
               ) : (
                 <div className="w-20 h-20 rounded-lg bg-gradient-to-br from-blue-600 to-violet-600 flex items-center justify-center shrink-0">
                   <span className="text-white font-bold text-lg">{title.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}</span>

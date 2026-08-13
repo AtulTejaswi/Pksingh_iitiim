@@ -50,18 +50,19 @@ export default function AdminTestimonialsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    setLoading(true);
     try {
       const res = await apiClient.get<Testimonial[]>('/cms/testimonials/all');
       setTestimonials(res.data || []);
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error || 'Could not load testimonials.');
+    } catch (err) {
+      const e = err as { response?: { data?: { error?: string } } };
+      toast.error(e?.response?.data?.error || 'Could not load testimonials.');
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
+    /* eslint-disable-next-line react-hooks/set-state-in-effect */
     load();
   }, [load]);
 
@@ -99,9 +100,11 @@ export default function AdminTestimonialsPage() {
       }
       setForm(EMPTY_FORM);
       setEditingId(null);
+      setLoading(true);
       load();
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error || 'Could not save testimonial.');
+    } catch (err) {
+      const e = err as { response?: { data?: { error?: string } } };
+      toast.error(e?.response?.data?.error || 'Could not save testimonial.');
     } finally {
       setSaving(false);
     }
@@ -131,9 +134,11 @@ export default function AdminTestimonialsPage() {
         setEditingId(null);
         setForm(EMPTY_FORM);
       }
+      setLoading(true);
       load();
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error || 'Could not delete testimonial.');
+    } catch (err) {
+      const e = err as { response?: { data?: { error?: string } } };
+      toast.error(e?.response?.data?.error || 'Could not delete testimonial.');
     }
   };
 

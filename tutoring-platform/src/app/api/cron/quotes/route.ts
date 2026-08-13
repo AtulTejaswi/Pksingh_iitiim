@@ -9,8 +9,8 @@ export async function GET(request: Request) {
     if (!res.ok) throw new Error(`Backend returned ${res.status}`);
     const data = await res.json();
     return NextResponse.json(data);
-  } catch (error: any) {
+  } catch (error) {
     console.error("Quotes Cron Proxy Error:", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
   }
 }

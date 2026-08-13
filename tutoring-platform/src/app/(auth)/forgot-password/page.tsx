@@ -31,8 +31,9 @@ export default function ForgotPasswordPage() {
         setResetLink(response.data.resetUrl);
       }
       setIsSubmitted(true);
-    } catch (error: any) {
-      const rawError = error.response?.data?.error;
+    } catch (error) {
+      const err = error as { response?: { data?: { error?: unknown } } };
+      const rawError = err.response?.data?.error;
       setServerMessage(typeof rawError === 'string' ? rawError : 'Unable to process your request.');
     }
   };

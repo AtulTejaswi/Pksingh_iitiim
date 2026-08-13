@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { useGetCourses, useDeleteCourse } from '@/hooks/useCourses';
+import { useGetCourses, useDeleteCourse, type Course } from '@/hooks/useCourses';
 import { apiClient } from '@/lib/api-client';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { Plus, Search, Edit3, Eye, Trash2, BookOpen, ArrowUpDown, Filter, Download } from 'lucide-react';
+import { Plus, Search, Eye, Trash2, BookOpen, Download } from 'lucide-react';
 import ConfirmModal from '@/components/admin/ConfirmModal';
 import ImageWithFallback from '@/components/admin/ImageWithFallback';
 
@@ -23,6 +23,7 @@ const SUBJECT_LABELS: Record<string, string> = {
 
 type FilterTab = 'ALL' | 'PUBLISHED' | 'DRAFT' | 'ARCHIVED';
 type SortKey = 'newest' | 'oldest' | 'az' | 'za';
+type SortableCourse = Course & { createdAt?: string };
 
 export default function AdminCoursesPage() {
   const { data: courses, isLoading } = useGetCourses({ includeDrafts: true });
@@ -51,8 +52,9 @@ export default function AdminCoursesPage() {
       link.remove();
       window.URL.revokeObjectURL(url);
       toast.success('Courses exported successfully');
-    } catch (error: any) {
-      toast.error(error?.response?.data?.error || 'Failed to export courses');
+    } catch (error) {
+      const e = error as { response?: { data?: { error?: string } } };
+      toast.error(e?.response?.data?.error || 'Failed to export courses');
     } finally {
       setIsExporting(false);
     }
@@ -65,8 +67,9 @@ export default function AdminCoursesPage() {
         toast.success('Course deleted successfully');
         setDeleteTarget(null);
       },
-      onError: (err: any) => {
-        toast.error(err?.response?.data?.error || 'Failed to delete course');
+      onError: (err) => {
+        const e = err as { response?: { data?: { error?: string } } };
+        toast.error(e?.response?.data?.error || 'Failed to delete course');
         setDeleteTarget(null);
       },
     });
@@ -85,8 +88,8 @@ export default function AdminCoursesPage() {
     else if (filterTab === 'DRAFT') result = result.filter((c) => c.status === 'DRAFT');
     else if (filterTab === 'ARCHIVED') result = result.filter((c) => c.status === 'ARCHIVED');
 
-    if (sort === 'newest') result.sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-    else if (sort === 'oldest') result.sort((a: any, b: any) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime());
+    if (sort === 'newest') result.sort((a: SortableCourse, b: SortableCourse) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+    else if (sort === 'oldest') result.sort((a: SortableCourse, b: SortableCourse) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime());
     else if (sort === 'az') result.sort((a, b) => a.title.localeCompare(b.title));
     else if (sort === 'za') result.sort((a, b) => b.title.localeCompare(a.title));
 

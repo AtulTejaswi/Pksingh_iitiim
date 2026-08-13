@@ -4,7 +4,7 @@ import React from 'react';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
 import { useGetMyEnrollments } from '@/hooks/useCourses';
 import Link from 'next/link';
-import { BookOpen, GraduationCap, Play, ChevronRight } from 'lucide-react';
+import { GraduationCap, Play, ChevronRight } from 'lucide-react';
 
 export default function MyCoursesPage() {
   const { data: enrollments, isLoading } = useGetMyEnrollments(true);

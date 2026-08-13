@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Settings as SettingsIcon, Shield, Bell, Palette, Database } from 'lucide-react';
+import { Settings as SettingsIcon, Shield, Database } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import Link from 'next/link';
 

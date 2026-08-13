@@ -7,7 +7,7 @@ export async function GET() {
     if (!res.ok) throw new Error(`Backend returned ${res.status}`);
     const data = await res.json();
     return NextResponse.json(data);
-  } catch (error: any) {
+  } catch (error) {
     console.error("Fetch Quotes Error:", error);
     return NextResponse.json({ success: false, quotes: [] }, { status: 200 });
   }

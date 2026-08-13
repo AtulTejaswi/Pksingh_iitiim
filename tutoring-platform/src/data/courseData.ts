@@ -331,7 +331,27 @@ export function getStaticFeaturedCourses(): StaticCourse[] {
   return staticCourses.slice(0, 4);
 }
 
-export function mergeWithApiCourses(apiCourses: any[], staticCoursesList: StaticCourse[]): any[] {
+export interface CatalogCourse {
+  id: string;
+  title: string;
+  subject: string;
+  description: string;
+  status?: string;
+  examTags?: string[] | null;
+  thumbnailUrl?: string | null;
+  isFree?: boolean;
+  level?: string;
+  duration?: string;
+  format?: string;
+  price?: number;
+  priceLabel?: string;
+  lessonCount?: number;
+  syllabusTopics?: string[];
+  highlights?: string[];
+  _count?: { lessons?: number; enrollments?: number } | null;
+}
+
+export function mergeWithApiCourses(apiCourses: CatalogCourse[], staticCoursesList: StaticCourse[]): CatalogCourse[] {
   const apiCourseIds = new Set(apiCourses.map((c) => c.id));
   const uniqueStaticCourses = staticCoursesList.filter((c) => !apiCourseIds.has(c.id));
   return [...apiCourses, ...uniqueStaticCourses];

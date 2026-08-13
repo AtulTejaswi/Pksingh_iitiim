@@ -34,8 +34,9 @@ export default function CourseDetailClient({ params }: { params: Promise<{ id: s
         toast.success('Successfully enrolled! Let\'s begin training.');
         router.push('/my-courses');
       },
-      onError: (err: any) => {
-        toast.error(err.response?.data?.error || 'Failed to enroll');
+      onError: (err) => {
+        const e = err as { response?: { data?: { error?: string } } };
+        toast.error(e.response?.data?.error || 'Failed to enroll');
       },
     });
   };
@@ -196,7 +197,7 @@ export default function CourseDetailClient({ params }: { params: Promise<{ id: s
           <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm relative overflow-hidden text-left">
             <div className="absolute inset-0 bg-gradient-to-tr from-blue-50 to-transparent"></div>
 
-            <h3 className="text-lg font-bold text-slate-900 mb-4">Join PK Singh's Program</h3>
+            <h3 className="text-lg font-bold text-slate-900 mb-4">Join PK Singh&apos;s Program</h3>
 
             {isEnrolled ? (
               <Link

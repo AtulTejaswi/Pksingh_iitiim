@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Quote, X } from 'lucide-react';
-import { wisdomQuotes, type WisdomQuote } from '@/data/wisdom-quotes';
+import { wisdomQuotes } from '@/data/wisdom-quotes';
 
 const SLIDE_INTERVAL = 7000;
 const categoryLabels: Record<string, string> = {
@@ -15,7 +15,10 @@ export default function WisdomSlideshow({ variant = 'section' }: { variant?: 'se
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [dismissed, setDismissed] = useState(false);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  });
 
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
@@ -23,7 +26,6 @@ export default function WisdomSlideshow({ variant = 'section' }: { variant?: 'se
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReducedMotion(mq.matches);
     const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
@@ -64,7 +66,6 @@ export default function WisdomSlideshow({ variant = 'section' }: { variant?: 'se
 
   if (dismissed && variant === 'strip') return null;
 
-  const q = wisdomQuotes[currentIndex] as WisdomQuote | undefined;
   if (wisdomQuotes.length === 0) return null;
 
   const quote = wisdomQuotes[currentIndex];

@@ -2,7 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { Award, BookOpen, Zap, Target } from 'lucide-react';
+import { Zap } from 'lucide-react';
 import PublicPageShell from '@/components/common/PublicPageShell';
 
 export const metadata: Metadata = {

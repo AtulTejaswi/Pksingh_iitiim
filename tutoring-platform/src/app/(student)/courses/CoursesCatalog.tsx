@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useGetCourses } from '@/hooks/useCourses';
 import Link from 'next/link';
 import { Search, Filter, BookOpen, Clock, Video, MonitorPlay, User, ChevronDown, ChevronUp } from 'lucide-react';
-import { staticCourses, mergeWithApiCourses } from '@/data/courseData';
+import { staticCourses, mergeWithApiCourses, type CatalogCourse } from '@/data/courseData';
 
 const SUBJECTS = [
   { value: '', label: 'All Subjects' },
@@ -26,7 +26,7 @@ const EXAM_PILLS = [
 
 const VALID_SUBJECTS = new Set(['PHYSICS', 'CHEMISTRY', 'MATH']);
 
-function CourseCard({ course }: { course: any }) {
+function CourseCard({ course }: { course: CatalogCourse }) {
   const [isSyllabusOpen, setIsSyllabusOpen] = useState(false);
 
   const getFormatIcon = (format: string) => {
@@ -76,7 +76,7 @@ function CourseCard({ course }: { course: any }) {
             <span>{course.duration || 'Flexible duration'}</span>
           </div>
           <div className="flex items-center text-slate-500 text-sm">
-            {getFormatIcon(course.format)}
+            {getFormatIcon(course.format || 'Online')}
             <span>{course.format || 'Online'}</span>
           </div>
         </div>
@@ -123,19 +123,11 @@ function CourseCard({ course }: { course: any }) {
 export default function CoursesCatalog() {
   const searchParams = useSearchParams();
   const [search, setSearch] = useState('');
-  const [subject, setSubject] = useState('');
-  const [examTag, setExamTag] = useState('');
-
-  useEffect(() => {
+  const [subject, setSubject] = useState(() => {
     const subjectParam = searchParams.get('subject')?.toUpperCase() ?? '';
-    if (VALID_SUBJECTS.has(subjectParam)) {
-      setSubject(subjectParam);
-    }
-    const examParam = searchParams.get('exam') ?? searchParams.get('examTag') ?? '';
-    if (examParam) {
-      setExamTag(examParam);
-    }
-  }, [searchParams]);
+    return VALID_SUBJECTS.has(subjectParam) ? subjectParam : '';
+  });
+  const [examTag, setExamTag] = useState(() => searchParams.get('exam') ?? searchParams.get('examTag') ?? '');
 
   const { data: apiCourses, isLoading } = useGetCourses({
     subject: subject || undefined,
@@ -236,7 +228,7 @@ export default function CoursesCatalog() {
           </div>
           <h3 className="text-2xl font-bold text-slate-900 mb-3">Courses launching soon</h3>
           <p className="text-slate-600 text-lg mb-8 max-w-lg mx-auto">
-            We're currently building out our premium curriculum for this category. Join the waitlist to get early access and exclusive founding-member pricing when we launch.
+            We&apos;re currently building out our premium curriculum for this category. Join the waitlist to get early access and exclusive founding-member pricing when we launch.
           </p>
           <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" onSubmit={(e) => e.preventDefault()}>
             <input 

@@ -24,10 +24,9 @@ export function useUploadMedia() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (formData: FormData) => {
-      const r = await apiClient.post('/media/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-      return r.data;
+      await apiClient.post('/media/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['media'] });
       qc.invalidateQueries({ queryKey: ['lessons'] });
     },

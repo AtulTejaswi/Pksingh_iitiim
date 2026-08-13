@@ -22,7 +22,7 @@ export function useScrollAnimation(options?: IntersectionObserverInit) {
     }
 
     return () => observer.disconnect();
-  }, []);
+  }, [options]);
 
   return { ref, isVisible };
 }
