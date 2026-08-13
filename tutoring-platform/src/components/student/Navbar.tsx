@@ -2,10 +2,13 @@
 
 import React, { useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/lib/auth-context';
 import { LogOut, LayoutDashboard, Menu, X } from 'lucide-react';
+import { FaYoutube, FaInstagram, FaEnvelope } from 'react-icons/fa';
 import { useState } from 'react';
 import LocaleToggle from '@/components/common/LocaleToggle';
+import { SOCIAL_LINKS, GMAIL_CONFIG } from '@/data/site-config';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -26,9 +29,11 @@ export default function Navbar() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-3">
-              <img 
-                src="/images/pk_sir_logo.jpg" 
-                alt="PK Singh Logo" 
+              <Image
+                src="/images/pk_sir_logo.jpg"
+                alt="PK Singh Logo"
+                width={140}
+                height={60}
                 className="w-[140px] h-auto rounded-lg bg-white px-2 py-1"
               />
             </Link>
@@ -49,6 +54,39 @@ export default function Navbar() {
 
           {/* Desktop Right Side Action Buttons */}
           <div className="hidden md:flex items-center gap-3">
+            {/* Social icons */}
+            <div className="flex items-center gap-3 pr-2 mr-2 border-r border-slate-200">
+              <a
+                href={SOCIAL_LINKS.youtube}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Visit our YouTube channel"
+                className="text-slate-400 hover:text-blue-600 transition-colors"
+                title="YouTube"
+              >
+                <FaYoutube className="w-5 h-5" />
+              </a>
+              <a
+                href={SOCIAL_LINKS.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Visit our Instagram page"
+                className="text-slate-400 hover:text-blue-600 transition-colors"
+                title="Instagram"
+              >
+                <FaInstagram className="w-5 h-5" />
+              </a>
+              <a
+                href={GMAIL_CONFIG.composeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Email us for queries"
+                className="text-slate-400 hover:text-blue-600 transition-colors"
+                title="Email for queries"
+              >
+                <FaEnvelope className="w-5 h-5" />
+              </a>
+            </div>
             <LocaleToggle />
             {user ? (
               <div className="flex items-center gap-4">
@@ -104,7 +142,7 @@ export default function Navbar() {
           <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
           <div className="absolute top-0 right-0 w-72 h-full bg-white shadow-2xl animate-slide-in-right overflow-y-auto">
             <div className="flex items-center justify-between px-4 py-4 border-b border-slate-200">
-              <img src="/images/pk_sir_logo.jpg" alt="PK Singh" className="w-[100px] h-auto rounded-lg bg-white px-2 py-1" />
+              <Image src="/images/pk_sir_logo.jpg" alt="PK Singh" width={100} height={44} className="w-[100px] h-auto rounded-lg bg-white px-2 py-1" />
               <button onClick={() => setIsOpen(false)} className="p-2 rounded-md text-slate-400 hover:text-slate-800 hover:bg-slate-100">
                 <X className="w-5 h-5" />
               </button>
@@ -121,6 +159,40 @@ export default function Navbar() {
             {/* Mobile locale */}
             <div className="px-6 py-4 border-t border-slate-200 flex items-center gap-4">
               <LocaleToggle />
+            </div>
+
+            {/* Mobile social icons */}
+            <div className="px-6 py-4 border-t border-slate-200 flex items-center gap-5">
+              <a
+                href={SOCIAL_LINKS.youtube}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Visit our YouTube channel"
+                className="text-slate-400 hover:text-blue-600 transition-colors"
+                title="YouTube"
+              >
+                <FaYoutube className="w-5 h-5" />
+              </a>
+              <a
+                href={SOCIAL_LINKS.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Visit our Instagram page"
+                className="text-slate-400 hover:text-blue-600 transition-colors"
+                title="Instagram"
+              >
+                <FaInstagram className="w-5 h-5" />
+              </a>
+              <a
+                href={GMAIL_CONFIG.composeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Email us for queries"
+                className="text-slate-400 hover:text-blue-600 transition-colors"
+                title="Email for queries"
+              >
+                <FaEnvelope className="w-5 h-5" />
+              </a>
             </div>
 
           {user ? (

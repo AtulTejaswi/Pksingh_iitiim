@@ -120,19 +120,27 @@ export const WHATSAPP_DIRECT_NUMBER =
   (typeof process !== 'undefined' ? process.env.NEXT_PUBLIC_WHATSAPP_NUMBER : '') || '';
 
 /**
- * Social media links. The handles below are env-driven and EMPTY by default —
- * the previously shipped `pksinghmentor` handles (instagram/youtube/linkedin)
- * were verified to be dead accounts (no such profiles exist). We do NOT render
- * fake links. Set e.g. NEXT_PUBLIC_INSTAGRAM_URL to a real, active profile URL
- * to re-enable each icon; empty values are hidden in the UI.
+ * Social media links. YouTube and Instagram are the verified, active profiles;
+ * they render directly. LinkedIn remains env-driven and hidden unless
+ * NEXT_PUBLIC_LINKEDIN_URL is set to a real, active profile URL, so no fake
+ * links are shown.
  */
 export const SOCIAL_LINKS = {
-  instagram: process.env.NEXT_PUBLIC_INSTAGRAM_URL || '',
-  youtube: process.env.NEXT_PUBLIC_YOUTUBE_URL || '',
+  youtube: 'https://youtube.com/@pksir_iitiim?si=C-t_Bc5zmjrrxdzX',
+  instagram:
+    'https://www.instagram.com/pksirclass?igsh=MWg2ejJibHZpaWdndQ==&igsi=MWg2ejJibHZpaWdndQ==',
   linkedin: process.env.NEXT_PUBLIC_LINKEDIN_URL || '',
   whatsapp: WHATSAPP_DIRECT_NUMBER
     ? `https://wa.me/${WHATSAPP_DIRECT_NUMBER}`
     : WHATSAPP_CONFIG.communityLink,
+} as const;
+
+/** Email-to-open-in-Gmail compose links for queries */
+export const GMAIL_CONFIG = {
+  /** Opens Gmail's compose view with the recipient prefilled (works on desktop + mobile browsers). */
+  composeUrl: 'https://mail.google.com/mail/?view=cm&fs=1&to=pksirpcmclasses@gmail.com',
+  /** Fallback email link for devices where the mailto: scheme works. */
+  mailtoUrl: 'mailto:pksirpcmclasses@gmail.com',
 } as const;
 
 /** Contact & support */

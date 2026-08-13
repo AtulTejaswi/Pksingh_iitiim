@@ -1,15 +1,16 @@
 'use client';
 
 import React from 'react';
-import { SOCIAL_LINKS } from '@/data/site-config';
-import { Globe, Video, MessageCircle, User } from 'lucide-react';
+import { SOCIAL_LINKS, GMAIL_CONFIG } from '@/data/site-config';
+import { FaYoutube, FaInstagram, FaEnvelope } from 'react-icons/fa';
 
 export default function SocialIcons({ className = '' }: { className?: string }) {
   const links = [
-    { href: SOCIAL_LINKS.instagram, icon: Globe, label: 'Instagram' },
-    { href: SOCIAL_LINKS.youtube, icon: Video, label: 'YouTube' },
-    { href: SOCIAL_LINKS.linkedin, icon: User, label: 'LinkedIn' },
-    { href: SOCIAL_LINKS.whatsapp, icon: MessageCircle, label: 'WhatsApp' },
+    { href: SOCIAL_LINKS.youtube, icon: FaYoutube, label: 'Visit our YouTube channel' },
+    { href: SOCIAL_LINKS.instagram, icon: FaInstagram, label: 'Visit our Instagram page' },
+    // Gmail compose is the primary href (works in every browser).
+    // mailto:pksirpcmclasses@gmail.com is the fallback for clients with a mail app configured.
+    { href: GMAIL_CONFIG.composeUrl, icon: FaEnvelope, label: 'Email us for queries' },
   ].filter((link) => link.href && link.href.length > 0);
 
   return (
