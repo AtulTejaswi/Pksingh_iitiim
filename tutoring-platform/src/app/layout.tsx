@@ -3,7 +3,7 @@ import { Fraunces } from "next/font/google";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import ClientProviders from "@/components/common/ClientProviders";
-import { SITE_URL } from "@/lib/config";
+import { GOOGLE_SITE_VERIFICATION, SITE_URL } from "@/lib/config";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -68,6 +68,11 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true, 'max-video-preview': -1, 'max-image-preview': 'large', 'max-snippet': -1 },
   },
+  // Google Search Console ownership verification (renders only when
+  // NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION is configured — see lib/config.ts).
+  verification: GOOGLE_SITE_VERIFICATION
+    ? { google: GOOGLE_SITE_VERIFICATION }
+    : undefined,
   alternates: {
     canonical: siteUrl,
   },
