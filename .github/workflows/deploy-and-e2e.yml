@@ -73,6 +73,49 @@ jobs:
             "https://api.render.com/v1/services/${svc_id}" || \
             echo "Warning: could not update build command (will try deploying anyway)"
 
+      - name: Ensure LOCAL_JWT_SECRET is real on Render
+        if: steps.render-check.outputs.skip == 'false'
+        env:
+          RENDER_LOCAL_JWT_SECRET: ${{ secrets.RENDER_LOCAL_JWT_SECRET }}
+        run: |
+          svc_id=${{ secrets.RENDER_SERVICE_ID }}
+          if [ -z "$RENDER_LOCAL_JWT_SECRET" ]; then
+            echo "⚠️ RENDER_LOCAL_JWT_SECRET repo secret not set — cannot self-heal. The service will keep failing to start."
+            exit 0
+          fi
+          auth="Authorization: Bearer ${{ secrets.RENDER_API_KEY }}"
+          current=$(curl -s -H "$auth" \
+            "https://api.render.com/v1/services/${svc_id}/env-vars" | \
+            jq -r '.[] | select(.envVar.key=="LOCAL_JWT_SECRET") | .envVar.value // ""')
+          case "$current" in
+            pksingh-jwt-secret-change-this-to-a-strong-random-value|change-me|changeme|"")
+              echo "LOCAL_JWT_SECRET is placeholder/empty — setting a real value..."
+              payload=$(jq -n --arg v "$RENDER_LOCAL_JWT_SECRET" \
+                '{serviceDetails: {envVars: [{key: "LOCAL_JWT_SECRET", value: $v, sync: false}]}}')
+              code=$(curl -s -o /dev/null -w '%{http_code}' -X PATCH \
+                -H "$auth" \
+                -H "Content-Type: application/json" \
+                -d "$payload" \
+                "https://api.render.com/v1/services/${svc_id}")
+              echo "PATCH status: $code"
+              ;;
+            *)
+              echo "LOCAL_JWT_SECRET is already set to a real value."
+              ;;
+          esac
+          now=$(curl -s -H "$auth" \
+            "https://api.render.com/v1/services/${svc_id}/env-vars" | \
+            jq -r '.[] | select(.envVar.key=="LOCAL_JWT_SECRET") | .envVar.value // ""')
+          case "$now" in
+            pksingh-jwt-secret-change-this-to-a-strong-random-value|change-me|changeme|"")
+              echo "❌ LOCAL_JWT_SECRET is still placeholder/empty after PATCH — deploy would fail at startup."
+              exit 1
+              ;;
+            *)
+              echo "✅ LOCAL_JWT_SECRET is set to a real value (will not be printed)."
+              ;;
+          esac
+
       - name: Trigger Render deploy
         if: steps.render-check.outputs.skip == 'false'
         id: trigger
