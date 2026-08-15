@@ -3,7 +3,9 @@ import { fetchBackend } from '@/lib/backend-fetch';
 
 export async function GET(request: Request) {
   try {
-    const res = await fetchBackend('/cron/quotes', {
+    // Backend mounts quotes at /api/quotes with a /cron sub-route —
+    // fetchBackend already prefixes API_BASE_URL (…/api), so use /quotes/cron.
+    const res = await fetchBackend('/quotes/cron', {
       headers: { Authorization: request.headers.get('authorization') || '' },
     });
     if (!res.ok) throw new Error(`Backend returned ${res.status}`);
