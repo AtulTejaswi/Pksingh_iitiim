@@ -38,42 +38,6 @@ jobs:
             }
           '
 
-          echo "=== Try both env-var PATCH shapes ==="
-          curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
-            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/env-vars" > /tmp/envs-before.json
-          node -e '
-            const fs = require("fs");
-            const arr = JSON.parse(fs.readFileSync("/tmp/envs-before.json", "utf8"));
-            const v = arr.find(e => (e.envVar || {}).key === "LOCAL_JWT_SECRET");
-            console.log("before: value length =", (v && v.envVar.value || "").length, "placeholder?", v && /change-this-to-a-strong|change-me|changeme/.test(v.envVar.value));
-          '
-          testval=$(date +%s)
-          echo "--- Attempt A: serviceDetails.envVars ---"
-          curl -s -X PATCH -H "Authorization: Bearer ${RENDER_API_KEY}" \
-            -H "Content-Type: application/json" \
-            -d "{\"serviceDetails\":{\"envVars\":[{\"key\":\"LOCAL_JWT_SECRET\",\"value\":\"${testval}\",\"sync\":false}]}}" \
-            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}" | head -c 2000
-          echo
-          echo "--- Attempt B: top-level envVars ---"
-          curl -s -X PATCH -H "Authorization: Bearer ${RENDER_API_KEY}" \
-            -H "Content-Type: application/json" \
-            -d "{\"envVars\":[{\"key\":\"LOCAL_JWT_SECRET\",\"value\":\"${testval}\",\"sync\":false}]}" \
-            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}" | head -c 2000
-          echo
-          sleep 5
-          echo "--- after both attempts ---"
-          curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
-            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/env-vars" > /tmp/envs-after.json
-          node -e '
-            const fs = require("fs");
-            const arr = JSON.parse(fs.readFileSync("/tmp/envs-after.json", "utf8"));
-            for (const e of arr) {
-              const v = e.envVar || {};
-              const len = (v.value || "").length;
-              console.log(`${v.key}=len:${len} placeholder:${/change-this-to-a-strong|change-me|changeme/.test(v.value || "")} (sync=${v.sync ?? false})`);
-            }
-          '
-
           echo "=== Build logs for service (owner-based) ==="
           # Render's /v1/logs expects RFC3339 timestamps, not Unix seconds
           end=$(date -u +%Y-%m-%dT%H:%M:%SZ)
