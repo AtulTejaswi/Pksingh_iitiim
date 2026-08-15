@@ -39,11 +39,18 @@ export function StatCounter({
 
   return (
     <div ref={ref} className="text-center">
-      <p className="font-display text-4xl font-semibold text-brand-600 md:text-5xl">
-        {value === null
-          ? "Coming soon"
-          : `${display.toLocaleString()}${suffix}`}
-      </p>
+      {value === null ? (
+        // Placeholders recede — smaller and muted, so real numbers stay the
+        // loudest element on the row and "Coming soon" never competes with them.
+        <p className="font-display text-2xl font-semibold text-ink-muted md:text-3xl">
+          Coming soon
+        </p>
+      ) : (
+        <p className="font-display text-4xl font-semibold text-brand-600 md:text-5xl">
+          {display.toLocaleString()}
+          {suffix}
+        </p>
+      )}
       <p className="mt-2 text-sm text-ink-muted">{label}</p>
     </div>
   );

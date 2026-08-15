@@ -55,8 +55,12 @@ export default function LandingPage() {
   const { data: stats } = useGetPublicStats();
   const [showBottomCta, setShowBottomCta] = useState(true);
 
-  // Treat 0 / undefined as "not yet verified" → graceful "Coming soon"
-  const verified = (raw: number | undefined) => (raw && raw > 0 ? raw : null);
+  // Treat 0 / undefined as "not yet verified" → graceful "Coming soon".
+  // Stats below MIN_DISPLAY_THRESHOLD are also hidden: at the current catalog
+  // size a real "1 course" / "4 learners" reads worse than an honest
+  // placeholder and undermines the premium positioning.
+  const MIN_DISPLAY_THRESHOLD = 10;
+  const verified = (raw: number | undefined) => (raw && raw >= MIN_DISPLAY_THRESHOLD ? raw : null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -89,8 +93,8 @@ export default function LandingPage() {
             </span>
 
             <h1 className="mt-6 font-display text-5xl font-semibold leading-[1.05] text-ink md:text-6xl">
-              Learn Physics, Chemistry, Math and exam strategy from an
-              <span className="text-brand-600"> IIT + IIM alumnus</span>
+              Learn Physics, Chemistry, Math and exam strategy from an{" "}
+              <span className="text-brand-600">IIT + IIM alumnus</span>
             </h1>
 
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-secondary">
@@ -183,9 +187,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ───────────────────────────────────── Wisdom Strip ───────────────────────────────────── */}
-      <WisdomSlideshow variant="strip" />
-
       {/* ───────────────────────────────────── Free Study Guide Lead Magnet ───────────────────────────────────── */}
       <FreePreview />
 
@@ -199,10 +200,10 @@ export default function LandingPage() {
                 <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
                   <Flame className="w-6 h-6 text-white" />
                 </div>
-                <p className="text-2xl font-bold tracking-tight">Consistency beats intensity. Our platform tracks your daily learning streak.</p>
+                <p className="text-2xl font-bold tracking-tight">Consistency beats intensity.</p>
               </div>
               <p className="text-white/90 text-lg leading-relaxed">
-                Consistency beats intensity. Our platform tracks your daily learning streak. Watch a lesson, solve a problem, or complete a quiz every day to keep your streak alive. The longest streaks unlock exclusive 1:1 strategy sessions with PK Singh!
+                Our platform tracks your daily learning streak. Watch a lesson, solve a problem, or complete a quiz every day to keep your streak alive. The longest streaks unlock exclusive 1:1 strategy sessions with PK Singh!
               </p>
               <div className="mt-6">
                 <Link
@@ -296,7 +297,7 @@ export default function LandingPage() {
       <MentorshipComparison />
 
       {/* ───────────────────────────────────── Dynamic Wisdom Quotes Carousel ───────────────────────────────────── */}
-      <WisdomSlideshow variant="section" />
+      <WisdomSlideshow />
 
       {/* ───────────────────────────────────── How It Works ───────────────────────────────────── */}
       <section id="how" className="py-20">
@@ -355,9 +356,9 @@ export default function LandingPage() {
           <Reveal className="mt-12" delay={80}>
             <div className="grid md:grid-cols-3 gap-8">
               {[
-                { href: '/courses?subject=PHYSICS', icon: Target, title: 'Physics', desc: 'Explore mechanics, electrodynamics, optics, and wave theory with crystal clear visual derivations.', iconColor: 'text-blue-700', iconBg: 'bg-blue-100', border: 'border-blue-200' },
-                { href: '/courses?subject=CHEMISTRY', icon: Award, title: 'Chemistry', desc: 'Unlock organic synthesis mechanisms, chemical kinetics, atomic structures, and coordinate compounds.', iconColor: 'text-emerald-700', iconBg: 'bg-emerald-100', border: 'border-emerald-200' },
-                { href: '/courses?subject=MATH', icon: GraduationCap, title: 'Mathematics', desc: 'Ace AP Calculus, JEE trigonometry, complex algebra, matrices, probability, and advanced coordinate geometry.', iconColor: 'text-violet-700', iconBg: 'bg-violet-100', border: 'border-violet-200' },
+                { href: '/courses?subject=PHYSICS', icon: Target, title: 'Physics', desc: 'Explore mechanics, electrodynamics, optics, and wave theory with crystal clear visual derivations.', iconColor: 'text-brand-600', iconBg: 'bg-brand-50', border: 'border-brand-100' },
+                { href: '/courses?subject=CHEMISTRY', icon: Award, title: 'Chemistry', desc: 'Unlock organic synthesis mechanisms, chemical kinetics, atomic structures, and coordinate compounds.', iconColor: 'text-brand-600', iconBg: 'bg-brand-50', border: 'border-brand-100' },
+                { href: '/courses?subject=MATH', icon: GraduationCap, title: 'Mathematics', desc: 'Ace AP Calculus, JEE trigonometry, complex algebra, matrices, probability, and advanced coordinate geometry.', iconColor: 'text-brand-600', iconBg: 'bg-brand-50', border: 'border-brand-100' },
               ].map((item) => (
                 <Link
                   key={item.title}
