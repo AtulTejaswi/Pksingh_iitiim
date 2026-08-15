@@ -26,13 +26,17 @@ jobs:
 
           echo "=== Env var status (values redacted) ==="
           curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
-            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/env-vars" | \
-            jq -r '.[] | .envVar as $v |
-              (if $v.value == null or $v.value == "" then "EMPTY"
-               elif (["pksingh-jwt-secret-change-this-to-a-strong-random-value","change-me","changeme","changeme_replace_in_production","adminpassword123"] | index($v.value)) then "PLACEHOLDER"
-               elif $v.value == "admin@example.com" then "PLACEHOLDER"
-               else "SET" end) as $flag |
-              "\($v.key)=$flag (sync=\($v.sync // false))"'
+            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/env-vars" > /tmp/envs.json
+          node -e '
+            const fs = require("fs");
+            const arr = JSON.parse(fs.readFileSync("/tmp/envs.json", "utf8"));
+            const ph = ["pksingh-jwt-secret-change-this-to-a-strong-random-value", "change-me", "changeme", "changeme_replace_in_production", "adminpassword123", "admin@example.com"];
+            for (const e of arr) {
+              const v = e.envVar || {};
+              const flag = v.value == null || v.value === "" ? "EMPTY" : ph.includes(v.value) ? "PLACEHOLDER" : "SET";
+              console.log(`${v.key}=${flag} (sync=${v.sync ?? false})`);
+            }
+          '
 
           echo "=== Build logs for service (owner-based) ==="
           # Render's /v1/logs expects RFC3339 timestamps, not Unix seconds
