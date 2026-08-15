@@ -1,12 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Outfit, Inter } from "next/font/google";
+import { Fraunces } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import ClientProviders from "@/components/common/ClientProviders";
 import { SITE_URL } from "@/lib/config";
 
-const outfit = Outfit({
-  variable: "--font-outfit",
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
+  weight: ["500", "600", "700"],
 });
 
 const inter = Inter({
@@ -79,10 +81,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${outfit.variable} ${inter.variable} h-full antialiased font-sans`}
+      className={`${fraunces.variable} ${inter.variable} h-full antialiased font-sans`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900" suppressHydrationWarning>
+      <body className="min-h-full flex flex-col bg-bg-base text-ink" suppressHydrationWarning>
         {/* Skip to main content link for keyboard/screen reader users */}
         <a href="#main-content" className="skip-link">Skip to main content</a>
         {/* WebSite structured data */}

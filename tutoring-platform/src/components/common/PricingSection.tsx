@@ -1,127 +1,100 @@
 import React from 'react';
-import Link from 'next/link';
-import { CheckCircle2, User, Users, GraduationCap, Shield, RefreshCw, Lock } from 'lucide-react';
+import { Reveal } from '@/components/ui/Reveal';
 import { PRICING_CONFIG } from '@/data/site-config';
+
+type Tier = {
+  name: string;
+  price: string;
+  priceSuffix: string;
+  cta: string;
+  ctaHref: string;
+  badge?: string;
+  features: readonly string[];
+};
+
+function PricingCard({ tier, highlighted }: { tier: Tier; highlighted: boolean }) {
+  return (
+    <Reveal className={`relative rounded-card p-8 transition-all duration-300 hover:-translate-y-1 ${
+      highlighted
+        ? 'border-2 border-brand-500 bg-bg-cardTint shadow-warm-lg'
+        : 'border border-border-subtle bg-bg-card shadow-warm-sm'
+    }`}>
+      {highlighted && tier.badge && (
+        <span className="absolute -top-3 left-8 rounded-pill bg-brand-600 px-4 py-1 text-xs font-semibold text-white">
+          {tier.badge}
+        </span>
+      )}
+      <h3 className="font-display text-xl font-semibold text-ink">{tier.name}</h3>
+      <p className="mt-2 font-display text-4xl font-semibold text-ink">{tier.price}<span className="text-base font-medium text-ink-muted">{tier.priceSuffix}</span></p>
+      <ul className="mt-6 space-y-3">
+        {tier.features.map((f) => (
+          <li key={f} className="flex items-start gap-2 text-sm text-ink-secondary">
+            <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
+            {f}
+          </li>
+        ))}
+      </ul>
+      <a
+        href={tier.ctaHref}
+        className={`mt-8 block rounded-pill px-6 py-3 text-center font-semibold transition-all ${
+          highlighted
+            ? 'bg-brand-600 text-white shadow-warm-md hover:shadow-warm-glow'
+            : 'border border-border-strong text-ink hover:border-brand-500 hover:text-brand-600'
+        }`}
+      >
+        {tier.cta}
+      </a>
+    </Reveal>
+  );
+}
 
 export default function PricingSection() {
   const { selfPaced, liveCohort, oneOnOne } = PRICING_CONFIG;
+  const tiers: Tier[] = [selfPaced, liveCohort, oneOnOne];
 
   return (
-    <section className="py-24 bg-slate-50" id="pricing">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <span className="inline-block py-1 px-3 rounded-full bg-amber-100 text-amber-800 text-sm font-semibold tracking-wider mb-4">
-            Pricing
-          </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
-            Choose Your Learning Path
-          </h2>
-          <p className="text-lg text-slate-600 font-inter">
-            Select the plan that best fits your goals and learning style.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-          {/* Tier 1: Self-Paced */}
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 hover:shadow-md transition-shadow duration-300">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-slate-900 font-outfit">{selfPaced.name}</h3>
-              <User className="w-6 h-6 text-slate-400" />
-            </div>
-            <div className="mb-6">
-              <span className="text-4xl font-bold text-slate-900">{selfPaced.price}</span>
-              {selfPaced.priceSuffix && <span className="text-slate-500 ml-2">{selfPaced.priceSuffix}</span>}
-            </div>
-            <ul className="space-y-4 mb-8 font-inter">
-              {selfPaced.features.map((feature) => (
-                <li key={feature} className="flex items-start">
-                  <CheckCircle2 className="w-5 h-5 text-amber-500 mr-3 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600">{feature}</span>
-                </li>
-              ))}
-            </ul>
-            <Link
-              href={selfPaced.ctaHref}
-              className="block w-full py-3 px-6 text-center rounded-xl bg-slate-100 text-slate-900 font-semibold hover:bg-slate-200 transition-colors"
-            >
-              {selfPaced.cta}
-            </Link>
+    <section className="py-24 bg-bg-subtle" id="pricing">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <Reveal>
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="inline-block py-1 px-3 rounded-full bg-brand-100 border border-brand-200 text-brand-700 text-sm font-semibold tracking-wider mb-4">
+              Pricing
+            </span>
+            <h2 className="font-display text-4xl font-semibold text-ink md:text-5xl">
+              Choose Your Learning Path
+            </h2>
+            <p className="text-ink-secondary mt-4 text-lg font-sans">
+              Select the plan that best fits your goals and learning style.
+            </p>
           </div>
+        </Reveal>
 
-          {/* Tier 2: Live Cohort (Most Popular) */}
-          <div className="bg-white rounded-3xl shadow-xl border-2 border-amber-500 p-8 relative transform md:-translate-y-4">
-            {liveCohort.badge && (
-              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <span className="bg-amber-500 text-white text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wide">
-                  {liveCohort.badge}
-                </span>
-              </div>
-            )}
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-slate-900 font-outfit">{liveCohort.name}</h3>
-              <Users className="w-6 h-6 text-amber-500" />
-            </div>
-            <div className="mb-6 flex items-baseline">
-              <span className="text-4xl font-bold text-slate-900">{liveCohort.price}</span>
-              {liveCohort.priceSuffix && <span className="text-slate-500 ml-2">{liveCohort.priceSuffix}</span>}
-            </div>
-            <ul className="space-y-4 mb-8 font-inter">
-              {liveCohort.features.map((feature) => (
-                <li key={feature} className="flex items-start">
-                  <CheckCircle2 className="w-5 h-5 text-amber-500 mr-3 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600 font-medium">{feature}</span>
-                </li>
-              ))}
-            </ul>
-            <Link
-              href={liveCohort.ctaHref}
-              className="block w-full py-3 px-6 text-center rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 transition-colors shadow-sm hover:shadow-md"
-            >
-              {liveCohort.cta}
-            </Link>
+        <Reveal className="mt-12" delay={80}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+            {tiers.map((tier) => (
+              <PricingCard
+                key={tier.name}
+                tier={tier}
+                highlighted={Boolean(tier.badge)}
+              />
+            ))}
           </div>
-
-          {/* Tier 3: 1:1 Mentorship */}
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 hover:shadow-md transition-shadow duration-300">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-slate-900 font-outfit">{oneOnOne.name}</h3>
-              <GraduationCap className="w-6 h-6 text-amber-500" />
-            </div>
-            <div className="mb-6 flex items-baseline">
-              <span className="text-4xl font-bold text-slate-900">{oneOnOne.price}</span>
-              {oneOnOne.priceSuffix && <span className="text-slate-500 ml-2">{oneOnOne.priceSuffix}</span>}
-            </div>
-            <ul className="space-y-4 mb-8 font-inter">
-              {oneOnOne.features.map((feature) => (
-                <li key={feature} className="flex items-start">
-                  <CheckCircle2 className="w-5 h-5 text-amber-500 mr-3 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600">{feature}</span>
-                </li>
-              ))}
-            </ul>
-            <Link
-              href={oneOnOne.ctaHref}
-              className="block w-full py-3 px-6 text-center rounded-xl bg-slate-900 text-white font-semibold hover:bg-slate-800 transition-colors"
-            >
-              {oneOnOne.cta}
-            </Link>
-          </div>
-        </div>
+        </Reveal>
 
         {/* Trust badges near pricing */}
-        <div className="flex flex-wrap items-center justify-center gap-6 mt-10 text-sm text-slate-500">
+        <div className="flex flex-wrap items-center justify-center gap-6 mt-12 text-sm text-ink-muted">
           <span className="flex items-center gap-2">
-            <Lock className="w-4 h-4 text-slate-400" />
+            <svg className="w-4 h-4 text-ink-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="14" rx="2" /><path d="M8 2v3M16 2v3M5 12h14" /></svg>
             Secure payment
           </span>
-          <span className="w-1 h-1 rounded-full bg-slate-300 hidden sm:block" />
+          <span className="w-1 h-1 rounded-full bg-border-strong hidden sm:block" />
           <span className="flex items-center gap-2">
-            <RefreshCw className="w-4 h-4 text-slate-400" />
+            <svg className="w-4 h-4 text-ink-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" strokeWidth="2" /><circle cx="12" cy="12" r="9" /></svg>
             7-day refund policy
           </span>
-          <span className="w-1 h-1 rounded-full bg-slate-300 hidden sm:block" />
+          <span className="w-1 h-1 rounded-full bg-border-strong hidden sm:block" />
           <span className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-slate-400" />
+            <svg className="w-4 h-4 text-ink-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
             SSL encrypted
           </span>
         </div>

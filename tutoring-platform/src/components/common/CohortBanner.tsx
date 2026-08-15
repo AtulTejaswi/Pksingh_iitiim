@@ -10,8 +10,8 @@ export default function CohortBanner() {
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-8">
-      <div className="rounded-2xl bg-gradient-to-r from-amber-600 to-amber-500 p-6 sm:p-8 text-white relative overflow-hidden shadow-lg">
-        <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-[60px] pointer-events-none"></div>
+      <div className="rounded-2xl bg-gradient-to-r from-brand-600 to-brand-500 p-6 sm:p-8 text-white relative overflow-hidden shadow-warm-lg">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-white/20 rounded-full blur-[60px] pointer-events-none"></div>
         <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="hidden sm:flex w-12 h-12 rounded-full bg-white/20 items-center justify-center">
@@ -29,7 +29,7 @@ export default function CohortBanner() {
                 <span className="text-sm font-bold">{seatsLeft} seats left</span>
               </div>
             )}
-            <a href="/signup" className="bg-white text-amber-700 font-bold px-6 py-2.5 rounded-full text-sm hover:bg-amber-50 transition-colors shadow-md whitespace-nowrap">
+            <a href="/signup" className="bg-white text-brand-700 font-bold px-6 py-2.5 rounded-full text-sm hover:bg-brand-50 transition-colors shadow-md whitespace-nowrap">
               Reserve Your Spot
             </a>
           </div>

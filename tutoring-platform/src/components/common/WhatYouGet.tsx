@@ -1,70 +1,47 @@
 import React from 'react';
-import { Video, PlayCircle, MessageCircle, BarChart3, FileText } from 'lucide-react';
+import { Reveal } from '@/components/ui/Reveal';
+
+const features = [
+  { title: 'Live Interactive Classes', desc: 'Real-time sessions with PK Singh. Ask doubts, solve problems together.', big: true },
+  { title: 'Recorded Lecture Library', desc: 'Access all past sessions anytime. Rewatch, revise, repeat.' },
+  { title: 'Doubt Support', desc: 'Get personalized answers within 24 hours from the mentor.' },
+  { title: 'Progress Tracking', desc: 'Dashboard with streaks, completion analytics, and weekly reports.' },
+  { title: 'Mock Tests & Analysis', desc: 'Exam-pattern practice tests with detailed performance breakdown.' },
+];
 
 export default function WhatYouGet() {
-  const features = [
-    {
-      icon: Video,
-      title: "Live Interactive Classes",
-      description: "Real-time sessions with PK Singh. Ask doubts, solve problems together.",
-      color: "bg-amber-100 text-amber-700",
-    },
-    {
-      icon: PlayCircle,
-      title: "Recorded Lecture Library",
-      description: "Access all past sessions anytime. Rewatch, revise, repeat.",
-      color: "bg-amber-100 text-amber-700",
-    },
-    {
-      icon: MessageCircle,
-      title: "Doubt Support",
-      description: "Get personalized answers within 24 hours from the mentor.",
-      color: "bg-amber-100 text-amber-700",
-    },
-    {
-      icon: BarChart3,
-      title: "Progress Tracking",
-      description: "Dashboard with streaks, completion analytics, and weekly reports.",
-      color: "bg-amber-100 text-amber-700",
-    },
-    {
-      icon: FileText,
-      title: "Mock Tests & Analysis",
-      description: "Exam-pattern practice tests with detailed performance breakdown.",
-      color: "bg-amber-100 text-amber-700",
-    },
-  ];
-
   return (
-    <section className="py-24 bg-white dark:text-slate-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <span className="inline-block py-1 px-3 rounded-full bg-slate-100 text-slate-600 text-sm font-semibold tracking-wider mb-4 uppercase">
-            What&apos;s Included
-          </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
-            Everything You Need to Succeed
-          </h2>
-        </div>
+    <section className="py-24 bg-bg-subtle">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <Reveal>
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="inline-block px-3 py-1 rounded-full bg-brand-50 border border-brand-100 text-brand-700 text-xs font-bold uppercase tracking-[0.3em] mb-4">
+              What&apos;s Included
+            </span>
+            <h2 className="font-display text-4xl font-semibold text-ink md:text-5xl">
+              Everything You Need to Succeed
+            </h2>
+          </div>
+        </Reveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, idx) => (
-            <div 
-              key={idx} 
-              className={`bg-white rounded-2xl p-8 shadow-sm border border-slate-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 ${
-                idx >= 3 ? 'lg:col-span-1' : ''
-              }`}
-            >
-              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${feature.color}`}>
-                <feature.icon className="w-7 h-7" />
+        <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-3">
+          {features.map((f, i) => (
+            <Reveal key={f.title} delay={i * 80} className={f.big ? 'md:col-span-2 md:row-span-2' : ''}>
+              <div
+                className={`h-full rounded-card border border-border-subtle bg-bg-card p-8 shadow-warm-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-warm-md ${
+                  f.big
+                    ? 'flex flex-col justify-end bg-gradient-to-br from-brand-500 to-brand-700 text-white'
+                    : ''
+                }`}
+              >
+                <h3 className={`font-display text-xl font-semibold ${f.big ? 'text-white' : 'text-ink'}`}>
+                  {f.title}
+                </h3>
+                <p className={`mt-3 leading-relaxed ${f.big ? 'text-brand-50' : 'text-ink-secondary'}`}>
+                  {f.desc}
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-slate-900 font-outfit mb-3">
-                {feature.title}
-              </h3>
-              <p className="text-slate-600 font-inter leading-relaxed">
-                {feature.description}
-              </p>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>

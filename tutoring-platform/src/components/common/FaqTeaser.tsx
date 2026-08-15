@@ -17,26 +17,30 @@ export default function FaqTeaser() {
   return (
     <section className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20">
       <div className="text-center mb-12">
-        <span className="inline-block px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-[0.3em] mb-4">FAQ</span>
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">Frequently Asked Questions</h2>
-        <p className="text-slate-600 mt-4 text-lg max-w-xl mx-auto">The answers students ask most before enrolling.</p>
+        <span className="inline-block px-3 py-1 rounded-full bg-brand-100 border border-brand-200 text-brand-700 text-xs font-bold uppercase tracking-[0.3em] mb-4">
+          FAQ
+        </span>
+        <h2 className="font-display text-4xl font-semibold text-ink md:text-5xl">
+          Frequently Asked Questions
+        </h2>
+        <p className="text-ink-secondary mt-4 text-lg max-w-xl mx-auto">The answers students ask most before enrolling.</p>
       </div>
 
       <div className="space-y-3">
         {faqs.map((faq, i) => {
           const open = openIndex === i;
           return (
-            <div key={faq.q} className="border border-slate-200 rounded-2xl overflow-hidden">
+            <div key={faq.q} className="border border-border-subtle rounded-card overflow-hidden">
               <button
                 onClick={() => setOpenIndex(open ? null : i)}
-                className="w-full flex items-center justify-between p-5 text-left bg-white hover:bg-slate-50 transition-colors"
+                className="w-full flex items-center justify-between p-5 text-left bg-bg-card hover:bg-bg-subtle transition-colors"
                 aria-expanded={open}
               >
-                <span className="font-semibold text-slate-900 pr-4">{faq.q}</span>
-                <ChevronDown className={`w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 ${open ? 'rotate-180' : ''}`} />
+                <span className="font-semibold text-ink pr-4">{faq.q}</span>
+                <ChevronDown className={`w-5 h-5 text-ink-muted shrink-0 transition-transform duration-300 ${open ? 'rotate-180' : ''}`} />
               </button>
               <div className={`overflow-hidden transition-all duration-300 ${open ? 'max-h-96' : 'max-h-0'}`}>
-                <p className="px-5 pb-5 text-slate-600 text-sm leading-relaxed">{faq.a}</p>
+                <p className="px-5 pb-5 text-ink-secondary text-sm leading-relaxed">{faq.a}</p>
               </div>
             </div>
           );
@@ -46,7 +50,7 @@ export default function FaqTeaser() {
       <div className="mt-8 text-center">
         <Link
           href="/faq"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-slate-200 bg-white text-slate-700 font-bold text-sm hover:bg-slate-50 hover:shadow-md transition-all duration-300"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-border-subtle bg-bg-card text-ink-secondary font-bold text-sm hover:bg-bg-subtle hover:shadow-md transition-all duration-300"
         >
           View all FAQs <ArrowRight className="w-4 h-4" />
         </Link>

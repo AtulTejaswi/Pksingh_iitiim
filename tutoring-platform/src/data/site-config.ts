@@ -2,6 +2,8 @@
 // EDITABLE CONFIG — All business numbers/copy live here. Edit freely.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { CTA } from '@/lib/cta';
+
 /**
  * Platform-wide stats shown in the Stats section.
  *
@@ -44,7 +46,7 @@ export const PRICING_CONFIG = {
     price: 'Free',
     priceSuffix: '',
     currency: '',
-    cta: 'Start Learning Free',
+    cta: CTA.FREE_SIGNUP,
     ctaHref: '/signup',
     features: [
       'Access to recorded lecture library',
@@ -59,7 +61,7 @@ export const PRICING_CONFIG = {
     price: '₹2,999',
     priceSuffix: '/mo',
     currency: 'INR',
-    cta: 'Join Live Cohort',
+    cta: CTA.PAID_ENROLL,
     ctaHref: '/signup',
     badge: 'Most Popular',
     features: [
@@ -76,7 +78,7 @@ export const PRICING_CONFIG = {
     price: '₹9,999',
     priceSuffix: '/mo',
     currency: 'INR',
-    cta: 'Contact to Enroll',
+    cta: CTA.PAID_ENROLL,
     ctaHref: '/support',
     features: [
       'Everything in Live Cohort',

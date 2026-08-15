@@ -1,4 +1,4 @@
-const Sentry = require('@sentry/react');
+import * as Sentry from '@sentry/react';
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -6,4 +6,4 @@ Sentry.init({
   tracesSampleRate: parseFloat(process.env.NEXT_PUBLIC_SENTRY_TRACES_RATE || '0.05'),
 });
 
-module.exports = Sentry;
+export default Sentry;

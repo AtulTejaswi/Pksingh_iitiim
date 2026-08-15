@@ -20,51 +20,43 @@ import WhatsAppButton from '@/components/common/WhatsAppButton';
 import ExitIntentModal from '@/components/common/ExitIntentModal';
 import ScrollDepthCta from '@/components/common/ScrollDepthCta';
 import ReferralSection from '@/components/common/ReferralSection';
+import { Reveal } from '@/components/ui/Reveal';
+import { StatCounter } from '@/components/ui/StatCounter';
+import { CTA } from '@/lib/cta';
 import { getStaticFeaturedCourses } from '@/data/courseData';
-import { useScrollAnimation, useCountUp } from '@/hooks/useScrollAnimation';
 import { useGetCourses, useGetPublicStats } from '@/hooks/useCourses';
 import { useState, useEffect } from 'react';
-import { BookOpen, GraduationCap, Award, CheckCircle2, ChevronRight, Zap, Target, Search, Flame, Download } from 'lucide-react';
+import { GraduationCap, Award, CheckCircle2, ChevronRight, Zap, Target, Search, Flame } from 'lucide-react';
 import SiteFooter from '@/components/common/SiteFooter';
 import { SITE_STATS } from '@/data/site-config';
 
-function StatCard({ icon: Icon, value, suffix, label, sublabel, color, span, isVisible }: {
-  icon: React.ComponentType<{ className?: string }>;
-  value: number;
-  suffix?: string;
-  label: string;
-  sublabel?: string;
-  color: string;
-  span: string;
-  isVisible: boolean;
+function SectionShell({ title, eyebrow, children }: {
+  title: string;
+  eyebrow?: string;
+  children: React.ReactNode;
 }) {
-  const animatedValue = useCountUp(value, 2000, isVisible);
-  const displayValue =
-    value > 0 ? `${isVisible ? animatedValue : value}${suffix}` : '—';
-
   return (
-    <div className={`group relative overflow-hidden rounded-3xl border border-white/15 bg-white/05 p-7 backdrop-blur-md hover:bg-white/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] ${span}`}>
-      <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: `radial-gradient(circle at top right, rgba(255,255,255,0.08), transparent 60%)` }}></div>
-      <div className={`relative mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${color} shadow-inner`}>
-        <Icon className="w-6 h-6" />
+    <Reveal>
+      <div className="text-center mb-14">
+        {eyebrow && (
+          <span className="inline-flex items-center gap-2 rounded-pill border border-brand-100 bg-brand-50 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-brand-700 mb-4">
+            {eyebrow}
+          </span>
+        )}
+        <h2 className="font-display text-4xl font-semibold text-ink md:text-5xl">{title}</h2>
       </div>
-      <div className="relative mt-auto">
-        <p className="text-4xl font-black text-white tracking-tight">{displayValue}</p>
-        <p className="mt-2 text-xs text-white/70 uppercase tracking-[0.2em] font-bold">{label}</p>
-        {value === 0 && sublabel ? (
-          <p className="mt-2 text-xs text-white/40 font-medium">{sublabel}</p>
-        ) : null}
-      </div>
-    </div>
+      {children}
+    </Reveal>
   );
 }
 
 export default function LandingPage() {
   const { data: courses, isLoading } = useGetCourses();
   const { data: stats } = useGetPublicStats();
-
-  const { ref: statsAnimRef, isVisible: statsAnimIsVisible } = useScrollAnimation();
   const [showBottomCta, setShowBottomCta] = useState(true);
+
+  // Treat 0 / undefined as "not yet verified" → graceful "Coming soon"
+  const verified = (raw: number | undefined) => (raw && raw > 0 ? raw : null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -76,473 +68,436 @@ export default function LandingPage() {
 
   // Pick top 3 published courses from API, fallback to static featured courses
   const apiPublished = courses?.filter((course) => course.status === 'PUBLISHED') || [];
-  const featuredCourses = apiPublished.length > 0 
-    ? apiPublished.slice(0, 3) 
+  const featuredCourses = apiPublished.length > 0
+    ? apiPublished.slice(0, 3)
     : getStaticFeaturedCourses().slice(0, 3);
 
   return (
-    <div id="main-content" role="main" className="flex flex-col min-h-screen bg-white text-slate-900">
+    <div id="main-content" role="main" className="flex flex-col min-h-screen bg-bg-base text-ink font-sans antialiased">
       <Navbar />
 
-      {/* Hero Section */}
-      <section id="home" className="relative min-h-[90vh] flex items-center pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full hero-bg overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-20 -left-20 h-[500px] w-[500px] rounded-full bg-amber-100/40 blur-[120px]"></div>
-          <div className="absolute top-1/3 -right-20 h-[400px] w-[400px] rounded-full bg-slate-100/60 blur-[120px]"></div>
-          <div className="absolute bottom-0 left-1/3 h-[300px] w-[300px] rounded-full bg-amber-50/50 blur-[100px]"></div>
-        </div>
+      {/* ───────────────────────────────────── Hero ───────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-bg-base pt-20 pb-20 md:pt-28 md:pb-32">
+        {/* ambient warm orange glow */}
+        <div className="pointer-events-none absolute -top-40 right-0 h-[520px] w-[520px] rounded-full bg-brand-300/30 blur-[120px]" />
+        <div className="pointer-events-none absolute -bottom-40 -left-24 h-[420px] w-[420px] rounded-full bg-brand-100/50 blur-[120px]" />
 
-        <div className="relative grid gap-16 xl:grid-cols-[1.1fr_0.9fr] items-center w-full animate-slide-up">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 border border-amber-200 px-5 py-2 text-sm font-bold text-amber-800 uppercase tracking-[0.25em] mb-8">
-              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 px-6 md:grid-cols-2">
+          <Reveal>
+            <span className="inline-flex items-center gap-2 rounded-pill border border-brand-100 bg-brand-50 px-4 py-1.5 text-sm font-semibold text-brand-700">
               Premium Mentorship
-            </div>
+            </span>
 
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] mb-8 text-slate-900">
-              Premium mentorship for<br />
-              <span className="text-amber-600">top rank outcomes</span>
+            <h1 className="mt-6 font-display text-5xl font-semibold leading-[1.05] text-ink md:text-6xl">
+              Learn Physics, Chemistry, Math and exam strategy from an
+              <span className="text-brand-600"> IIT + IIM alumnus</span>
             </h1>
-            <p className="text-slate-700 text-lg sm:text-xl max-w-2xl leading-[1.8] mb-10">
-              Learn Physics, Chemistry, Math and exam strategy from an IIT + IIM alumnus, bestselling author and global consultant. Every course is built for clarity, confidence and accelerated exam performance.
+
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-secondary">
+              Learn Physics, Chemistry, Math and exam strategy from an IIT + IIM alumnus, bestselling author and global consultant. Every course is built for clarity, confidence and accelerated exam performance — one-to-one, exam-focused, no fluff.
             </p>
 
-            <div className="flex flex-wrap gap-3 text-sm mb-10 dark:text-slate-800">
-              <span className="inline-flex items-center gap-2 rounded-full bg-slate-50 border border-slate-200 px-4 py-2 text-slate-800 font-medium">
-                <BookOpen className="w-4 h-4 text-amber-600" />
-                23+ years of mentorship
-              </span>
-              <span className="inline-flex items-center gap-2 rounded-full bg-slate-50 border border-slate-200 px-4 py-2 text-slate-800 font-medium">
-                <Target className="w-4 h-4 text-amber-600" />
-                IIT + IIM curriculum
-              </span>
-              <span className="inline-flex items-center gap-2 rounded-full bg-slate-50 border border-slate-200 px-4 py-2 text-slate-800 font-medium">
-                <Award className="w-4 h-4 text-amber-600" />
-                Proven exam strategies
-              </span>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 mb-12">
+            <div className="mt-9 flex flex-wrap items-center gap-4">
               <Link
                 href="/courses"
-                className="btn btn-primary px-10 py-4 text-sm font-bold"
+                className="inline-flex items-center gap-2 rounded-pill bg-brand-600 px-8 py-4 font-semibold text-white shadow-warm-md transition-all duration-300 hover:shadow-warm-glow hover:-translate-y-0.5"
               >
                 Explore Courses
                 <ChevronRight className="w-4 h-4" />
               </Link>
               <a
                 href="#free-preview"
-                className="btn btn-ghost px-10 py-4 text-sm font-bold flex items-center gap-2 text-slate-700 border-slate-300 hover:bg-slate-50"
+                className="rounded-pill px-8 py-4 font-semibold text-ink-secondary transition-colors hover:text-brand-600"
               >
-                Get the Free Study Guide
-                <Download className="w-4 h-4" />
+                Get the Free Study Guide &rarr;
               </a>
             </div>
 
-            {/* Interactive Search Bar */}
-            <div className="relative max-w-xl group mb-12">
+            <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3 text-sm text-ink-muted">
+              <span>23+ years of mentorship</span>
+              <span>IIT + IIM curriculum</span>
+              <span>Proven exam strategies</span>
+            </div>
+
+            {/* Interactive Search Bar (preserved content, warm restyle) */}
+            <div className="relative mt-10 max-w-xl group mb-12">
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
+                <Search className="h-5 w-5 text-ink-muted group-focus-within:text-brand-600 transition-colors" />
               </div>
-              <input 
-                type="text" 
-                placeholder="What do you want to learn today? (e.g. Physics, JEE)" 
-                className="w-full pl-12 pr-32 py-4 rounded-full border-2 border-slate-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all text-slate-900 placeholder:text-slate-400"
+              <input
+                id="site-search"
+                type="text"
+                placeholder="What do you want to learn today? (e.g. Physics, JEE)"
+                className="w-full pl-12 pr-32 py-4 rounded-pill border border-border-subtle bg-bg-card text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-brand-500 transition-all"
               />
-              <button className="absolute inset-y-1.5 right-1.5 px-6 rounded-full bg-slate-900 text-white font-semibold text-sm hover:bg-slate-800 transition-colors">
+              <button className="absolute inset-y-1.5 right-1.5 px-6 rounded-pill bg-ink text-white font-semibold text-sm hover:bg-ink-secondary transition-colors">
                 Search
               </button>
             </div>
 
+            {/* Credibility mini-cards (preserved content, warm restyle) */}
             <div className="grid gap-4 sm:grid-cols-3">
-              <div className="rounded-2xl bg-slate-50 border border-slate-200 p-6 text-center hover:shadow-md hover:border-slate-300 transition-all duration-300">
-                <p className="text-3xl font-bold text-slate-900">JEE · NEET · SAT</p>
-                <p className="text-sm text-slate-600 mt-2">Exam-focused curriculum</p>
+              <div className="rounded-card bg-bg-card border border-border-subtle p-6 text-center shadow-warm-sm">
+                <p className="text-3xl font-bold text-ink">JEE · NEET · SAT</p>
+                <p className="mt-2 text-sm text-ink-muted">Exam-focused curriculum</p>
               </div>
-              <div className="rounded-2xl bg-slate-50 border border-slate-200 p-6 text-center hover:shadow-md hover:border-slate-300 transition-all duration-300">
-                <p className="text-3xl font-bold text-slate-900">Bestselling</p>
-                <p className="text-sm text-slate-600 mt-2">UK & USA books</p>
+              <div className="rounded-card bg-bg-card border border-border-subtle p-6 text-center shadow-warm-sm">
+                <p className="text-3xl font-bold text-ink">Bestselling</p>
+                <p className="text-sm text-ink-muted mt-2">UK &amp; USA books</p>
               </div>
-              <div className="rounded-2xl bg-slate-50 border border-slate-200 p-6 text-center hover:shadow-md hover:border-slate-300 transition-all duration-300">
-                <p className="text-3xl font-bold text-slate-900">6+ years</p>
-                <p className="text-sm text-slate-600 mt-2">Teaching experience</p>
+              <div className="rounded-card bg-bg-card border border-border-subtle p-6 text-center shadow-warm-sm">
+                <p className="text-3xl font-bold text-ink">6+ years</p>
+                <p className="text-sm text-ink-muted mt-2">Teaching experience</p>
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal delay={150} className="relative">
+            <div className="relative mx-auto aspect-[4/5] max-w-md">
+              <div className="absolute inset-0 -rotate-3 rounded-[32px] bg-gradient-to-br from-brand-500 to-brand-700 opacity-90" />
+              <Image
+                src="/images/pk-singh-photo.jpg"
+                alt="PK Singh"
+                width={400}
+                height={500}
+                className="relative z-10 h-full w-full rounded-[32px] object-cover shadow-warm-lg"
+                priority
+              />
+              <div className="absolute -bottom-6 -left-6 z-20 rounded-2xl bg-bg-card px-5 py-4 shadow-warm-lg border border-border-subtle">
+                <p className="font-display text-sm font-semibold text-ink">PK Singh</p>
+                <p className="text-xs text-ink-muted">IIT • IIM • Author</p>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ───────────────────────────────────── Infinite Marquee Engagement Loop ───────────────────────────────────── */}
+      <section className="border-y border-border-subtle bg-bg-subtle py-4 overflow-hidden relative">
+        <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-bg-base to-transparent z-10 pointer-events-none"></div>
+        <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-bg-base to-transparent z-10 pointer-events-none"></div>
+        <div className="animate-marquee flex items-center gap-12 px-4">
+          <span className="flex items-center gap-2 text-sm font-semibold text-ink-secondary whitespace-nowrap"><Target className="w-4 h-4 text-brand-600" /> JEE · NEET · SAT · CAT · GMAT</span>
+          <span className="flex items-center gap-2 text-sm font-semibold text-ink-secondary whitespace-nowrap"><Award className="w-4 h-4 text-brand-600" /> #1 Bestselling Author</span>
+          <span className="flex items-center gap-2 text-sm font-semibold text-ink-secondary whitespace-nowrap"><Zap className="w-4 h-4 text-brand-600" /> IIT &amp; IIM Alumni Network</span>
+        </div>
+      </section>
+
+      {/* ───────────────────────────────────── Wisdom Strip ───────────────────────────────────── */}
+      <WisdomSlideshow variant="strip" />
+
+      {/* ───────────────────────────────────── Free Study Guide Lead Magnet ───────────────────────────────────── */}
+      <FreePreview />
+
+      {/* ───────────────────────────────────── Gamification / Streaks Callout ───────────────────────────────────── */}
+      <SectionShell title="Active Streaks: Building the Habit of Success" eyebrow="Habit Builder">
+        <div className="mx-auto max-w-4xl">
+          <div className="rounded-card bg-gradient-to-r from-brand-600 to-brand-500 p-8 sm:p-12 text-white relative overflow-hidden shadow-warm-lg">
+            <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-white/20 rounded-full blur-[80px] pointer-events-none"></div>
+            <div className="relative z-10 max-w-2xl">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                  <Flame className="w-6 h-6 text-white" />
+                </div>
+                <p className="text-2xl font-bold tracking-tight">Consistency beats intensity. Our platform tracks your daily learning streak.</p>
+              </div>
+              <p className="text-white/90 text-lg leading-relaxed">
+                Consistency beats intensity. Our platform tracks your daily learning streak. Watch a lesson, solve a problem, or complete a quiz every day to keep your streak alive. The longest streaks unlock exclusive 1:1 strategy sessions with PK Singh!
+              </p>
+              <div className="mt-6">
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center justify-center gap-2 rounded-pill bg-white text-brand-600 px-6 py-3 font-semibold shadow-warm-sm hover:shadow-warm-glow transition-all"
+                >
+                  {CTA.FREE_SIGNUP}
+                </Link>
               </div>
             </div>
           </div>
+        </div>
+      </SectionShell>
 
-          <div className="hero-card p-8">
-            <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-slate-200 bg-white shadow-md overflow-hidden">
-                  <Image src="/images/pk-singh-photo.jpg" alt="PK Singh" width={80} height={80} className="object-cover" priority />
-                </div>
+      {/* ───────────────────────────────────── Trust Badges ───────────────────────────────────── */}
+      <TrustBadges />
+
+      {/* ───────────────────────────────────── Media Logos Strip ───────────────────────────────────── */}
+      <MediaLogos />
+
+      {/* ───────────────────────────────────── Stats Section (animated counters) ───────────────────────────────────── */}
+      <section className="relative py-16 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl overflow-hidden rounded-card bg-bg-card py-12 shadow-warm-lg border border-border-subtle">
+          <div className="grid grid-cols-2 gap-8 px-6 md:grid-cols-4">
+            <StatCounter value={verified(stats?.students ?? SITE_STATS.learnersMentored)} suffix="+" label="Learners mentored" />
+            <StatCounter value={verified(stats?.publishedCourses ?? SITE_STATS.interactiveCourses)} label="Courses in catalog" />
+            <StatCounter value={verified(stats?.publishedLessons ?? SITE_STATS.lessonModules)} label="Lesson modules" />
+            <StatCounter value={verified(stats?.enrollments ?? SITE_STATS.freeResources)} label="Free study guides" />
+          </div>
+        </div>
+      </section>
+
+      {/* ───────────────────────────────────── Cohort Banner ───────────────────────────────────── */}
+      <CohortBanner />
+
+      {/* ───────────────────────────────────── What You Get (bento Features) ───────────────────────────────────── */}
+      <WhatYouGet />
+
+      {/* ───────────────────────────────────── Cinematic Mentor Story ───────────────────────────────────── */}
+      <section id="about" className="relative bg-bg-subtle py-24 sm:py-32 overflow-hidden">
+        <div className="absolute inset-0 z-0 opacity-30">
+          <Image src="/images/pk-singh-photo.jpg" alt="Mentor Background" fill className="object-cover opacity-20" priority />
+          <div className="absolute inset-0 bg-gradient-to-r from-bg-base via-bg-base/80 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-transparent to-transparent"></div>
+        </div>
+
+        <Reveal className="relative z-10">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-16 items-center">
+            <div>
+              <span className="inline-block px-3 py-1 rounded-full bg-brand-50 border border-brand-100 text-brand-700 text-xs font-bold uppercase tracking-[0.2em] mb-6">
+                Meet Your Mentor
+              </span>
+              <h2 className="font-display text-4xl font-semibold text-ink md:text-5xl">
+                &ldquo;Excellence is not an act, but a <span className="text-brand-600 italic">daily habit.</span>&rdquo;
+              </h2>
+              <div className="mt-8 space-y-6 text-lg text-ink-secondary leading-relaxed max-w-xl">
+                <p>
+                  As an IIT and IIM alumnus, I&apos;ve walked the path you are on right now. The pressure, the overwhelming syllabus, the fear of falling behind — I know it intimately.
+                </p>
+                <p>
+                  But over my 23 years of professional leadership and teaching, I&apos;ve distilled the noise into a clear, repeatable framework. I don&apos;t just teach you formulas; I teach you how to think, how to break down complex problems, and how to build the unshakable confidence required to conquer JEE, NEET, SAT, and beyond.
+                </p>
+                <p className="text-brand-700 font-semibold italic">
+                  Welcome to the mentorship that changes the trajectory of your career.
+                </p>
+              </div>
+
+              <div className="mt-10 flex items-center gap-6">
+                <Link href="/mentor-journey" className="w-16 h-16 rounded-full bg-brand-50 flex items-center justify-center border border-brand-100 group">
+                  <div className="w-12 h-12 rounded-full bg-brand-600 flex items-center justify-center cursor-pointer hover:bg-brand-500 transition-colors shadow-warm-glow group-hover:scale-110 transition-transform">
+                    <ChevronRight className="w-5 h-5 text-white ml-0.5" />
+                  </div>
+                </Link>
                 <div>
-                  <p className="text-base font-bold text-slate-900">PK Singh</p>
-                  <p className="text-xs text-slate-500 uppercase tracking-[0.3em] font-medium">IIT • IIM • Author</p>
-                </div>
-                <div className="ml-auto">
-                  <Image src="/images/pk_sir_logo.jpg" alt="Brand Logo" width={80} height={24} className="w-[80px] h-auto rounded-lg bg-white/80 px-1.5 py-1 dark:bg-slate-800/80" />
+                  <Link href="/about" className="text-ink font-bold hover:text-brand-600 transition-colors">
+                    About PK Singh
+                  </Link>
+                  <p className="text-ink-muted text-sm">From IIT &amp; IIM to mentoring thousands</p>
                 </div>
               </div>
-              <div className="rounded-2xl bg-amber-50 border border-amber-100 p-6 dark:text-slate-900">
-                <p className="text-xs uppercase tracking-[0.3em] text-amber-800 font-bold mb-3">High-impact mentorship</p>
-                <p className="text-slate-800 text-sm leading-relaxed">One-to-one guidance, exam-ready routines, and strategically designed learning plans for maximum progress.</p>
+            </div>
+
+            <div className="hidden md:block">
+              {/* Space for the cinematic portrait */}
+            </div>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* ───────────────────────────────────── Mentorship vs Mass Classes Comparison ───────────────────────────────────── */}
+      <MentorshipComparison />
+
+      {/* ───────────────────────────────────── Dynamic Wisdom Quotes Carousel ───────────────────────────────────── */}
+      <WisdomSlideshow variant="section" />
+
+      {/* ───────────────────────────────────── How It Works ───────────────────────────────────── */}
+      <section id="how" className="py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="text-center mb-14">
+              <span className="inline-block px-4 py-1.5 rounded-pill bg-brand-50 border border-brand-100 text-brand-700 text-xs font-bold uppercase tracking-[0.3em] mb-5">
+                How It Works
+              </span>
+              <h2 className="font-display text-4xl font-semibold text-ink md:text-5xl">
+                Simple steps to start your <span className="text-brand-600">high-impact</span> preparation
+              </h2>
+            </div>
+          </Reveal>
+
+          <Reveal className="mt-14">
+            <div className="grid gap-8 md:grid-cols-3">
+              {[
+                { icon: Zap, title: 'Explore the curriculum', desc: 'Review courses designed for exam clarity, concept mastery and problem-solving speed.' },
+                { icon: Target, title: 'Choose your path', desc: 'Select focused lessons for JEE, NEET, SAT or preparatory exams with proven teaching frameworks.' },
+                { icon: CheckCircle2, title: 'Track your progress', desc: 'Use the platform to track lessons, review tasks, and measure improvement every week.' },
+              ].map((item) => (
+                <div key={item.title} className="group rounded-card border border-border-subtle bg-bg-card p-8 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-warm-md shadow-warm-sm">
+                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 text-white mb-6 shadow-md group-hover:scale-110 transition-transform duration-300">
+                    <item.icon className="w-6 h-6" />
+                  </div>
+                  <h3 className="font-display text-xl font-semibold text-ink mb-3">{item.title}</h3>
+                  <p className="text-ink-secondary text-sm leading-relaxed">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ───────────────────────────────────── Pricing Section ───────────────────────────────────── */}
+      <PricingSection />
+
+      {/* ───────────────────────────────────── Testimonials (Upgraded) ───────────────────────────────────── */}
+      <Testimonials />
+
+      {/* ───────────────────────────────────── Browse by Subject shortcuts ───────────────────────────────────── */}
+      <section className="py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="text-center mb-14">
+              <h2 className="font-display text-4xl font-semibold text-ink md:text-5xl">
+                Master Your Core <span className="text-brand-600">Subjects</span>
+              </h2>
+              <p className="text-ink-secondary mt-4 text-lg max-w-xl mx-auto">
+                Specialized courses designed for each discipline with real exam alignment
+              </p>
+            </div>
+          </Reveal>
+
+          <Reveal className="mt-12" delay={80}>
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                { href: '/courses?subject=PHYSICS', icon: Target, title: 'Physics', desc: 'Explore mechanics, electrodynamics, optics, and wave theory with crystal clear visual derivations.', iconColor: 'text-blue-700', iconBg: 'bg-blue-100', border: 'border-blue-200' },
+                { href: '/courses?subject=CHEMISTRY', icon: Award, title: 'Chemistry', desc: 'Unlock organic synthesis mechanisms, chemical kinetics, atomic structures, and coordinate compounds.', iconColor: 'text-emerald-700', iconBg: 'bg-emerald-100', border: 'border-emerald-200' },
+                { href: '/courses?subject=MATH', icon: GraduationCap, title: 'Mathematics', desc: 'Ace AP Calculus, JEE trigonometry, complex algebra, matrices, probability, and advanced coordinate geometry.', iconColor: 'text-violet-700', iconBg: 'bg-violet-100', border: 'border-violet-200' },
+              ].map((item) => (
+                <Link
+                  key={item.title}
+                  href={item.href}
+                  className={`group p-8 rounded-card border ${item.border} bg-bg-card transition-all duration-300 hover:shadow-warm-md hover:-translate-y-2 shadow-warm-sm flex flex-col`}
+                >
+                  <div className={`w-16 h-16 rounded-2xl ${item.iconBg} border ${item.border} flex items-center justify-center ${item.iconColor} mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                    <item.icon className="w-7 h-7" />
+                  </div>
+                  <h3 className="font-display text-2xl font-semibold text-ink mb-3">{item.title}</h3>
+                  <p className="text-ink-secondary text-sm leading-relaxed mb-6 flex-grow">{item.desc}</p>
+                  <span className={`${item.iconColor} text-xs font-bold tracking-wider uppercase inline-flex items-center gap-1.5`}>
+                    Explore {item.title.toLowerCase()} courses
+                    <span className="w-5 h-5 rounded-full bg-current flex items-center justify-center text-white transition-transform group-hover:translate-x-1">
+                      <ChevronRight className="w-3 h-3" />
+                    </span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ───────────────────────────────────── Featured Courses Showcase ───────────────────────────────────── */}
+      <section className="py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="flex flex-col sm:flex-row items-end justify-between gap-4 mb-14">
+              <div>
+                <span className="inline-block px-3 py-1 rounded-full bg-brand-50 border border-brand-100 text-brand-700 text-xs font-bold uppercase tracking-[0.3em] mb-4">
+                  Featured
+                </span>
+                <h2 className="font-display text-4xl font-semibold text-ink md:text-5xl">
+                  Featured <span className="text-brand-600">Courses</span>
+                </h2>
+                <p className="text-ink-secondary mt-2">Hand-picked interactive courses to kickstart your preparation</p>
               </div>
-              <div className="grid gap-3">
-                {[
-                  { title: 'Smart Revision', description: 'Clear concept maps, memory anchors and problem templates for fast recall.' },
-                  { title: 'Live Doubt Solving', description: 'Get answers, strategy checks and practice advice directly from the mentor.' },
-                  { title: 'Real Exam Focus', description: 'Dedicated training for JEE, NEET, SAT, CAT and GMAT with real exam alignment.' },
-                ].map((item, i) => (
-                  <div key={item.title} className="rounded-2xl bg-white/80 border border-slate-200/60 p-5 hover:bg-white hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group dark:bg-slate-800/80 dark:border-slate-700/60 dark:hover:bg-slate-800">
-                    <div className="flex items-center gap-3 mb-1.5">
-                      <span className="w-7 h-7 rounded-lg bg-slate-900 text-white text-xs font-bold flex items-center justify-center">{i + 1}</span>
-                      <p className="text-sm font-bold text-slate-800">{item.title}</p>
+              <Link
+                href="/courses"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-pill bg-ink text-white text-sm font-semibold hover:bg-ink-secondary transition-all shadow-warm-sm"
+              >
+                View all courses
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </Reveal>
+
+          {isLoading ? (
+            <div className="grid md:grid-cols-3 gap-8">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="rounded-card bg-bg-card border border-border-subtle animate-pulse h-96 flex flex-col p-6 justify-between shadow-warm-sm">
+                  <div className="h-4 bg-border-subtle rounded w-1/3"></div>
+                  <div className="space-y-3">
+                    <div className="h-6 bg-border-subtle rounded w-full"></div>
+                    <div className="h-4 bg-border-subtle rounded w-5/6"></div>
+                  </div>
+                  <div className="h-10 bg-border-subtle rounded-pill w-full"></div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Reveal className="mt-8" delay={80}>
+              <div className="grid md:grid-cols-3 gap-8">
+                {featuredCourses.map((course) => (
+                  <div
+                    key={course.id}
+                    className="rounded-card border border-border-subtle bg-bg-card shadow-warm-sm hover:shadow-warm-md hover:-translate-y-2 hover:border-brand-300 transition-all duration-500 overflow-hidden flex flex-col group cursor-pointer"
+                  >
+                    <div className={`h-44 relative p-6 flex flex-col justify-between bg-brand-700 border-b border-border-subtle`}>
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_50%)]"></div>
+                      <span className="relative self-start px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white text-[10px] font-bold uppercase tracking-wider">
+                        {course.subject}
+                      </span>
+                      <div className="relative">
+                        <h3 className="text-xl font-bold text-white leading-snug">
+                          {course.title}
+                        </h3>
+                      </div>
                     </div>
-                    <p className="text-slate-600 text-sm leading-relaxed ml-10">{item.description}</p>
+
+                    <div className="p-6 flex-1 flex flex-col justify-between">
+                      <p className="text-ink-secondary text-sm leading-relaxed mb-6 line-clamp-3">
+                        {course.description}
+                      </p>
+
+                      <div className="flex flex-wrap gap-1.5 mb-6">
+                        {course.examTags.map((tag: string) => (
+                          <span
+                            key={tag}
+                            className="px-2.5 py-0.5 rounded-full bg-brand-50 border border-brand-100 text-brand-700 text-[9px] font-semibold uppercase tracking-wider"
+                          >
+                            {tag.replace('_', ' ')}
+                          </span>
+                        ))}
+                      </div>
+
+                      <Link
+                        href={`/courses/${course.id}`}
+                        className="w-full py-3 rounded-pill bg-ink text-white hover:bg-brand-600 group-hover:text-white text-center text-sm font-semibold transition-all duration-300 block"
+                      >
+                        <span className="flex items-center justify-center gap-2">
+                          View Details
+                          <ChevronRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                        </span>
+                      </Link>
+                    </div>
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
+            </Reveal>
+          )}
         </div>
       </section>
 
-      {/* Infinite Marquee Engagement Loop */}
-      <section className="border-y border-slate-200 bg-white py-4 overflow-hidden relative">
-        <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
-        <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
-        <div className="animate-marquee flex items-center gap-12 px-4">
-          <span className="flex items-center gap-2 text-sm font-semibold text-slate-700 whitespace-nowrap"><Target className="w-4 h-4 text-amber-600" /> JEE · NEET · SAT · CAT · GMAT</span>
-          <span className="flex items-center gap-2 text-sm font-semibold text-slate-700 whitespace-nowrap"><Award className="w-4 h-4 text-amber-600" /> #1 Bestselling Author</span>
-          <span className="flex items-center gap-2 text-sm font-semibold text-slate-700 whitespace-nowrap"><Zap className="w-4 h-4 text-amber-600" /> IIT & IIM Alumni Network</span>
-          <span className="flex items-center gap-2 text-sm font-bold text-amber-800 whitespace-nowrap bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">&ldquo;Focus on effort, not the outcome.&rdquo;</span>
-        </div>
-      </section>
-
-      {/* Wisdom Strip */}
-      <WisdomSlideshow variant="strip" />
-
-      {/* Free Study Guide Lead Magnet */}
-      <FreePreview />
-
-      {/* Gamification / Streaks Callout */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-12">
-        <div className="rounded-[2.5rem] bg-gradient-to-r from-amber-600 to-amber-500 p-8 sm:p-12 text-white relative overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-white/20 rounded-full blur-[80px] pointer-events-none"></div>
-          <div className="relative z-10 max-w-2xl">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                <Flame className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold tracking-tight">Active Streaks: Building the Habit of Success</h3>
-            </div>
-            <p className="text-white/90 text-lg leading-relaxed">
-              Consistency beats intensity. Our platform tracks your daily learning streak. Watch a lesson, solve a problem, or complete a quiz every day to keep your streak alive. The longest streaks unlock exclusive 1:1 strategy sessions with PK Singh!
-            </p>
-          </div>
-          <div className="relative z-10 shrink-0">
-            <div className="bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-6 text-center shadow-[0_8px_32px_rgba(0,0,0,0.1)]">
-              <Flame className="w-12 h-12 text-amber-200 mx-auto mb-2 animate-pulse" />
-              <div className="text-3xl font-black text-white leading-tight">Start your<br />streak today</div>
-              <div className="text-sm font-semibold text-amber-200 uppercase tracking-widest mt-1">
-                <Link href="/signup" className="underline decoration-amber-300/60 underline-offset-4 hover:text-amber-100">
-                  Sign up free
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Trust Badges */}
-      <TrustBadges />
-
-      {/* Media Logos Strip */}
-      <MediaLogos />
-
-      {/* Stats Section with Scroll Animation & Live / Fallback counters */}
-      <section ref={statsAnimRef} className="relative py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto overflow-hidden rounded-[2.5rem] bg-slate-900 text-white shadow-2xl relative">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(217,119,6,0.08),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(217,119,6,0.06),transparent_40%)]"></div>
-          <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-amber-500/05 to-transparent"></div>
-          <div className="relative grid gap-5 p-10 md:grid-cols-4 grid-rows-[auto]">
-            <StatCard 
-              icon={BookOpen} 
-              value={stats?.students ?? SITE_STATS.learnersMentored}
-              suffix="+"
-              label="Learners mentored"
-              sublabel="Verified count published when confirmed"
-              color="from-amber-400/20 to-amber-500/10 text-amber-200" 
-              span="md:col-span-2 md:row-span-2" 
-              isVisible={statsAnimIsVisible} 
-            />
-            <StatCard 
-              icon={Flame} 
-              value={stats?.publishedCourses ?? SITE_STATS.interactiveCourses}
-              suffix=""
-              label="Courses in catalog" 
-              color="from-amber-400/20 to-amber-500/10 text-amber-200" 
-              span="md:col-span-1 md:row-span-1" 
-              isVisible={statsAnimIsVisible} 
-            />
-            <StatCard 
-              icon={Award} 
-              value={stats?.publishedLessons ?? SITE_STATS.lessonModules}
-              suffix=""
-              label="Lesson modules" 
-              color="from-amber-400/20 to-amber-500/10 text-amber-200" 
-              span="md:col-span-1 md:row-span-1" 
-              isVisible={statsAnimIsVisible} 
-            />
-            <StatCard 
-              icon={Target} 
-              value={stats?.enrollments ?? SITE_STATS.freeResources}
-              suffix=""
-              label="Free study guides" 
-              sublabel="Unlock on signup"
-              color="from-amber-400/20 to-amber-500/10 text-amber-200" 
-              span="md:col-span-2 md:row-span-1" 
-              isVisible={statsAnimIsVisible} 
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Cohort Banner */}
-      <CohortBanner />
-
-      {/* What You Get Breakdown */}
-      <WhatYouGet />
-
-      {/* Cinematic Mentor Story (MasterClass Style) */}
-      <section id="about" className="relative bg-slate-950 py-24 sm:py-32 overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <Image src="/images/pk-singh-photo.jpg" alt="Mentor Background" fill className="object-cover opacity-30 mix-blend-luminosity" priority />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
-        </div>
-        
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-16 items-center">
-          <div>
-            <span className="inline-block px-3 py-1 rounded-full bg-white/10 border border-white/20 text-slate-300 text-xs font-bold uppercase tracking-[0.3em] mb-6">Meet Your Mentor</span>
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.1] mb-8">
-              &ldquo;Excellence is not an act, but a <span className="text-amber-500 italic font-serif">daily habit.</span>&rdquo;
-            </h2>
-            <div className="space-y-6 text-lg text-slate-300 leading-relaxed max-w-xl">
-              <p>
-                As an IIT and IIM alumnus, I&apos;ve walked the path you are on right now. The pressure, the overwhelming syllabus, the fear of falling behind — I know it intimately.
-              </p>
-              <p>
-                But over my 23 years of professional leadership and teaching, I&apos;ve distilled the noise into a clear, repeatable framework. I don&apos;t just teach you formulas; I teach you how to think, how to break down complex problems, and how to build the unshakable confidence required to conquer JEE, NEET, SAT, and beyond.
-              </p>
-              <p className="text-amber-400 font-semibold italic">
-                Welcome to the mentorship that changes the trajectory of your career.
-              </p>
-            </div>
-            
-            <div className="mt-10 flex items-center gap-6">
-              <Link href="/mentor-journey" className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center border border-amber-500/30 group">
-                <div className="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center cursor-pointer hover:bg-amber-400 transition-colors shadow-[0_0_20px_rgba(245,158,11,0.5)] group-hover:scale-110 transition-transform">
-                  <ChevronRight className="w-5 h-5 text-slate-900 ml-0.5" />
-                </div>
-              </Link>
-              <div>
-                <Link href="/mentor-journey" className="text-white font-bold hover:text-amber-400 transition-colors">
-                  Read the Mentor&apos;s Journey
-                </Link>
-                <p className="text-slate-400 text-sm">From IIT & IIM to mentoring thousands</p>
-                <Link href="/about" className="text-amber-400 text-sm font-semibold hover:text-amber-300 transition-colors inline-flex items-center gap-1 mt-1">
-                  About PK Singh <ChevronRight className="w-3 h-3" />
-                </Link>
-              </div>
-            </div>
-          </div>
-          
-          <div className="hidden md:block">
-            {/* Space for the cinematic portrait */}
-          </div>
-        </div>
-      </section>
-
-      {/* Mentorship vs Mass Classes Comparison */}
-      <MentorshipComparison />
-
-      {/* Dynamic Wisdom Quotes Carousel */}
-      <WisdomSlideshow variant="section" />
-
-      {/* How It Works */}
-      <section id="how" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20">
-        <div className="text-center mb-14">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold uppercase tracking-[0.3em] mb-5">How It Works</span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">Simple steps to start your <span className="text-amber-600">high-impact</span> preparation</h2>
-        </div>
-
-        <div className="grid gap-8 md:grid-cols-3">
-          {[
-            { icon: Zap, title: 'Explore the curriculum', desc: 'Review courses designed for exam clarity, concept mastery and problem-solving speed.', gradient: 'from-amber-500 to-amber-600', bgLight: 'bg-amber-50', borderHover: 'hover:border-amber-300 hover:bg-amber-50/50' },
-            { icon: Target, title: 'Choose your path', desc: 'Select focused lessons for JEE, NEET, SAT or preparatory exams with proven teaching frameworks.', gradient: 'from-amber-500 to-amber-600', bgLight: 'bg-amber-50', borderHover: 'hover:border-amber-300 hover:bg-amber-50/50' },
-            { icon: CheckCircle2, title: 'Track your progress', desc: 'Use the platform to track lessons, review tasks, and measure improvement every week.', gradient: 'from-amber-500 to-amber-600', bgLight: 'bg-amber-50', borderHover: 'hover:border-amber-300 hover:bg-amber-50/50' },
-          ].map((item) => (
-            <div key={item.title} className={`group rounded-3xl border border-slate-200 bg-white p-8 ${item.borderHover} transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 shadow-sm`}>
-              <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br ${item.gradient} text-white mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                <item.icon className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">{item.desc}</p>
-              <div className="mt-6 w-12 h-1 rounded-full bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: `linear-gradient(90deg, #D97706, transparent)` }}></div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <PricingSection />
-
-      {/* Testimonials (Upgraded) */}
-      <Testimonials />
-
-      {/* Browse by Subject shortcuts */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20">
-        <div className="text-center mb-14">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900">
-            Master Your Core <span className="text-amber-600">Subjects</span>
-          </h2>
-          <p className="text-slate-600 mt-4 text-lg max-w-xl mx-auto">Specialized courses designed for each discipline with real exam alignment</p>
-        </div>
-        
-        <div className="grid md:grid-cols-3 gap-8">
-          {[
-            { href: '/courses?subject=PHYSICS', icon: Target, title: 'Physics', desc: 'Explore mechanics, electrodynamics, optics, and wave theory with crystal clear visual derivations.', bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', iconBg: 'bg-blue-100', gradient: 'from-blue-500 to-blue-600' },
-            { href: '/courses?subject=CHEMISTRY', icon: Award, title: 'Chemistry', desc: 'Unlock organic synthesis mechanisms, chemical kinetics, atomic structures, and coordinate compounds.', bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', iconBg: 'bg-emerald-100', gradient: 'from-emerald-500 to-emerald-600' },
-            { href: '/courses?subject=MATH', icon: GraduationCap, title: 'Mathematics', desc: 'Ace AP Calculus, JEE trigonometry, complex algebra, matrices, probability, and advanced coordinate geometry.', bg: 'bg-violet-50', border: 'border-violet-200', text: 'text-violet-700', iconBg: 'bg-violet-100', gradient: 'from-violet-500 to-violet-600' },
-          ].map((item) => (
-            <Link
-              key={item.title}
-              href={item.href}
-              className={`group p-8 rounded-3xl border ${item.border} ${item.bg} transition-all duration-300 hover:shadow-xl hover:-translate-y-2 shadow-sm`}
-            >
-              <div className={`w-16 h-16 rounded-2xl ${item.iconBg} border ${item.border} flex items-center justify-center ${item.text} mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                <item.icon className="w-7 h-7" />
-              </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-3">{item.title}</h3>
-              <p className="text-slate-600 text-sm leading-relaxed mb-6">{item.desc}</p>
-              <span className={`${item.text} text-xs font-bold tracking-wider uppercase inline-flex items-center gap-1.5 group`}>
-                Explore {item.title.toLowerCase()} courses 
-                <span className="w-5 h-5 rounded-full bg-current flex items-center justify-center text-white transition-transform group-hover:translate-x-1">
-                  <ChevronRight className="w-3 h-3" />
-                </span>
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Featured Courses Showcase */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20">
-        <div className="flex flex-col sm:flex-row items-end justify-between gap-4 mb-14">
-          <div>
-            <span className="inline-block px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold uppercase tracking-[0.3em] mb-4">Featured</span>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
-              Featured <span className="text-amber-600">Courses</span>
-            </h2>
-            <p className="text-slate-600 mt-2">Hand-picked interactive courses to kickstart your preparation</p>
-          </div>
-          <Link
-            href="/courses"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-slate-900 text-white text-sm font-bold hover:bg-slate-800 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
-          >
-            View all courses
-            <ChevronRight className="w-4 h-4" />
-          </Link>
-        </div>
-
-        {isLoading ? (
-          <div className="grid md:grid-cols-3 gap-8">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="rounded-3xl bg-white border border-slate-200 animate-pulse h-96 flex flex-col p-6 justify-between shadow-sm">
-                <div className="h-4 bg-slate-200 rounded w-1/3"></div>
-                <div className="space-y-3">
-                  <div className="h-6 bg-slate-200 rounded w-full"></div>
-                  <div className="h-4 bg-slate-200 rounded w-5/6"></div>
-                </div>
-                <div className="h-10 bg-slate-200 rounded-full w-full"></div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-3 gap-8 animate-fade-in-up">
-            {featuredCourses.map((course) => (
-              <div
-                key={course.id}
-                className="rounded-3xl border border-slate-200 bg-white shadow-sm hover:shadow-2xl hover:-translate-y-2 hover:border-amber-300 transition-all duration-500 overflow-hidden flex flex-col group cursor-pointer"
-              >
-                <div className={`h-44 relative p-6 flex flex-col justify-between bg-amber-950`}>
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_50%)]"></div>
-                  <span className="relative self-start px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white text-[10px] font-bold uppercase tracking-wider">
-                    {course.subject}
-                  </span>
-                  <div className="relative">
-                    <h3 className="text-xl font-bold text-white leading-snug">
-                      {course.title}
-                    </h3>
-                  </div>
-                </div>
-
-                <div className="p-6 flex-1 flex flex-col justify-between">
-                  <p className="text-slate-600 text-sm leading-relaxed mb-6 line-clamp-3">
-                    {course.description}
-                  </p>
-
-                  <div className="flex flex-wrap gap-1.5 mb-6">
-                    {course.examTags.map((tag: string) => (
-                      <span
-                        key={tag}
-                        className="px-2.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-[9px] font-semibold uppercase tracking-wider"
-                      >
-                        {tag.replace('_', ' ')}
-                      </span>
-                    ))}
-                  </div>
-
-                  <Link
-                    href={`/courses/${course.id}`}
-                    className="w-full py-3 rounded-full bg-slate-100 border border-slate-200 group-hover:bg-slate-900 group-hover:text-white group-hover:border-slate-900 text-slate-700 text-center text-sm font-bold tracking-wide transition-all duration-300 block relative overflow-hidden"
-                  >
-                    <span className="relative z-10 flex items-center justify-center gap-2">
-                      View Details
-                      <ChevronRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
-                    </span>
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* Dashboard Preview Section */}
+      {/* ───────────────────────────────────── Dashboard Preview Section ───────────────────────────────────── */}
       <DashboardPreview />
 
-      {/* Referral Section */}
+      {/* ───────────────────────────────────── Referral Section ───────────────────────────────────── */}
       <ReferralSection />
 
-      {/* FAQ teaser → full FAQ lives on /faq */}
+      {/* ───────────────────────────────────── FAQ teaser ───────────────────────────────────── */}
       <FaqTeaser />
 
-      {/* Fixed Position Components */}
+      {/* ───────────────────────────────────── Fixed Position Components ───────────────────────────────────── */}
       <WhatsAppButton />
       <ExitIntentModal />
       <ScrollDepthCta />
 
       <SiteFooter />
 
-      {/* Sticky Bottom Engagement Bar — hides on scroll past hero */}
+      {/* ───────────────────────────────────── Sticky Bottom Engagement Bar ───────────────────────────────────── */}
       {showBottomCta && (
         <div className="fixed bottom-6 left-0 right-0 z-50 px-4 pointer-events-none flex justify-center animate-slide-up">
-          <div className="pointer-events-auto bg-slate-900 backdrop-blur-md border border-slate-700 rounded-full px-6 py-3 shadow-2xl flex items-center gap-4 sm:gap-6 transition-all">
-            <span className="hidden sm:inline text-white text-sm font-medium">Ready to start your journey?</span>
-            <Link href="/courses" className="btn bg-amber-500 text-white border-none py-2 px-6 rounded-full text-sm font-bold hover:bg-amber-600 transition-colors">
+          <div className="pointer-events-auto bg-ink backdrop-blur-md border border-border-subtle rounded-pill px-6 py-3 shadow-warm-md flex items-center gap-4 sm:gap-6 transition-all">
+            <span className="hidden sm:inline text-ink-secondary text-sm font-medium">Ready to start your journey?</span>
+            <Link
+              href="/courses"
+              className="shrink-0 px-6 py-2 rounded-pill bg-brand-600 text-white text-sm font-semibold hover:bg-brand-500 transition-all shadow-warm-sm"
+            >
               Explore Courses
             </Link>
           </div>
@@ -551,4 +506,3 @@ export default function LandingPage() {
     </div>
   );
 }
-

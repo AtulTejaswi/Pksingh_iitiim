@@ -22,7 +22,7 @@ export default function LocaleToggle() {
   return (
     <button
       onClick={toggle}
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors border border-slate-200"
+      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-ink-muted hover:text-ink hover:bg-brand-50 transition-colors border border-border-subtle"
       aria-label={`Switch language to ${locale === 'en' ? 'Hindi' : 'English'}`}
     >
       <Languages className="w-3.5 h-3.5" />

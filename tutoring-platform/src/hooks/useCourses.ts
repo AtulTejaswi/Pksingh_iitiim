@@ -11,6 +11,7 @@ export interface Course {
   thumbnailUrl: string | null;
   isFree: boolean;
   status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  isPublished?: boolean;
   _count?: {
     lessons: number;
     enrollments: number;

@@ -4,13 +4,38 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { apiClient } from './api-client';
 import { LoginInput, SignupInput } from './validators';
 
+interface ApiErrorResponse {
+  error?: unknown;
+}
+
+interface AuthError {
+  isAxiosError?: boolean;
+  code?: string;
+  message?: string;
+  response?: {
+    status: number;
+    data?: ApiErrorResponse;
+  };
+}
+
+const isAuthError = (e: unknown): e is AuthError => {
+  if (typeof e !== 'object' || e === null) return false;
+  const r = e as Record<string, unknown>;
+  return typeof r.isAxiosError === 'boolean' || typeof r.code === 'string' || typeof r.response !== 'undefined';
+};
+
 // Turns an axios error into a message that's actually true. A network-level
 // failure (timeout, cold start, DNS) previously fell through to a hardcoded
 // "Login failed" / raw JSON dump, which reads exactly like a credentials
 // problem even when the real cause is the backend waking up.
-const getFriendlyAuthError = (error: any, fallback: string): string => {
-  if (!error?.response) {
-    if (error?.code === 'ECONNABORTED' || /timeout/i.test(error?.message || '')) {
+const getFriendlyAuthError = (error: unknown, fallback: string): string => {
+  if (!isAuthError(error)) {
+    const detail = error instanceof Error ? error.message : String(error);
+    return `Could not reach the server (${detail}). Please check your connection and try again.`;
+  }
+
+  if (!error.response) {
+    if (error.code === 'ECONNABORTED' || /timeout/i.test(error.message ?? '')) {
       return 'The server is starting up (this can take up to a minute on first use). Please try again in a few seconds.';
     }
     return 'Could not reach the server. Please check your connection and try again.';
@@ -153,7 +178,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setVerified(true);
       return profile;
 
-    } catch (error: any) {
+    } catch (error) {
       setUser(null);
       throw new Error(getFriendlyAuthError(error, 'Invalid email or password. Please try again.'));
     } finally {
@@ -175,8 +200,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Log in immediately
       await login({ email: data.email, password: data.password });
-    } catch (error: any) {
-      if (error?.response?.status === 409) {
+    } catch (error) {
+      const e = error as AuthError;
+      if (e?.response?.status === 409) {
         throw new Error('An account with this email already exists. Try signing in instead.');
       }
       throw new Error(getFriendlyAuthError(error, 'Registration failed. Please try again.'));

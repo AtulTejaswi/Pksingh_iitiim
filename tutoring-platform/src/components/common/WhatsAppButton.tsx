@@ -34,7 +34,7 @@ export default function WhatsAppButton() {
         </a>
         <button
           onClick={() => setDismissed(true)}
-          className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-slate-800 text-white flex items-center justify-center hover:bg-slate-700 transition-colors shadow"
+          className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-ink text-white flex items-center justify-center hover:bg-ink-secondary transition-colors shadow"
           aria-label="Dismiss"
         >
           <X className="w-3 h-3" />

@@ -36,11 +36,11 @@ export default function EmailCaptureForm() {
 
   if (submitted) {
     return (
-      <div className="flex items-center gap-3 p-6 rounded-2xl bg-amber-50 border border-amber-200">
-        <CheckCircle2 className="w-8 h-8 text-amber-500 shrink-0" />
+      <div className="flex items-center gap-3 p-6 rounded-card bg-brand-50 border border-brand-200">
+        <CheckCircle2 className="w-8 h-8 text-brand-600 shrink-0" />
         <div>
-          <p className="font-bold text-amber-800">You&apos;re on the list!</p>
-          <p className="text-sm text-amber-600">We&apos;ll email you the study guide and weekly exam tips.</p>
+          <p className="font-bold text-brand-700">You&apos;re on the list!</p>
+          <p className="text-sm text-brand-600">We&apos;ll email you the study guide and weekly exam tips.</p>
         </div>
       </div>
     );
@@ -48,7 +48,7 @@ export default function EmailCaptureForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <p className="text-sm font-semibold text-slate-700">Get your free study guide + weekly exam tips</p>
+      <p className="text-sm font-semibold text-ink-secondary">Get your free study guide + weekly exam tips</p>
       <div>
         <label htmlFor="capture-name" className="sr-only">Your Name</label>
         <input
@@ -58,7 +58,7 @@ export default function EmailCaptureForm() {
           placeholder="Your Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400"
+          className="w-full rounded-xl border border-border-subtle px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 text-ink"
         />
       </div>
       <div>
@@ -70,7 +70,7 @@ export default function EmailCaptureForm() {
           placeholder="Email Address"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400"
+          className="w-full rounded-xl border border-border-subtle px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 text-ink"
         />
       </div>
       <div>
@@ -81,19 +81,19 @@ export default function EmailCaptureForm() {
           placeholder="WhatsApp Number (optional)"
           value={whatsapp}
           onChange={(e) => setWhatsapp(e.target.value)}
-          className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400"
+          className="w-full rounded-xl border border-border-subtle px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 text-ink"
         />
       </div>
       {error && <p className="text-sm text-red-600 font-medium">{error}</p>}
       <button
         type="submit"
         disabled={loading}
-        className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-500 text-white font-bold py-3 px-6 hover:bg-amber-600 transition-colors shadow-sm disabled:opacity-60"
+        className="w-full flex items-center justify-center gap-2 rounded-xl bg-brand-600 text-white font-bold py-3 px-6 hover:bg-brand-500 transition-colors shadow-sm disabled:opacity-60"
       >
         <Download className="w-4 h-4" />
         {loading ? 'Subscribing…' : 'Download Free Study Guide'}
       </button>
-      <p className="text-xs text-slate-500 text-center">No spam. Unsubscribe anytime.</p>
+      <p className="text-xs text-ink-muted text-center">No spam. Unsubscribe anytime.</p>
     </form>
   );
 }

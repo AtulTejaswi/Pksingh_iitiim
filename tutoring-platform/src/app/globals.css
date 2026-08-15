@@ -10,74 +10,180 @@
    ───────────────────────────────────────────────────────────────────────── */
 
 :root {
-  --bg: #FFFFFF;
-  --surface: #F8FAFC;
-  --surface-2: #F1F5F9;
-  --surface-brand: #FFF7ED;
+  /* ─── Surfaces — warm white base (not pure #fff) ─── */
+  --bg: #FFFDFB;
+  --bg-base: #FFFDFB;
+  --surface: #FFFDFB;
+  --surface-2: #FFF7F0;
+  --surface-brand: #FFF7F0;
+  --bg-subtle: #FFF7F0;
+  --bg-card: #FFFFFF;
+  --bg-card-tint: #FFF4E8; /* highlighted / "most popular" cards */
 
-  /* Single accent family — used for every CTA, link, and highlight */
+  /* ─── Single accent family — orange ramp driving every CTA/link/highlight ─── */
   --accent: #F97316;
   --accent-hover: #EA580C;
-  --accent-soft: #FFEDD5;
+  --accent-soft: #FFF4E8;
   --accent-grad: linear-gradient(135deg, #F97316, #FB923C);
+  --accent-50:  #FFF4E8;
+  --accent-100: #FFE4C7;
+  --accent-300: #FFB268;
+  --accent-500: #F97316; /* primary brand orange */
+  --accent-600: #EA580C;
+  --accent-700: #C2410C;
+  --accent-900: #7C2D12;
 
-  /* Navy — headings, nav, high-emphasis surfaces */
-  --navy: #0F172A;
-  --navy-soft: #1E293B;
+  /* ─── Text — warm near-black, not pure black ─── */
+  --text-primary: #241C15;
+  --text-secondary: #6B5D4F;
+  --text-muted: #9C8B7A;
+  --ink: #241C15;
+  --ink-secondary: #6B5D4F;
+  --ink-muted: #9C8B7A;
+  --text-on-dark: #241C15;
+  --text-on-dark-muted: #9C8B7A;
 
-  --text-primary: #0F172A;
-  --text-secondary: #334155;
-  --text-muted: #64748B;
-  --text-on-dark: #F8FAFC;
-  --text-on-dark-muted: #94A3B8;
+  /* Navy replaced by warm near-black (kept for legacy class references) */
+  --navy: #241C15;
+  --navy-soft: #6B5D4F;
 
-  --borders: #E2E8F0;
-  --borders-strong: #CBD5E1;
+  /* ─── Borders / dividers (warm) ─── */
+  --borders: #F0E4D8;
+  --borders-strong: #E8D4BE;
+  --border-subtle: #F0E4D8;
+  --border-strong: #E8D4BE;
 
-  --card-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
-  --elevated-shadow: 0 12px 28px rgba(15, 23, 42, 0.10), 0 4px 10px rgba(15, 23, 42, 0.05);
-  --accent-shadow: 0 8px 20px rgba(249, 115, 22, 0.25);
+  /* ─── Shadows (warm-tinted, not neutral grey) ─── */
+  --card-shadow: 0 2px 8px rgba(234, 88, 12, 0.06);
+  --elevated-shadow: 0 16px 48px rgba(234, 88, 12, 0.14);
+  --accent-shadow: 0 0 60px rgba(249, 115, 22, 0.25);
+  --shadow-sm: 0 2px 8px rgba(234, 88, 12, 0.06);
+  --shadow-md: 0 8px 24px rgba(234, 88, 12, 0.10);
+  --shadow-lg: 0 16px 48px rgba(234, 88, 12, 0.14);
+  --shadow-glow: 0 0 60px rgba(249, 115, 22, 0.25);
+  --warm-shadow-sm: 0 2px 8px rgba(234, 88, 12, 0.06);
+  --warm-shadow-md: 0 8px 24px rgba(234, 88, 12, 0.10);
+  --warm-shadow-lg: 0 16px 48px rgba(234, 88, 12, 0.14);
+  --warm-shadow-glow: 0 0 60px rgba(249, 115, 22, 0.25);
 
   --focus: rgba(249, 115, 22, 0.25);
+
+  /* ─── Radius ─── */
   --radius: 1rem;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-pill: 999px;
+  --radius-card: 16px;
+
+  /* ─── Motion ─── */
   --transition-fast: 160ms;
   --transition-medium: 300ms;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 180ms;
+  --dur-base: 320ms;
+  --dur-slow: 600ms;
 
-  /* shadcn/ui tokens — mapped to the same system, kept for admin/internal UI */
-  --background: #FFFFFF;
-  --foreground: #0F172A;
+  /* shadcn/ui tokens — mapped to the same warm system, kept for admin/internal UI */
+  --background: #FFFDFB;
+  --foreground: #241C15;
   --card: #FFFFFF;
-  --card-foreground: #0F172A;
+  --card-foreground: #241C15;
   --popover: #FFFFFF;
-  --popover-foreground: #0F172A;
+  --popover-foreground: #241C15;
   --primary: #F97316;
   --primary-foreground: #FFFFFF;
-  --secondary: #F1F5F9;
-  --secondary-foreground: #0F172A;
-  --muted: #F1F5F9;
-  --muted-foreground: #64748B;
-  --accent-token: #FFEDD5;
-  --accent-foreground: #0F172A;
+  --secondary: #FFF7F0;
+  --secondary-foreground: #6B5D4F;
+  --muted: #FFF7F0;
+  --muted-foreground: #9C8B7A;
+  --accent-token: #FFF4E8;
+  --accent-foreground: #241C15;
   --destructive: #DC2626;
-  --border: #E2E8F0;
-  --input: #E2E8F0;
+  --border: #F0E4D8;
+  --input: #F0E4D8;
   --ring: #F97316;
   --sidebar: #FFFFFF;
-  --sidebar-foreground: #0F172A;
+  --sidebar-foreground: #241C15;
   --sidebar-primary: #F97316;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #F1F5F9;
-  --sidebar-accent-foreground: #0F172A;
-  --sidebar-border: #E2E8F0;
+  --sidebar-accent: #FFF7F0;
+  --sidebar-accent-foreground: #6B5D4F;
+  --sidebar-border: #F0E4D8;
   --sidebar-ring: #F97316;
 }
 
 @theme inline {
-  --color-background: var(--bg);
-  --color-foreground: var(--text-primary);
+  /* Surface colors — warm white base */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
-  --font-sans: var(--font-outfit), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --color-surface-brand: var(--surface-brand);
+  --color-bg-base: var(--bg-base);
+  --color-bg-subtle: var(--bg-subtle);
+  --color-bg-card: var(--bg-card);
+  --color-bg-cardTint: var(--bg-card-tint);
+
+  /* Text colors */
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  /* Ink aliases consumed by the redesign components */
+  --color-ink: var(--ink);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-muted: var(--ink-muted);
+
+  /* Brand orange ramp (custom, consumed as bg-brand-* / text-brand-*) */
+  --color-brand-50: var(--accent-50);
+  --color-brand-100: var(--accent-100);
+  --color-brand-300: var(--accent-300);
+  --color-brand-500: var(--accent-500);
+  --color-brand-600: var(--accent-600);
+  --color-brand-700: var(--accent-700);
+  --color-brand-900: var(--accent-900);
+
+  /* Pre-existing accent family (kept; --primary already orange) */
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+
+  /* Borders */
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+
+  /* Shadows — warm-tinted */
+  --shadow-warm-sm: var(--warm-shadow-sm);
+  --shadow-warm-md: var(--warm-shadow-md);
+  --shadow-warm-lg: var(--warm-shadow-lg);
+  --shadow-warm-glow: var(--warm-shadow-glow);
+  --shadow-elevated: var(--elevated-shadow);
+  --shadow-card: var(--card-shadow);
+  --shadow-accent: var(--accent-shadow);
+
+  /* Fonts — confident serif display + clean grotesk UI */
+  --font-display: var(--font-fraunces), ui-serif, serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-fraunces), ui-serif, serif;
+  --font-outfit: var(--font-fraunces), ui-serif, serif; /* legacy alias */
+  --font-inter: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Radius */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-card: var(--radius-card);
+  --radius-pill: var(--radius-pill);
+
+  /* shadcn/ui sidebar tokens */
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -101,19 +207,13 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
 body {
   background: var(--bg);
   color: var(--text-primary);
-  font-family: var(--font-outfit), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans);
+  font-feature-settings: "kern" 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -141,6 +241,10 @@ h4 { font-size: clamp(1.05rem, 1.5vw, 1.2rem); line-height: 1.35; }
   p, li, span, a, label {
     line-height: 1.6;
     font-size: 1rem;
+  }
+  /* Display headings use the confident serif; body stays the grotesk sans */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
   }
 }
 

@@ -63,6 +63,7 @@ export const listCourses = async (req: AuthRequest, res: Response): Promise<void
 
   const mapped = courses.map(({ tags, ...rest }) => ({
     ...rest,
+    isPublished: rest.status === 'PUBLISHED',
     examTags: tags.map((t) => t.tag.name),
   }));
 
@@ -109,6 +110,7 @@ export const getCourse = async (req: AuthRequest, res: Response): Promise<void> 
   });
   const courseWithExamTags = {
     ...course,
+    isPublished: course.status === 'PUBLISHED',
     examTags: tagsData.map((t) => t.tag.name),
   };
 
@@ -166,7 +168,7 @@ export const createCourse = async (req: AuthRequest, res: Response): Promise<voi
     await upsertExamTags(course.id, examTags);
   }
   autoBackup();
-  res.status(201).json({ course });
+  res.status(201).json({ course: { ...course, isPublished: course.status === 'PUBLISHED' } });
 };
 
 export const updateCourse = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -182,7 +184,7 @@ export const updateCourse = async (req: AuthRequest, res: Response): Promise<voi
     await upsertExamTags(id, examTags);
   }
   autoBackup();
-  res.json({ course });
+  res.json({ course: { ...course, isPublished: course.status === 'PUBLISHED' } });
 };
 
 export const deleteCourse = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -197,10 +199,11 @@ export const togglePublish = async (req: AuthRequest, res: Response): Promise<vo
   const { isPublished } = req.body;
   const status = isPublished ? 'PUBLISHED' : 'DRAFT';
   const course = await prisma.course.update({ where: { id }, data: { status } });
-  res.json({ course });
+  res.json({ course: { ...course, status, isPublished: isPublished } });
 };
 
 export const exportCourses = async (req: AuthRequest, res: Response): Promise<void> => {
   const courses = await prisma.course.findMany({ orderBy: { sortOrder: 'asc' } });
-  res.json({ courses });
+  const withFlag = courses.map((c) => ({ ...c, isPublished: c.status === 'PUBLISHED' }));
+  res.json({ courses: withFlag });
 };

@@ -21,7 +21,7 @@ export default function SocialIcons({ className = '' }: { className?: string }) 
           href={link.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="w-9 h-9 rounded-full bg-slate-700 hover:bg-amber-500 flex items-center justify-center text-slate-300 hover:text-white transition-all duration-300"
+          className="w-9 h-9 rounded-full bg-ink hover:bg-brand-600 flex items-center justify-center text-ink-muted hover:text-white transition-all duration-300"
           aria-label={link.label}
         >
           <link.icon className="w-4 h-4" />
