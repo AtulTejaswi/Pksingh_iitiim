@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import FaqSection from '@/components/common/FaqSection';
+import { faqs } from '@/data/faqs';
+import { FaqJsonLd } from '@/components/seo/JsonLd';
 import Navbar from '@/components/student/Navbar';
 import SiteFooter from '@/components/common/SiteFooter';
 
@@ -17,6 +19,7 @@ export default function FaqPage() {
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
       <main className="flex-1">
+        <FaqJsonLd items={faqs} />
         <div className="bg-gradient-to-b from-slate-50 to-white py-16 px-4 text-center">
           <span className="inline-block px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold uppercase tracking-[0.3em] mb-4">
             FAQ

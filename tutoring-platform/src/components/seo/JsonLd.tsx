@@ -105,6 +105,47 @@ export function CourseJsonLd({
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
 }
 
+export function FaqJsonLd({ items }: { items: { q: string; a: string }[] }) {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: { '@type': 'Answer', text: item.a },
+    })),
+  };
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
+}
+
+export function ExamCourseJsonLd({
+  name,
+  description,
+  examName,
+}: {
+  name: string;
+  description: string;
+  examName: string;
+}) {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'Course',
+    name,
+    description,
+    provider: {
+      '@type': 'Organization',
+      name: 'PK Singh Mentorship',
+      sameAs: SITE_CONFIG.url,
+    },
+    hasCourseInstance: {
+      '@type': 'CourseInstance',
+      courseMode: 'online',
+      name: `${examName} 1-on-1 Mentorship`,
+    },
+  };
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
+}
+
 export function BreadcrumbJsonLd({ items }: { items: { name: string; url: string }[] }) {
   const schema = {
     '@context': 'https://schema.org',
