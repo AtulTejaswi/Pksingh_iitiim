@@ -11,6 +11,12 @@ const footerLinks = {
     { href: '/courses?subject=CHEMISTRY', label: 'Chemistry' },
     { href: '/courses?subject=MATH', label: 'Mathematics' },
     { href: '/mentor-journey', label: "Mentor's Journey" },
+    { href: '/jee-mentorship', label: 'JEE Mentorship' },
+    { href: '/neet-mentorship', label: 'NEET Mentorship' },
+    { href: '/iit-mentorship', label: 'IIT Mentorship' },
+    { href: '/cat-mentorship', label: 'CAT Mentorship' },
+    { href: '/gmat-mentorship', label: 'GMAT Mentorship' },
+    { href: '/sat-mentorship', label: 'SAT Mentorship' },
   ],
   platform: [
     { href: '/#how', label: 'How It Works' },

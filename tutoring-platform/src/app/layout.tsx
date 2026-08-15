@@ -30,11 +30,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'PK Singh | IIT + IIM Mentor, Bestselling Author',
-    template: '%s | PK Singh',
+    default: 'PK Singh | JEE, NEET, IIT & CAT Mentorship by an IIT + IIM Alumnus',
+    template: '%s | PK Singh Mentorship',
   },
   description:
-    'PK Singh — IIT + IIM alumnus, bestselling author and 1:1 mentor for JEE, NEET, SAT, CAT and GMAT aspirants. Exam-focused mentorship with verified student outcomes.',
+    '1-on-1 mentorship for JEE, NEET, IIT, CAT, GMAT and SAT aspirants by PK Singh, an IIT + IIM alumnus and bestselling author. Personalized strategy, live doubt support, proven results.',
   keywords: ['JEE mentor', 'NEET coaching', 'SAT preparation', 'CAT coaching', 'GMAT prep', 'IIT', 'IIM', 'PK Singh', 'exam mentorship', 'physics tutor', 'chemistry tutor', 'math tutor', 'online tutoring India'],
   authors: [{ name: 'PK Singh' }],
   creator: 'PK Singh',
@@ -48,9 +48,9 @@ export const metadata: Metadata = {
     shortcut: '/images/pk_sir_logo.jpg',
   },
   openGraph: {
-    title: 'PK Singh | IIT + IIM Mentor, Bestselling Author',
+    title: 'PK Singh | JEE, NEET, IIT & CAT Mentorship by an IIT + IIM Alumnus',
     description:
-      'Premium 1:1 mentorship for JEE, NEET, SAT, CAT and GMAT — from an IIT + IIM alumnus. Verified student outcomes.',
+      '1-on-1 mentorship for JEE, NEET, IIT, CAT, GMAT and SAT aspirants by PK Singh, an IIT + IIM alumnus and bestselling author.',
     url: siteUrl,
     siteName: 'PK Singh Mentorship',
     locale: 'en_IN',
@@ -59,8 +59,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'PK Singh | IIT + IIM Mentor, Bestselling Author',
-    description: 'Premium exam mentorship from an IIT + IIM alumnus and bestselling author. JEE, NEET, SAT, CAT, GMAT.',
+    title: 'PK Singh | JEE, NEET, IIT & CAT Mentorship',
+    description: '1-on-1 mentorship for JEE, NEET, IIT, CAT, GMAT and SAT aspirants by an IIT + IIM alumnus.',
     images: ['/images/pk_sir_logo.jpg'],
   },
   robots: {
