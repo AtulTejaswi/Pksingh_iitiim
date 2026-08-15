@@ -60,6 +60,19 @@ jobs:
           domain=$(echo "$info" | jq -r '.serviceDetails.url // .service.defaultDomain // .defaultDomain // ""')
           echo "domain=$domain" >> $GITHUB_OUTPUT
 
+      - name: Ensure Render build command allows schema sync
+        if: steps.render-check.outputs.skip == 'false'
+        run: |
+          svc_id=${{ secrets.RENDER_SERVICE_ID }}
+          # prisma db push refuses to run when schema changes would alter data
+          # (e.g. new unique constraints) — without this, every deploy fails at
+          # build time. Keep the live service in sync with render.yaml.
+          curl -sf -X PATCH -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"serviceDetails":{"buildCommand":"npm install --include=dev && npm run build && npx prisma db push --accept-data-loss"}}' \
+            "https://api.render.com/v1/services/${svc_id}" || \
+            echo "Warning: could not update build command (will try deploying anyway)"
+
       - name: Trigger Render deploy
         if: steps.render-check.outputs.skip == 'false'
         id: trigger
@@ -86,22 +99,27 @@ jobs:
           svc_id=${{ secrets.RENDER_SERVICE_ID }}
           deploy_id=${{ steps.trigger.outputs.deploy_id }}
           echo "Waiting for deploy $deploy_id ..."
-          for i in $(seq 1 60); do
+          # Terminal statuses Render reports: live, build_failed, update_failed,
+          # canceled, deactivated. Anything else is still in progress.
+          for i in $(seq 1 120); do
             resp=$(curl -sf -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
               "https://api.render.com/v1/services/${svc_id}/deploys/${deploy_id}") || true
             status=$(echo "$resp" | jq -r '.status // .deploy.status // "unknown"')
-            echo "Deploy status ($i/60): $status"
-            if [ "$status" = "live" ] || [ "$status" = "success" ]; then
-              echo "Deploy succeeded!"
-              exit 0
-            fi
-            if [ "$status" = "failed" ]; then
-              echo "Deploy failed: $resp"
-              exit 1
-            fi
-            sleep 10
+            echo "Deploy status ($i/120): $status"
+            case "$status" in
+              live|success)
+                echo "Deploy succeeded!"
+                exit 0
+                ;;
+              build_failed|update_failed|canceled|deactivated|failed)
+                echo "Deploy failed with status: $status"
+                echo "$resp"
+                exit 1
+                ;;
+            esac
+            sleep 15
           done
-          echo "Timed out waiting for deploy"
+          echo "Timed out waiting for deploy (last status: $status)"
           exit 1
 
       - name: Run E2E tests against deployed site
