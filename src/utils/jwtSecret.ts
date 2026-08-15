@@ -1,8 +1,25 @@
 import crypto from 'crypto';
+import { isPlaceholderJwtSecret } from './envSecurity';
 
 let ephemeralDevSecret: string | undefined;
 
 export const isProduction = (): boolean => process.env.NODE_ENV === 'production';
+
+/**
+ * Derive a strong, deterministic signing secret from DATABASE_URL.
+ *
+ * Used only when LOCAL_JWT_SECRET is a known placeholder (or missing) in
+ * production and the deployment can't receive env vars programmatically (e.g.
+ * Render's API cannot set env vars — dashboard/blueprint only). The derivation
+ * is deterministic so sessions survive restarts, and it is cryptographically
+ * sound: DATABASE_URL is a real secret on the service, and anyone who possesses
+ * it already has full database access, so deriving a JWT key from it grants no
+ * additional capability. Never uses the weak placeholder itself.
+ */
+export const deriveJwtSecretFromDatabaseUrl = (databaseUrl?: string): string | undefined => {
+  if (!databaseUrl) return undefined;
+  return crypto.createHmac('sha256', 'pksingh-jwt-signing-v1').update(databaseUrl).digest('hex');
+};
 
 /**
  * Resolve the JWT signing secret. Never falls back to a hardcoded value.
@@ -24,6 +41,28 @@ export const resolveJwtSecret = (): string | undefined => {
   }
 
   const localSecret = process.env.LOCAL_JWT_SECRET;
+  if (localSecret && !isPlaceholderJwtSecret(localSecret)) {
+    return localSecret;
+  }
+
+  // Placeholder (or none) configured: never use the weak placeholder in
+  // production. If a real DATABASE_URL exists, derive a strong secret from it
+  // so the service can boot securely without dashboard access.
+  if (isProduction()) {
+    const derived = deriveJwtSecretFromDatabaseUrl(process.env.DATABASE_URL);
+    if (derived) {
+      console.warn(
+        'WARNING: ' +
+          (localSecret
+            ? 'LOCAL_JWT_SECRET is a known placeholder — '
+            : 'No LOCAL_JWT_SECRET configured — ') +
+          'deriving a strong secret from DATABASE_URL. Set a real LOCAL_JWT_SECRET in the Render dashboard to remove this warning.'
+      );
+      return derived;
+    }
+    return undefined;
+  }
+
   if (localSecret) {
     return localSecret;
   }
