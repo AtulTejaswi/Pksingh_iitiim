@@ -31,6 +31,8 @@ const blogSlugs = [
   "sat-vs-cat-which-exam-fits-you",
   "5-memory-techniques-for-organic-chemistry",
   "ashtavakra-gita-lesson-on-exam-anxiety",
+  "how-i-cracked-jee-and-got-into-iit",
+  "jee-vs-neet-choosing-your-path",
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

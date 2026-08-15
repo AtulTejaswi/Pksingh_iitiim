@@ -92,6 +92,28 @@ const posts: BlogPost[] = [
     accentBg: 'bg-amber-50',
     accentText: 'text-amber-700',
   },
+  {
+    slug: 'how-i-cracked-jee-and-got-into-iit',
+    title: 'How I Cracked JEE and Got Into IIT',
+    excerpt: 'AIR 1386 in IIT-JEE — the three-phase plan that actually worked, the mistakes that cost students a year, and the mindset that got me through. No shortcuts, just what worked.',
+    date: '2026-08-12',
+    category: 'JEE',
+    readTime: '9 min read',
+    accent: 'from-orange-500 to-amber-500',
+    accentBg: 'bg-orange-50',
+    accentText: 'text-orange-700',
+  },
+  {
+    slug: 'jee-vs-neet-choosing-your-path',
+    title: 'JEE vs NEET: Choosing Your Path',
+    excerpt: 'Engineering or medicine? An honest comparison of JEE and NEET — what each exam actually rewards, where each career leads, and the four questions to answer before you decide.',
+    date: '2026-08-05',
+    category: 'JEE / NEET',
+    readTime: '8 min read',
+    accent: 'from-teal-500 to-emerald-500',
+    accentBg: 'bg-emerald-50',
+    accentText: 'text-emerald-700',
+  },
 ];
 
 function formatDate(dateStr: string) {

@@ -198,6 +198,90 @@ Bhagavad Gita 2.47: "You have the right to perform your duties, but you are not 
 
 *[Full article exploring more applications of Vedantic philosophy to exam psychology coming soon.]*`,
   },
+  'how-i-cracked-jee-and-got-into-iit': {
+    title: 'How I Cracked JEE and Got Into IIT',
+    date: '2026-08-12',
+    category: 'JEE',
+    readTime: '9 min read',
+    excerpt: 'AIR 1386 in IIT-JEE — the three-phase plan that actually worked, the mistakes that cost students a year, and the mindset that got me through.',
+    accent: 'from-orange-500 to-amber-500',
+    accentBg: 'bg-orange-50',
+    accentText: 'text-orange-700',
+    content: `When I secured an All India Rank of 1386 in the IIT-JEE, the assumption everyone made was that I had a natural gift for the subject. The truth is less flattering and far more useful: I was a disciplined student who followed a simple, repeatable system. Twenty-three years later, mentoring students for JEE Main and Advanced, I keep seeing the same three mistakes costing people a year each. This is the system that worked for me, and the mistakes I would tell every aspirant to avoid.
+
+**Start With the End in Mind**
+The biggest mistake of Class 11 is treating the syllabus as a mystery to be discovered. Before touching a single chapter, I sat with the previous ten years of papers and mapped every question to its chapter. That map told me three things: which chapters appear every single year, which appear occasionally, and which almost never appear. My study plan was built backwards from that map — not from the order of the textbook, and not from whatever my batch happened to be doing that week.
+
+Every year since, when a student tells me they are "behind schedule", my first question is: whose schedule? Nine times out of ten, it is a schedule copied from a coaching module rather than built from an honest analysis of the exam. Build your own map first. Everything else follows.
+
+**Phase One: Build the Foundation Properly**
+In the first phase, my only goal was depth over width. Each high-weightage chapter — Mechanics, Electromagnetism, Modern Physics, and the core Chemistry and Mathematics blocks — was learned once, properly, with full derivations and the logic behind every formula. I did not race to the hardest problems. I made sure that when a problem asked me to apply a concept in an unfamiliar way, I had the underlying idea, not just the formula.
+
+The trick that made this stick was simple: after finishing a chapter, I closed the book and wrote everything I remembered on a blank sheet — the definitions, the derivations, the standard results. Whatever I could not reproduce was the real gap, and I went back to it the same day. This is not revision; it is honesty about what you actually know.
+
+**Phase Two: Build the Problem-Solving Engine**
+Phase two was where the rank was made. JEE Main rewards knowing the syllabus; JEE Advanced rewards handling multi-concept problems under pressure. I spent a fixed block every single day on timed problem sets — one hour, a set of mixed-difficulty questions, no interruptions. The goal was not to solve everything; it was to build the habit of attempting a hard problem without panic and knowing exactly when to move on.
+
+Alongside this I kept an error log. Every mistake I made in practice went into one of three columns: conceptual, careless, or time-pressure. Within a month, patterns appeared. My careless errors clustered at the end of long sets; my conceptual gaps clustered in two specific chapters. Fixing those two patterns was worth more than a month of extra problem solving, because I was no longer repeating the same mistakes — I was eliminating them.
+
+**Phase Three: Fight the Way You Will Be Tested**
+Six months before the exam, I stopped treating mocks as practice and started treating them as the real thing: same timings, same conditions, same rules about not pausing. After every mock I spent as long analysing it as I spent taking it. Every wrong answer was traced to its root — a gap in knowledge, a misread question, a bad time allocation on a set — and that root became the first item on the next week's plan.
+
+This is the habit most students skip, and it is the single highest-leverage activity in JEE preparation. A student who takes forty mocks and analyses them is unbeatable; a student who takes forty mocks and only checks their score has practised forty times without improving.
+
+**The Three Mistakes That Cost Students a Year**
+1. **Skipping revision to chase new chapters.** New material feels like progress; revision feels like going backwards. The opposite is true. Spaced revision is the mechanism of memory, and the students who plan revision into the week from day one are the ones who still remember April's chapters in January.
+2. **Chasing the hardest problems before the basics are solid.** Advanced-level problems are built from basic concepts. Attempting them too early teaches nothing except how to feel inadequate. Master the foundation, then let the difficult problems find you.
+3. **Measuring yourself against the batch.** Someone in your class solving faster than you tells you nothing about your preparation. The only comparison that matters is your own error log getting shorter and your own mock scores trending up. Benchmark against the exam, not against people.
+
+**The Mindset That Actually Got Me In**
+The Bhagavad Gita verse I have returned to for thirty years is 2.47: set thy heart upon thy work, but never on its reward. It sounds like philosophy; it is actually peak performance engineering. The students who crack JEE are rarely the most anxious ones — they are the ones who do the work completely and detach from the outcome, because a mind defending its ego cannot think clearly. Study because the work itself is worth doing. The rank follows the work, never the other way around.
+
+**What I Would Tell My Class 11 Self**
+If I could send one note back, it would be this: you do not need to be a genius, and you do not need to study fifteen hours a day. You need a map of the exam, a daily system for concepts and problems, a weekly mock with honest analysis, and the consistency to keep all three running for two years. That is the entire secret. Everything else is noise.
+
+That same system is what I now build for every student I mentor — a diagnostic of where you stand, a plan built backwards from the exam, and weekly accountability on the parts that actually move your rank. The path is not easy, but it is far more predictable than most aspirants believe.`,
+  },
+  'jee-vs-neet-choosing-your-path': {
+    title: 'JEE vs NEET: Choosing Your Path',
+    date: '2026-08-05',
+    category: 'JEE / NEET',
+    readTime: '8 min read',
+    excerpt: 'Engineering or medicine? An honest comparison of JEE and NEET — what each exam actually rewards, where each career leads, and the four questions to answer before you decide.',
+    accent: 'from-teal-500 to-emerald-500',
+    accentBg: 'bg-emerald-50',
+    accentText: 'text-emerald-700',
+    content: `Every year, a particular kind of student asks me the same question, usually in Class 10 or early Class 11: "Should I prepare for JEE or NEET?" It is the most consequential decision of their academic life, and most students make it for the wrong reasons — a parent's preference, a topper's example, or the coaching centre's marketing. This article is the honest comparison I wish someone had given me.
+
+**The Exams at a Glance**
+JEE is really two exams. JEE Main, held twice a year, tests Physics, Chemistry and Mathematics at the Class 11–12 level and is the gateway to NITs and IIITs. JEE Advanced, taken only by the top Main scorers, tests the same three subjects at much greater conceptual depth and is the gateway to the IITs. NEET UG is a single annual exam testing Physics, Chemistry and Biology — 180 questions in about three hours — and is the sole gateway to MBBS and BDS seats in India.
+
+**What Each Exam Actually Rewards**
+JEE rewards depth. Advanced-level questions combine two or three concepts in unfamiliar ways, and the students who score well are the ones who understand the underlying physics, chemistry and mathematics rather than memorising solved patterns. Speed matters, but conceptual clarity matters more.
+
+NEET rewards breadth and precision. The syllabus is wide, the questions are comparatively straightforward, and the exam is won by students who know the NCERT material cold and make almost no careless errors. In NEET, a 90-mark Biology section decides the rank — and Biology rewards disciplined reading, not problem-solving brilliance.
+
+This difference matters enormously when you choose. If you love the moment a difficult multi-step problem clicks, JEE will feel like your game. If you love mastering a large body of precise information and being rewarded for accuracy, NEET will.
+
+**Where Each Career Leads**
+JEE opens engineering and technology: IITs, NITs and IIITs, then roles in software, core engineering, research, product and increasingly finance and consulting. An IIT degree is also a well-trodden path to an MBA at the IIMs — it is the route I took myself, and it shaped a career spanning engineering, strategy, consulting and education.
+
+NEET opens medicine: MBBS, then specialisation, clinical practice, hospital systems, public health and research. It is a longer road — five and a half years of MBBS plus internships — but it leads to a profession with a direct human impact and extraordinary long-term stability.
+
+**The Four Questions to Answer Honestly**
+1. **Which do you actually enjoy studying?** Spend a month tracking which school subjects you read beyond the syllabus without being asked. Enjoyment is the most reliable predictor of two years of sustained preparation.
+2. **Where is your natural strength?** Take the diagnostic seriously: if Biology feels like effort while Mathematics feels like play, the answer is probably JEE. The reverse points to NEET. Neither is superior; they are different minds.
+3. **Can you handle the timelines?** JEE is a two-year campaign ending in Class 12; NEET is the same but the professional commitment continues for over a decade. Ask yourself honestly whether you want medicine as a life, not just as an admission.
+4. **Whose voice are you listening to?** Listen to parents and teachers, but the final answer must be yours. A student preparing for an exam they resent will lose to a less talented student who loves their subject. Every single time.
+
+**Can You Switch Later?**
+Yes, but it is expensive. Switching from a NEET track to JEE in Class 12 means closing a Biology preparation gap you have ignored for two years; switching the other way means rebuilding Mathematics that NEET does not reward. The best time to decide is now, with a diagnostic, before a year of preparation commits you. What you should not do is prepare for both simultaneously — the two exams demand different muscles, and splitting your attention guarantees mediocrity in both.
+
+**The Final Word**
+Engineering and medicine are both extraordinary paths, and India needs brilliant people on both. The question is not which exam is harder — they are hard in different ways — but which work you can sustain for two years and live with for twenty. Answer the four questions honestly, take a diagnostic if you can, and then commit completely. The students who succeed are almost never the ones who chose the "easier" exam. They are the ones who chose the work they loved.
+
+If you are still torn, this is exactly the conversation I have with students in my 1-on-1 mentorship — a structured session that maps your strengths, your interests and your timeline to a single clear decision, so you start Class 11 with a plan instead of a guess.`,
+  },
 };
 
 export async function generateStaticParams() {
