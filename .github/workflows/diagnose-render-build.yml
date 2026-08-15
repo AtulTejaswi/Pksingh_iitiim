@@ -22,11 +22,14 @@ jobs:
           echo "=== Last deploys ==="
           curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
             "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys?limit=5" | \
-            jq -r '.[] | [.deploy.id, .deploy.status, .deploy.createdAt, .deploy.commit.message] | @tsv'
+            jq -r '.[] | [.deploy.id, .deploy.status, .deploy.createdAt, (.deploy.commit.message // "" | .[0:60])] | @tsv'
 
           echo "=== Build logs for service (owner-based) ==="
           now=$(date -u +%s)
           start=$((now - 7200))
-          curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
-            "https://api.render.com/v1/logs?ownerId=${owner_id}&resource=${RENDER_SERVICE_ID}&type=build&startTime=${start}&endTime=${now}&limit=200" | \
-            jq -r '.logs[]? | "\(.timestamp // "") [\(.type // "")] \(.message // "")"' | tail -200
+          resp=$(curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            "https://api.render.com/v1/logs?ownerId=${owner_id}&resource=${RENDER_SERVICE_ID}&type=build&startTime=${start}&endTime=${now}&limit=200")
+          echo "--- raw response head ---"
+          echo "${resp:0:300}"
+          echo "--- parsed ---"
+          echo "$resp" | jq -r 'if type == "array" then .[] else (.logs // [])[] end | "\(.timestamp // "") [\(.type // "")] \(.message // "")"' | tail -200
