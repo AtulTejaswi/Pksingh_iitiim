@@ -29,7 +29,7 @@ jobs:
           end=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           start=$(date -u -d '2 hours ago' +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u -v-2H +%Y-%m-%dT%H:%M:%SZ)
           resp=$(curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
-            "https://api.render.com/v1/logs?ownerId=${owner_id}&resource=${RENDER_SERVICE_ID}&type=build&startTime=${start}&endTime=${end}&limit=200")
+            "https://api.render.com/v1/logs?ownerId=${owner_id}&resource=${RENDER_SERVICE_ID}&startTime=${start}&endTime=${end}&limit=300")
           echo "--- raw response head ---"
           echo "${resp:0:300}"
           echo "--- parsed ---"
