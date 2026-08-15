@@ -12,7 +12,9 @@ const categoryLabels: Record<string, string> = {
 };
 
 export default function WisdomSlideshow({ variant = 'section' }: { variant?: 'section' | 'strip' }) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // The strip (hero-area) starts on quote #2 so it never duplicates the first
+  // quote shown in the full "Wisdom & Mindset" section on page load.
+  const [currentIndex, setCurrentIndex] = useState(variant === 'strip' ? 1 : 0);
   const [isPaused, setIsPaused] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {

@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import { CTA } from '@/lib/cta';
 import { warmupBackend } from '@/lib/api-client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -160,7 +161,7 @@ return (
         <p className="text-center text-xs text-slate-500 mt-6 leading-relaxed">
           Don&apos;t have an account?{' '}
           <Link href="/signup" className="text-blue-600 hover:text-blue-800 font-semibold transition-colors">
-            Enroll Free
+            {CTA.FREE_SIGNUP}
           </Link>
         </p>
       </div>
