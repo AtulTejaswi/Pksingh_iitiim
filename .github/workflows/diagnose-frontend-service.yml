@@ -1,0 +1,45 @@
+name: Diagnose Frontend Render Service
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    env:
+      FRONTEND_SERVICE_ID: srv-d8gih9mgvqtc73eqmg3g
+    steps:
+      - name: Inspect failing frontend service
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        run: |
+          svc=${FRONTEND_SERVICE_ID}
+          echo "=== Service info ==="
+          curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            "https://api.render.com/v1/services/${svc}" | \
+            jq '{name, type, runtime, plan: .plan.name, autoDeploy: .autoDeploy, branch: .branch, rootDir: .rootDir, buildCommand: .buildCommand, startCommand: .startCommand, env: [.envVars[]?.key]}'
+
+          owner_id=$(curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            "https://api.render.com/v1/services/${svc}" | jq -r '.ownerId // empty')
+          echo "ownerId=$owner_id"
+
+          echo "=== Last deploys ==="
+          curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            "https://api.render.com/v1/services/${svc}/deploys?limit=5" | \
+            jq -r '.[] | [.deploy.id, .deploy.status, .deploy.createdAt, (.deploy.commit.message // "" | .[0:50])] | @tsv'
+
+          echo "=== Env var keys (values redacted) ==="
+          curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            "https://api.render.com/v1/services/${svc}/env-vars" | \
+            jq -r '.[] | (.envVar.key // "?") + " sync=" + ((.envVar.sync // false) | tostring)'
+
+          echo "=== Build logs (last 2h) ==="
+          end=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          start=$(date -u -d '2 hours ago' +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u -v-2H +%Y-%m-%dT%H:%M:%SZ)
+          resp=$(curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            "https://api.render.com/v1/logs?ownerId=${owner_id}&resource=${svc}&startTime=${start}&endTime=${end}&limit=500")
+          echo "--- parsed ---"
+          echo "$resp" | jq -r 'if type == "array" then .[] else (.logs // [])[] end | "\\(.timestamp // "") [\\(.type // "")] \\(.message // "")"' | tail -250
