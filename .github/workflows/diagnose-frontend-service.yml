@@ -41,5 +41,7 @@ jobs:
           start=$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u -v-24H +%Y-%m-%dT%H:%M:%SZ)
           resp=$(curl -s -H "Authorization: Bearer ${RENDER_API_KEY}" \
             "https://api.render.com/v1/logs?ownerId=${owner_id}&resource=${svc}&startTime=${start}&endTime=${end}&limit=500")
+          echo "--- raw head ---"
+          echo "${resp:0:400}"
           echo "--- parsed ---"
-          echo "$resp" | jq -r 'if type == "array" then .[] else (.logs // [])[] end | "\\(.timestamp // "") [\\(.type // "")] \\(.message // "")"' | tail -250
+          echo "$resp" | jq -r 'if type == "array" then .[] else (.logs // [])[] end | "\(.timestamp // "") [\(.type // "")] \(.message // "")"' | tail -250
