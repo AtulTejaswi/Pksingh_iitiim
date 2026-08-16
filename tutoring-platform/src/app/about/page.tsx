@@ -61,7 +61,7 @@ export default function AboutPage() {
 
           <aside className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-md">
             <div className="mb-6 overflow-hidden rounded-[1.75rem] border border-slate-200 bg-slate-50">
-              <Image src="/images/pk-singh.svg" alt="PK Singh" width={420} height={420} className="h-full w-full object-cover" />
+              <Image src="/images/pk-singh-photo.jpg" alt="PK Singh" width={420} height={420} className="h-full w-full object-cover" />
             </div>
             <div className="space-y-4 text-center">
               <p className="text-2xl font-semibold text-slate-900">PK Singh</p>

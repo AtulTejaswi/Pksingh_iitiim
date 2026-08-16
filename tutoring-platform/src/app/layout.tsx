@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     siteName: 'PK Singh Mentorship',
     locale: 'en_IN',
     type: 'website',
-    images: [{ url: '/images/pk_sir_logo.jpg', width: 1200, height: 630, alt: 'PK Singh — IIT + IIM Mentor' }],
+    images: [{ url: '/images/pk_sir_logo.jpg', width: 1024, height: 1024, alt: 'PK Singh — IIT + IIM Mentor' }],
   },
   twitter: {
     card: 'summary_large_image',

@@ -46,9 +46,9 @@ export default function Navbar() {
               <Image
                 src="/images/pk_sir_logo.jpg"
                 alt="PK Singh Logo"
-                width={140}
-                height={60}
-                className="w-[140px] h-auto rounded-lg bg-white px-2 py-1"
+                width={48}
+                height={48}
+                className="w-12 h-12 rounded-full object-cover"
               />
             </Link>
           </div>
@@ -161,7 +161,7 @@ export default function Navbar() {
           <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
           <div className="absolute top-0 right-0 w-72 h-full bg-bg-base shadow-2xl animate-slide-in-right overflow-y-auto border-l border-border-subtle">
             <div className="flex items-center justify-between px-4 py-4 border-b border-border-subtle">
-              <Image src="/images/pk_sir_logo.jpg" alt="PK Singh" width={100} height={44} className="w-[100px] h-auto rounded-lg bg-white px-2 py-1" />
+              <Image src="/images/pk_sir_logo.jpg" alt="PK Singh" width={44} height={44} className="w-11 h-11 rounded-full object-cover" />
               <button onClick={() => setIsOpen(false)} className="p-2 rounded-md text-ink-muted hover:text-ink hover:bg-bg-subtle">
                 <X className="w-5 h-5" />
               </button>

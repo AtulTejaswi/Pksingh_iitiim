@@ -42,9 +42,9 @@ export default function SiteFooter({ className = '' }: { className?: string }) {
             <Image
               src="/images/pk_sir_logo.jpg"
               alt="PK Singh Logo"
-              width={120}
-              height={36}
-              className="w-[120px] h-auto rounded-md bg-white px-2 py-1 mb-4"
+              width={48}
+              height={48}
+              className="w-12 h-12 rounded-full object-cover mb-4"
             />
             <p className="text-sm text-ink-muted leading-relaxed mb-5 max-w-xs">
               Premium exam mentorship from an IIT + IIM alumnus and bestselling author. JEE, NEET, SAT, CAT, GMAT.
