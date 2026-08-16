@@ -5,13 +5,26 @@ describe('resolveJwtSecret', () => {
   const placeholder = 'pksingh-jwt-secret-change-this-to-a-strong-random-value';
   const dbUrl = 'postgres://user:supersecretpw@host:5432/pksingh';
 
+  // Every env var that resolveJwtSecret / deriveJwtSecretFromDatabaseUrl could
+  // read. The helper scrubs all of them first so each test case is hermetic and
+  // unaffected by ambient environment (e.g. CI sets a job-level DATABASE_URL).
+  const RELEVANT_KEYS = [
+    'NODE_ENV',
+    'LOCAL_JWT_SECRET',
+    'SUPABASE_URL',
+    'SUPABASE_SERVICE_ROLE_KEY',
+    'SUPABASE_JWT_SECRET',
+    'DATABASE_URL',
+  ] as const;
+
   const withEnv = (env: Record<string, string | undefined>, fn: () => string | undefined): string | undefined => {
     const prev = { ...process.env };
-    Object.keys(env).forEach((k) => {
-      if (env[k] === undefined) delete process.env[k];
-      else process.env[k] = env[k] as string;
-    });
     try {
+      RELEVANT_KEYS.forEach((k) => delete process.env[k]);
+      Object.entries(env).forEach(([k, v]) => {
+        if (v === undefined) delete process.env[k];
+        else process.env[k] = v;
+      });
       return fn();
     } finally {
       process.env = prev;
