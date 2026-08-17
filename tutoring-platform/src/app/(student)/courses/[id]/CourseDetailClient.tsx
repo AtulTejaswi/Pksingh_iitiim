@@ -1,21 +1,27 @@
 'use client';
 
-import React, { use } from 'react';
+import React, { useState, use } from 'react';
 import { useGetCourse, useEnrollCourse, useGetMyEnrollments } from '@/hooks/useCourses';
+import { useCreatePaymentOrder, useVerifyPayment } from '@/hooks/usePayments';
+import { openRazorpayCheckout } from '@/lib/razorpay-checkout';
+import { getErrorMessage } from '@/lib/safe-toast';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import Link from 'next/link';
-import { ArrowLeft, BookOpen, Clock, Users, Play, Award, Lock, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, BookOpen, Clock, Users, Play, Award, Lock, AlertTriangle, CreditCard } from 'lucide-react';
 import { CourseJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 
 export default function CourseDetailClient({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { user, verified } = useAuth();
   const { id: courseId } = use(params);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   const { data: course, isLoading: isCourseLoading, isError, refetch } = useGetCourse(courseId);
   const { mutate: enroll, isPending: isEnrolling } = useEnrollCourse();
+  const { mutate: createOrder } = useCreatePaymentOrder();
+  const { mutate: verifyPayment } = useVerifyPayment(courseId);
   const { data: myEnrollments, isLoading: isEnrollmentsLoading } = useGetMyEnrollments(!!user && verified);
 
   const isEnrolled = user
@@ -35,9 +41,56 @@ export default function CourseDetailClient({ params }: { params: Promise<{ id: s
         router.push('/my-courses');
       },
       onError: (err) => {
-        const e = err as { response?: { data?: { error?: string } } };
-        toast.error(e.response?.data?.error || 'Failed to enroll');
+        toast.error(getErrorMessage(err, 'Failed to enroll'));
       },
+    });
+  };
+
+  const handleBuyNow = () => {
+    if (!user) {
+      toast.error('Please sign in to enroll in this course');
+      router.push('/login');
+      return;
+    }
+    if (isCheckingOut) return;
+
+    setIsCheckingOut(true);
+    createOrder(courseId, {
+      onSuccess: (order) => {
+        openRazorpayCheckout({
+          keyId: order.keyId,
+          orderId: order.gatewayOrderId,
+          amount: order.amount,
+          currency: order.currency,
+          description: course?.title || 'Course enrollment',
+          onSuccess: (response) => {
+            verifyPayment(
+              {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              },
+              {
+                onSuccess: () => {
+                  toast.success('Payment successful — you\'re enrolled!');
+                  router.push('/my-courses');
+                },
+                onError: (verifyErr) => {
+                  toast.error(getErrorMessage(verifyErr, 'Payment was received but we could not confirm it. Please contact the site owner.'));
+                },
+              }
+            );
+          },
+          onDismiss: (message) => toast.error(message),
+          onFailure: (message) => toast.error(message),
+        });
+      },
+      onError: (err) => {
+        // 503 when payments aren't configured yet — the backend message is
+        // written for a student/owner to act on.
+        toast.error(getErrorMessage(err, 'Could not start payment. Please try again.'));
+      },
+      onSettled: () => setIsCheckingOut(false),
     });
   };
 
@@ -106,7 +159,7 @@ export default function CourseDetailClient({ params }: { params: Promise<{ id: s
                 {course.subject}
               </span>
               <span className="px-3 py-1 rounded-full bg-white/20 border border-white/30 text-white text-xs font-bold uppercase tracking-wider">
-                100% Free Course
+                {course.isFree ? '100% Free Course' : `₹${(course.price ?? 0).toLocaleString('en-IN')} Course`}
               </span>
             </div>
             <div>
@@ -207,7 +260,7 @@ export default function CourseDetailClient({ params }: { params: Promise<{ id: s
                 <Play className="w-4 h-4 fill-current ml-0.5" />
                 Continue Learning
               </Link>
-            ) : (
+            ) : course.isFree ? (
               <button
                 onClick={handleEnroll}
                 disabled={isEnrolling}
@@ -222,9 +275,33 @@ export default function CourseDetailClient({ params }: { params: Promise<{ id: s
                   'Enroll for Free'
                 )}
               </button>
+            ) : (
+              <button
+                onClick={handleBuyNow}
+                disabled={isCheckingOut}
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm tracking-wide shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isCheckingOut ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                    Opening payment...
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="w-4 h-4" />
+                    Buy now — ₹{(course.price ?? 0).toLocaleString('en-IN')}
+                  </>
+                )}
+              </button>
             )}
 
             <div className="space-y-4 text-xs mt-8 pt-6 border-t border-slate-200">
+              <div className="flex items-center justify-between text-slate-600">
+                <span className="flex items-center gap-1.5"><CreditCard className="w-3.5 h-3.5 text-emerald-500" /> Price</span>
+                <span className="font-semibold text-slate-900">
+                  {course.isFree ? 'Free' : `₹${(course.price ?? 0).toLocaleString('en-IN')}`}
+                </span>
+              </div>
               <div className="flex items-center justify-between text-slate-600">
                 <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-blue-500" /> Syllabus Size</span>
                 <span className="font-semibold text-slate-900">{course.lessons?.length || 0} Lecture modules</span>

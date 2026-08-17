@@ -212,6 +212,7 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
       setExamTags(Array.isArray(existingCourse.examTags) ? existingCourse.examTags : []);
       setThumbnailPreview(existingCourse.thumbnailUrl || '');
       setIsFree(existingCourse.isFree ?? true);
+      setPrice(existingCourse.price != null ? String(existingCourse.price) : '');
       setPublishMode(existingCourse.status === 'PUBLISHED' ? 'publish' : 'draft');
     }
   }, [isEdit, existingCourse]);
@@ -258,6 +259,8 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
       subject: subject as CourseInput['subject'],
       examTags: examTags.length > 0 ? examTags : undefined,
       isFree,
+      // Whole rupees; the backend stores and charges this for paid courses.
+      price: isFree ? null : Math.max(0, Number(price) || 0),
       status: published ? 'PUBLISHED' : 'DRAFT',
     };
     if (thumbnailPreview && thumbnailPreview.startsWith('http')) {

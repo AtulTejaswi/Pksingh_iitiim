@@ -343,7 +343,7 @@ export interface CatalogCourse {
   level?: string;
   duration?: string;
   format?: string;
-  price?: number;
+  price?: number | null;
   priceLabel?: string;
   lessonCount?: number;
   syllabusTopics?: string[];

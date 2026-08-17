@@ -36,6 +36,8 @@ export const courseSchema = z.object({
   subject: z.enum(['PHYSICS', 'CHEMISTRY', 'MATH']),
   examTags: z.array(z.string()).optional(),
   isFree: z.boolean(),
+  // Sale price in whole rupees (charged when the course is not free).
+  price: z.number().int().min(0).optional().nullable(),
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
   thumbnailUrl: z.string().url('Invalid URL format').optional().or(z.literal('')),
 });

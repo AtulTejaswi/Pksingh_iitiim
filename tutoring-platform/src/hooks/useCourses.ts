@@ -10,6 +10,7 @@ export interface Course {
   examTags: string[];
   thumbnailUrl: string | null;
   isFree: boolean;
+  price?: number | null;
   status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
   isPublished?: boolean;
   _count?: {
