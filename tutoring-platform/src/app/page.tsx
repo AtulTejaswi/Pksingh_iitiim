@@ -70,10 +70,16 @@ export default function LandingPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Pick top 3 published courses from API, fallback to static featured courses
+  // Pick top 3 published courses from API, fallback to static featured courses.
+  // The free YouTube series always leads the row so it gets visible placement.
+  const FREE_SERIES_TITLE = 'JEE is EASY — Free YouTube Series';
   const apiPublished = courses?.filter((course) => course.status === 'PUBLISHED') || [];
   const featuredCourses = apiPublished.length > 0
-    ? apiPublished.slice(0, 3)
+    ? (() => {
+        const freeSeries = apiPublished.find((c) => c.title === FREE_SERIES_TITLE);
+        const rest = apiPublished.filter((c) => c.title !== FREE_SERIES_TITLE);
+        return (freeSeries ? [freeSeries, ...rest] : rest).slice(0, 3);
+      })()
     : getStaticFeaturedCourses().slice(0, 3);
 
   return (
@@ -428,13 +434,34 @@ export default function LandingPage() {
                     key={course.id}
                     className="rounded-card border border-border-subtle bg-bg-card shadow-warm-sm hover:shadow-warm-md hover:-translate-y-2 hover:border-brand-300 transition-all duration-500 overflow-hidden flex flex-col group cursor-pointer"
                   >
-                    <div className={`h-44 relative p-6 flex flex-col justify-between bg-brand-700 border-b border-border-subtle`}>
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_50%)]"></div>
-                      <span className="relative self-start px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white text-[10px] font-bold uppercase tracking-wider">
-                        {course.subject}
-                      </span>
+                    <div className={`h-44 relative p-6 flex flex-col justify-between ${course.thumbnailUrl ? 'border-b-0' : 'bg-brand-700 border-b border-border-subtle'}`}>
+                      {course.thumbnailUrl ? (
+                        <>
+                          <Image
+                            src={course.thumbnailUrl}
+                            alt={course.title}
+                            width={480}
+                            height={270}
+                            unoptimized
+                            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30" />
+                        </>
+                      ) : (
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_50%)]"></div>
+                      )}
+                      <div className="relative flex items-start justify-between gap-2">
+                        <span className="self-start px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white text-[10px] font-bold uppercase tracking-wider">
+                          {course.subject}
+                        </span>
+                        {course.isFree && (
+                          <span className="px-2.5 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider shadow-sm">
+                            Free
+                          </span>
+                        )}
+                      </div>
                       <div className="relative">
-                        <h3 className="text-xl font-bold text-white leading-snug">
+                        <h3 className="text-xl font-bold text-white leading-snug drop-shadow-md">
                           {course.title}
                         </h3>
                       </div>

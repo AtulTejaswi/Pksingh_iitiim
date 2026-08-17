@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useGetCourses } from '@/hooks/useCourses';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Search, Filter, BookOpen, Clock, Video, MonitorPlay, User, ChevronDown, ChevronUp } from 'lucide-react';
 import { staticCourses, mergeWithApiCourses, type CatalogCourse } from '@/data/courseData';
 
@@ -45,18 +46,42 @@ function CourseCard({ course }: { course: CatalogCourse }) {
   return (
     <div className="rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col group relative">
       <div
-        className={`h-40 relative p-6 flex flex-col justify-between border-b border-slate-100 bg-gradient-to-br ${
-          course.subject === 'PHYSICS'
-            ? 'from-slate-800 to-slate-900'
-            : course.subject === 'CHEMISTRY'
-              ? 'from-amber-600 to-amber-700'
-              : 'from-slate-700 to-slate-800'
+        className={`h-40 relative p-6 flex flex-col justify-between ${
+          course.thumbnailUrl
+            ? 'border-b-0'
+            : `border-b border-slate-100 bg-gradient-to-br ${
+                course.subject === 'PHYSICS'
+                  ? 'from-slate-800 to-slate-900'
+                  : course.subject === 'CHEMISTRY'
+                    ? 'from-amber-600 to-amber-700'
+                    : 'from-slate-700 to-slate-800'
+              }`
         }`}
       >
-        <span className="self-start px-2.5 py-1 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm">
-          {course.subject}
-        </span>
-        <h3 className="text-xl font-bold text-white leading-snug group-hover:text-amber-400 transition-colors">
+        {course.thumbnailUrl ? (
+          <>
+            <Image
+              src={course.thumbnailUrl}
+              alt={course.title}
+              width={480}
+              height={270}
+              unoptimized
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30" />
+          </>
+        ) : null}
+        <div className="relative flex items-start justify-between gap-2">
+          <span className="self-start px-2.5 py-1 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm">
+            {course.subject}
+          </span>
+          {course.isFree && (
+            <span className="px-2 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider shadow-sm">
+              Free
+            </span>
+          )}
+        </div>
+        <h3 className="relative text-xl font-bold text-white leading-snug group-hover:text-amber-400 transition-colors drop-shadow-md">
           {course.title}
         </h3>
       </div>
