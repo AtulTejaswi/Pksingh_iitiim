@@ -20,6 +20,7 @@ import WhatsAppButton from '@/components/common/WhatsAppButton';
 import ExitIntentModal from '@/components/common/ExitIntentModal';
 import ScrollDepthCta from '@/components/common/ScrollDepthCta';
 import ReferralSection from '@/components/common/ReferralSection';
+import FreeSeriesBanner from '@/components/common/FreeSeriesBanner';
 import { Reveal } from '@/components/ui/Reveal';
 import { StatCounter } from '@/components/ui/StatCounter';
 import { CTA } from '@/lib/cta';
@@ -192,6 +193,9 @@ export default function LandingPage() {
           <span className="flex items-center gap-2 text-sm font-semibold text-ink-secondary whitespace-nowrap"><Zap className="w-4 h-4 text-brand-600" /> IIT &amp; IIM Alumni Network</span>
         </div>
       </section>
+
+      {/* ───────────────────────────────────── Free JEE is EASY Series Banner ───────────────────────────────────── */}
+      <FreeSeriesBanner />
 
       {/* ───────────────────────────────────── Free Study Guide Lead Magnet ───────────────────────────────────── */}
       <FreePreview />
