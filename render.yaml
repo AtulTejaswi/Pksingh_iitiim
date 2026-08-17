@@ -39,6 +39,8 @@ services:
         sync: false
       - key: SUPABASE_JWT_SECRET
         sync: false
+      - key: BACKUP_CRON_TOKEN
+        sync: false
       - key: RESET_JWT_SECRET
         sync: false
       - key: RAZORPAY_KEY_ID

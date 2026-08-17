@@ -95,9 +95,16 @@ import backupRoutes from './modules/backup/backup.routes';
 import quotesRoutes from './modules/quotes/quotes.routes';
 import paymentRoutes from './modules/payments/payments.routes';
 import leadsRoutes from './modules/leads/leads.routes';
+import configRoutes from './modules/config/config.routes';
+import { isCloudStorageConfigured } from './utils/storage';
 
 app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    dbConnected: Boolean(app.locals.dbConnected),
+    storage: isCloudStorageConfigured() ? 'supabase' : 'local',
+  });
 });
 
 // Mount Routes
@@ -113,6 +120,7 @@ app.use('/api/backup', backupRoutes);
 app.use('/api/quotes', quotesRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/leads', leadsRoutes);
+app.use('/api/config', configRoutes);
 
 // Health check
 app.get('/health', (_req, res) => {
