@@ -1,0 +1,47 @@
+name: daily-backup
+
+# Automatic daily backup for the non-technical owner: every day at 1:10 AM UTC
+# this triggers the backend's scheduled backup endpoint (which writes a full
+# database export to Supabase Storage's "backups" bucket — the durable copy —
+# and to the server's local disk), and ALSO stores a second copy here as a
+# GitHub Actions artifact so there are always two off-site copies.
+#
+# Requires one secret: BACKUP_CRON_TOKEN — the SAME value set on the Render
+# backend service (see DEPLOYMENT_GUIDE.md step 4).
+on:
+  schedule:
+    - cron: '10 1 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Trigger backend backup
+        id: backup
+        run: |
+          STAMP=$(date -u +%Y%m%d-%H%M%S)
+          RESP=$(curl -sS -w '\n%{http_code}' --max-time 120 -X POST \
+            -H "x-backup-token: ${{ secrets.BACKUP_CRON_TOKEN }}" \
+            https://pksingh-backend.onrender.com/api/backup/cron || true)
+          CODE=$(echo "$RESP" | tail -n1)
+          BODY=$(echo "$RESP" | sed '$d')
+          echo "HTTP $CODE"
+          if [ "$CODE" != "200" ]; then
+            echo "::error::Backup failed (HTTP $CODE). Body: $BODY"
+            exit 1
+          fi
+          echo "$BODY" > /tmp/backup-response.json
+          echo "stamp=$STAMP" >> "$GITHUB_OUTPUT"
+          echo "Backup succeeded. Cloud copy: $(echo "$BODY" | python3 -c 'import sys,json; print(json.load(sys.stdin).get("cloud"))' 2>/dev/null || echo 'n/a')"
+
+      - name: Store backup artifact (second off-site copy)
+        if: steps.backup.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-backup-${{ steps.backup.outputs.stamp }}
+          path: /tmp/backup-response.json
+          retention-days: 90
+          if-no-files-found: error

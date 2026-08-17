@@ -284,6 +284,32 @@ export const exportBackup = async (_req: Request, res: Response) => {
   }
 };
 
+/**
+ * Scheduled (cron) backup. Same as exportBackup but also returns the full JSON
+ * payload so the calling cron (GitHub Actions) can store a second, durable
+ * off-site copy as an artifact — the local file on the server is wiped on
+ * redeploy, so the Supabase "backups" bucket + the workflow artifact are the
+ * two real copies.
+ */
+export const scheduledBackup = async (_req: Request, res: Response) => {
+  try {
+    const data = await exportAllData();
+    const json = JSON.stringify(data, null, 2);
+    const filename = path.basename(backupFilePath());
+    fs.writeFileSync(path.join(BACKUPS_DIR, filename), json, 'utf-8');
+    const uploaded = await uploadToSupabaseStorage(filename, json);
+    res.json({
+      success: true,
+      message: uploaded ? 'Backup created (local + Supabase Storage)' : 'Backup created (local only — check the Supabase backups bucket)',
+      file: filename,
+      cloud: uploaded,
+      backup: data,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Scheduled backup failed' });
+  }
+};
+
 export const importBackup = async (req: Request, res: Response) => {
   try {
     const { filename } = req.body;
