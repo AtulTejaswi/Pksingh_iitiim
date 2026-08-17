@@ -64,6 +64,16 @@ DEPLOYMENT_GUIDE.md if it hasn't been done.
    relaxed from a hard fail to a loud warning so the backend could deploy
    before this setup; it should be made fatal again once Supabase is
    configured.)
+
+   > **Status check — Aug 18, 2026:** verified live on the production backend
+   > that Supabase is **still not configured** — no `SUPABASE_URL` /
+   > `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_JWT_SECRET` exist on the Render
+   > service, `/api/config` reports `storage: local`, and the boot log prints
+   > the storage warning. **The override stays in place (intentionally).**
+   > The moment the three keys are set and a test upload lands in the Supabase
+   > `media` bucket, the guard should be made fatal again (one small commit in
+   > `src/utils/envSecurity.ts`). Until then, do not delete the override — it
+   > is what keeps the backend able to boot at all.
 2. **Razorpay (online payments)** — the checkout is fully implemented
    (create-order → Razorpay Orders API → checkout modal → signature
    verification → webhook → automatic enrollment) and verified end-to-end
@@ -246,3 +256,9 @@ HANDOFF.md              this file
   Razorpay Checkout "Buy now — ₹…" flow. Verified end-to-end locally with a
   mock gateway (12 checks) incl. webhook signature + idempotency.
 - Docs: `DEPLOYMENT_GUIDE.md`, `ADMIN_GUIDE.md`, this file.
+- **Aug 18, 2026 — verification (no code change):** confirmed live that
+  Supabase is not yet configured on the production backend (env vars absent,
+  `/api/config` reports `storage: local`, boot warning fires). The temporary
+  storage-guard override (`be00902`) remains in place and **must not be
+  reverted until Supabase is fully configured and a real upload lands in the
+  `media` bucket** — otherwise the backend refuses to boot.
