@@ -1,0 +1,41 @@
+name: daily-youtube-sync
+
+# Automatic daily import: new videos uploaded to the PKSir Classes YouTube
+# channel (e.g. P00020, P00021, ...) are added to the "JEE is EASY — Free
+# YouTube Series" course as new free lessons, with their YouTube link
+# attached. Runs shortly after the daily backup.
+#
+# Idempotent: videos already in the course are skipped, so re-runs are safe.
+#
+# Requires one secret: BACKUP_CRON_TOKEN — the SAME value set on the Render
+# backend service (see DEPLOYMENT_GUIDE.md step 4).
+on:
+  schedule:
+    - cron: '30 1 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Trigger YouTube sync
+        run: |
+          RESP=$(curl -sS -w '\n%{http_code}' --max-time 180 -X POST \
+            -H "x-backup-token: ${{ secrets.BACKUP_CRON_TOKEN }}" \
+            https://pksingh-backend.onrender.com/api/youtube-sync/sync || true)
+          CODE=$(echo "$RESP" | tail -n1)
+          BODY=$(echo "$RESP" | sed '$d')
+          echo "HTTP $CODE"
+          if [ "$CODE" != "200" ]; then
+            echo "::error::YouTube sync failed (HTTP $CODE). Body: $BODY"
+            exit 1
+          fi
+          echo "$BODY" | python3 -c '
+import sys, json
+d = json.load(sys.stdin)
+print(f"checked={d.get(\"checked\")} added={d.get(\"added\")} skipped={d.get(\"skipped\")} failed={d.get(\"failed\")}")
+if d.get("errors"):
+    print("errors:", "; ".join(d["errors"]))
+'

@@ -1,0 +1,43 @@
+name: Set BACKUP_CRON_TOKEN on Render
+
+# Writes the BACKUP_CRON_TOKEN GitHub Actions secret onto the Render backend
+# service's environment (the same value must exist in BOTH places for the
+# daily backup + daily YouTube sync to run) and triggers a redeploy.
+#
+# How to use: set the secret first (repo → Settings → Secrets and variables →
+# Actions → New repository secret → name BACKUP_CRON_TOKEN, paste a long
+# random string), then run this workflow from the Actions tab.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  set-token:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Upsert BACKUP_CRON_TOKEN on Render + redeploy
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          BACKUP_CRON_TOKEN: ${{ secrets.BACKUP_CRON_TOKEN }}
+        run: |
+          if [ -z "$RENDER_API_KEY" ] || [ -z "$RENDER_SERVICE_ID" ] || [ -z "$BACKUP_CRON_TOKEN" ]; then
+            echo "::error::Missing RENDER_API_KEY, RENDER_SERVICE_ID or BACKUP_CRON_TOKEN secret."
+            exit 1
+          fi
+          echo "Updating BACKUP_CRON_TOKEN on the Render service..."
+          curl -s -w "\nHTTP_STATUS:%{http_code}\n" \
+            -X PUT \
+            -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "{\"value\": \"${BACKUP_CRON_TOKEN}\"}" \
+            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/env-vars/BACKUP_CRON_TOKEN" || true
+          echo "Triggering redeploy..."
+          curl -s -w "\nHTTP_STATUS:%{http_code}\n" \
+            -X POST \
+            -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{}' \
+            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys" || true

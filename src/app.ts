@@ -96,6 +96,7 @@ import quotesRoutes from './modules/quotes/quotes.routes';
 import paymentRoutes from './modules/payments/payments.routes';
 import leadsRoutes from './modules/leads/leads.routes';
 import configRoutes from './modules/config/config.routes';
+import youtubeSyncRoutes from './modules/youtube-sync/youtube-sync.routes';
 import { isCloudStorageConfigured } from './utils/storage';
 
 app.get('/api/health', (_req, res) => {
@@ -121,6 +122,7 @@ app.use('/api/quotes', quotesRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/leads', leadsRoutes);
 app.use('/api/config', configRoutes);
+app.use('/api/youtube-sync', youtubeSyncRoutes);
 
 // Health check
 app.get('/health', (_req, res) => {
