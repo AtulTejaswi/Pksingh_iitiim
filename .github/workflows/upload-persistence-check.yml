@@ -1,0 +1,70 @@
+name: Upload Persistence Check
+
+# Acceptance test for the course-material storage fix: upload a file as the
+# owner, then run this workflow with the file's URL. It triggers a fresh
+# Render backend deploy and reports whether the URL still resolves afterwards.
+#
+# - URL contains "supabase.co"            → file is in Supabase Storage (persistent)
+# - URL contains "/uploads/lessons/..."   → file is on Render's local disk
+#   (ephemeral — it will 404 after this check; SUPABASE_URL +
+#   SUPABASE_SERVICE_ROLE_KEY must be set on the service and a public "media"
+#   bucket created before production content is uploaded)
+
+on:
+  workflow_dispatch:
+    inputs:
+      media_url:
+        description: URL of the uploaded file to check after the redeploy
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Redeploy backend and verify the file persists
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          MEDIA_URL: ${{ github.event.inputs.media_url }}
+        run: |
+          set -euo pipefail
+          echo "Checking ${MEDIA_URL} across a fresh backend deploy"
+          echo "=== pre-redeploy ==="
+          curl -s -o /dev/null -w "HTTP %{http_code}\n" --max-time 60 "$MEDIA_URL"
+
+          echo "=== trigger backend deploy ==="
+          DEPLOY_ID=$(curl -s -X POST \
+            -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{}' \
+            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys" \
+            | jq -r '.deploy.id // .id // empty')
+          echo "deploy_id=${DEPLOY_ID}"
+          if [ -z "${DEPLOY_ID}" ]; then
+            echo "!! No deploy id returned"
+            exit 1
+          fi
+
+          for i in $(seq 1 40); do
+            STATUS=$(curl -s \
+              -H "Authorization: Bearer ${RENDER_API_KEY}" \
+              "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys/${DEPLOY_ID}" \
+              | jq -r '.deploy.status // .status // "?"')
+            echo "[${i}] status=${STATUS}"
+            case "${STATUS}" in
+              live) break ;;
+              build_failed|update_failed|canceled|deactivated)
+                echo "!! Deploy failed: ${STATUS}"
+                exit 1
+                ;;
+            esac
+            sleep 15
+          done
+
+          echo "=== post-redeploy (THE TEST) ==="
+          curl -s -o /dev/null -w "HTTP %{http_code}\n" --max-time 60 "$MEDIA_URL"
+          echo "NOTE: a 200 means the file persisted; a 404 means it was on"
+          echo "local disk (Supabase env vars not set on the service yet)."
