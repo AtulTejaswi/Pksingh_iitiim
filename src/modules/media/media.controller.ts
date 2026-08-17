@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { AppError, NotFoundError, BadRequestError } from '../../utils/errors';
 import { formatZodError } from '../../utils/formatZodError';
 import { storageService, isCloudStorageConfigured } from '../../utils/storage';
+import { isYouTubeUrl, extractYouTubeVideoId, canonicalYouTubeWatchUrl, youTubeLinkError } from '../../utils/youtube';
 
 const DEFAULT_ALLOWED_MIMES = [
   'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml',
@@ -178,12 +179,22 @@ export const addLink = async (req: Request, res: Response, next: NextFunction): 
       res.status(400).json({ error: formatZodError(result.error) });
       return;
     }
-    const { lessonId, title, url, folder } = result.data;
+    const { lessonId, title, url: rawUrl, folder } = result.data;
     let { type } = result.data;
+    let url = rawUrl;
 
     // Auto-detect YouTube links even if the client didn't set the type.
-    if (/youtube\.com|youtu\.be/i.test(url)) {
+    if (isYouTubeUrl(url)) {
       type = 'YOUTUBE_LINK';
+      // Validate it's a SINGLE video (not a channel/playlist/search page) so
+      // the student player never shows a dead iframe. Store the canonical
+      // watch URL so every link form (shorts, youtu.be, embed) behaves the
+      // same way for students.
+      if (!extractYouTubeVideoId(url)) {
+        res.status(400).json({ error: youTubeLinkError(url) });
+        return;
+      }
+      url = canonicalYouTubeWatchUrl(url) || url;
     }
 
     await assertLessonExists(lessonId);
