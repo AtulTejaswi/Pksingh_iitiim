@@ -20,3 +20,9 @@ prisma/*.db
 backups/
 *.log
 .vercel
+
+# scratch jest/test output
+final-test.txt
+test-final.txt
+test-output.txt
+test-output2.txt
