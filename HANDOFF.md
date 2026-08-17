@@ -40,6 +40,7 @@ runs itself, and exactly what to do when something looks wrong.
 | Automation | What it does | When |
 |---|---|---|
 | **Daily backup** (GitHub Action `daily-backup`) | Exports ALL site data and saves two copies — one in the Supabase `backups` bucket (permanent), one in GitHub (90-day history) | Every day at 1:10 AM UTC, also runnable manually from GitHub → Actions → daily-backup |
+| **YouTube sync** (GitHub Action `daily-youtube-sync`) | New videos uploaded to the PKSir Classes YouTube channel are added to the free "JEE is EASY" course as new lessons automatically (idempotent — already-imported videos are skipped) | Every day at 1:30 AM UTC, also runnable manually from GitHub → Actions → daily-youtube-sync |
 | **Startup backup** (backend) | Every time the server restarts/redeploys, it saves a fresh backup first | On each deploy |
 | **Auto-restore** (backend) | If the database is ever empty (e.g. a data-loss incident), the server automatically restores the latest backup on boot | On each startup, only when data is missing |
 | **Auto-deploy** | When code changes are pushed to GitHub `main`, Vercel and Render rebuild and update themselves | On every push |
@@ -271,3 +272,13 @@ HANDOFF.md              this file
   recordings should be delivered as YouTube **Unlisted** links — free, no
   size limit, and they put zero pressure on the (still not configured)
   Supabase 1 GB free storage.
+- **Aug 18, 2026 — automatic YouTube sync:** the free "JEE is EASY — Free
+  YouTube Series" course (20 lessons, all 20 channel videos imported) now
+  auto-updates from the channel's RSS feed. `POST /api/youtube-sync/sync`
+  (token-protected, same `BACKUP_CRON_TOKEN` as the backup) is called by the
+  new `daily-youtube-sync` GitHub Action (1:30 AM UTC). New channel uploads
+  (P00020, …) become new free lessons automatically; already-imported videos
+  are always skipped (idempotent). Also fixed a latent gap: `BACKUP_CRON_TOKEN`
+  was missing on the Render service so the **daily backup cron had been
+  failing every day** — it's now set in both places (Render env + GitHub
+  secret) via the new `set-render-backup-token` workflow.

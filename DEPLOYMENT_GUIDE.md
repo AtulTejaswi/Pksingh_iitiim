@@ -169,7 +169,10 @@ into a note — you'll paste it in the next two places.
 *[Screenshot here: GitHub → Settings → Secrets → "New repository secret"]*
 
 > 🔁 Both places must have the **exact same** value. The daily backup runs on
-> GitHub's servers and uses this token to ask your site for a backup.
+> GitHub's servers and uses this token to ask your site for a backup. The
+> same token also powers the **automatic YouTube sync**: whenever you upload
+> a new video to the PKSir Classes channel, it's added to the free "JEE is
+> EASY" course by itself (every day at 1:30 AM UTC).
 
 ---
 

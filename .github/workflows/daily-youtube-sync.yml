@@ -32,10 +32,4 @@ jobs:
             echo "::error::YouTube sync failed (HTTP $CODE). Body: $BODY"
             exit 1
           fi
-          echo "$BODY" | python3 -c '
-import sys, json
-d = json.load(sys.stdin)
-print(f"checked={d.get(\"checked\")} added={d.get(\"added\")} skipped={d.get(\"skipped\")} failed={d.get(\"failed\")}")
-if d.get("errors"):
-    print("errors:", "; ".join(d["errors"]))
-'
+          echo "$BODY" | jq '{checked, added, skipped, failed, errors}'
