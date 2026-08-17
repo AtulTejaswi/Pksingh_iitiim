@@ -262,3 +262,12 @@ HANDOFF.md              this file
   storage-guard override (`be00902`) remains in place and **must not be
   reverted until Supabase is fully configured and a real upload lands in the
   `media` bucket** — otherwise the backend refuses to boot.
+- **Aug 18, 2026 — YouTube-Unlisted-first workflow:** the admin link panel
+  now live-previews a YouTube video and rejects channel/playlist/search links
+  with a plain-English message; the backend validates links (new
+  `src/utils/youtube.ts`, unit-tested) and canonicalises every form
+  (`youtu.be`, shorts, embed) to `watch?v=...`; the student player shows a
+  friendly "Open in YouTube" fallback instead of a dead iframe. Full lecture
+  recordings should be delivered as YouTube **Unlisted** links — free, no
+  size limit, and they put zero pressure on the (still not configured)
+  Supabase 1 GB free storage.

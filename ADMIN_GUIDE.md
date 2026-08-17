@@ -93,7 +93,12 @@ You'll see three panels:
 - **Title:** e.g. "Lecture 3 recording".
 - **URL:** the YouTube link (`https://youtube.com/watch?v=...` or
   `https://youtu.be/...`) or any other web link.
-- The site automatically recognises YouTube links.
+- As you paste, the panel shows a small **preview** of the video — you can
+  confirm it's the right one before attaching.
+- The site automatically recognises YouTube links and only accepts a link to
+  a **single video**. If you paste a channel, playlist, or search page, you'll
+  get a friendly "that's not a single video" message — instead, open the
+  video you want, click **Share → Copy link**, and paste that.
 - Click **Attach link**.
 
 ### 3. Instructor note (text)
