@@ -1,11 +1,12 @@
 import { Router } from 'express';
-import { listLessons, getLesson, createLesson, updateLesson, deleteLesson, markProgress } from './lessons.controller';
+import { listLessons, getLesson, createLesson, updateLesson, deleteLesson, reorderLessons, markProgress } from './lessons.controller';
 import { authenticate, optionalAuthenticate } from '../../middleware/auth.middleware';
 import { superAdminOnly } from '../../middleware/rbac.middleware';
 
 const router = Router();
 
 router.get('/', authenticate, superAdminOnly, listLessons);
+router.post('/reorder', authenticate, superAdminOnly, reorderLessons);
 router.get('/:id', optionalAuthenticate, getLesson);
 router.post('/:id/progress', authenticate, markProgress);
 

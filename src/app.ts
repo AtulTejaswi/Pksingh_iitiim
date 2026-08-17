@@ -142,10 +142,31 @@ app.use((req, res) => {
 });
 
 // Centralized error handler — catches any unhandled errors (Express 5 catches async rejects automatically)
-// Does not log 500-level errors here; controllers/app code should log as needed.
 app.use((err: any, req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  // Multer errors (e.g. file too large) don't carry a statusCode by default,
+  // so without this they'd fall through to a generic 500 — very confusing
+  // for a non-technical owner uploading course videos.
+  if (err?.name === 'MulterError') {
+    res.status(400).json({ status: 400, message: `Upload error: ${err.message}`, error_code: err.code || 'UPLOAD_ERROR' });
+    return;
+  }
+
+  // Prisma "record not found" / foreign key errors → clean 404/400 instead of 500.
+  if (err?.code === 'P2025') {
+    res.status(404).json({ status: 404, message: 'The requested item was not found.', error_code: 'NOT_FOUND' });
+    return;
+  }
+  if (err?.code === 'P2003') {
+    res.status(400).json({ status: 400, message: 'This action references something that no longer exists (e.g. a deleted course or lesson).', error_code: 'INVALID_REFERENCE' });
+    return;
+  }
+
   const statusCode = err.statusCode || 500;
   const message = err.message || 'Internal server error';
+  if (statusCode >= 500) {
+    // eslint-disable-next-line no-console
+    console.error('[unhandled error]', req.method, req.originalUrl, err);
+  }
   res.status(statusCode).json({
     status: statusCode,
     message,
