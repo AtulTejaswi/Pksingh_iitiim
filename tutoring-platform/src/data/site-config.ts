@@ -128,7 +128,7 @@ export const WHATSAPP_DIRECT_NUMBER =
  * links are shown.
  */
 export const SOCIAL_LINKS = {
-  youtube: 'https://youtube.com/@pksir_iitiim?si=C-t_Bc5zmjrrxdzX',
+  youtube: 'https://www.youtube.com/@PKSir_IITIIM',
   instagram:
     'https://www.instagram.com/pksirclass?igsh=MWg2ejJibHZpaWdndQ==&igsi=MWg2ejJibHZpaWdndQ==',
   linkedin: process.env.NEXT_PUBLIC_LINKEDIN_URL || '',
