@@ -63,6 +63,7 @@ model Course {
   tags         CourseTag[]
   thumbnailUrl String?
   isFree       Boolean       @default(false)
+  price        Int?          // Sale price in whole rupees (null when free / not set)
   status       String   @default("DRAFT")
   sortOrder    Int           @default(0)
   prerequisites String?      // JSON or text

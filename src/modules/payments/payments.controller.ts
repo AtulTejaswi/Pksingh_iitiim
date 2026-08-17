@@ -1,9 +1,10 @@
 import crypto from 'crypto';
-import { Response } from 'express';
+import { Response, NextFunction } from 'express';
 import { prisma } from '../../config/db';
 import { AuthRequest } from '../../middleware/auth.middleware';
 import { z } from 'zod';
 import { formatZodError } from '../../utils/formatZodError';
+import { createRazorpayOrder, isPaymentsConfigured, razorpayKeyId } from '../../utils/razorpay';
 
 const createOrderSchema = z.object({
   courseId: z.string().uuid(),
@@ -33,7 +34,7 @@ const webhookSchema = z.object({
 
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || '';
 
-export const createOrder = async (req: AuthRequest, res: Response): Promise<void> => {
+export const createOrder = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   if (!req.user) {
     res.status(401).json({ error: 'Not authenticated' });
     return;
@@ -47,7 +48,7 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<void
 
   const course = await prisma.course.findUnique({
     where: { id: result.data.courseId },
-    select: { id: true, isFree: true, status: true },
+    select: { id: true, isFree: true, status: true, price: true },
   });
 
   if (!course || course.status !== 'PUBLISHED') {
@@ -60,6 +61,13 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<void
     return;
   }
 
+  if (!course.price || course.price <= 0) {
+    res.status(400).json({
+      error: 'This course does not have a price set yet. Please contact the site owner.',
+    });
+    return;
+  }
+
   // Check if already enrolled
   const existing = await prisma.enrollment.findUnique({
     where: { userId_courseId: { userId: req.user.id, courseId: course.id } },
@@ -69,9 +77,18 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<void
     return;
   }
 
-  // Look up the real price from the database (never trust client-sent price)
-  // For now, use a default price — replace with actual Course.price field when added
-  const amountPaise = 99900; // ₹999.00 — placeholder until price field exists
+  // Payments must be configured (key pair set) before we create any order —
+  // otherwise students would pay nothing and get nothing, silently.
+  if (!isPaymentsConfigured()) {
+    res.status(503).json({
+      error: 'Online payments are not set up on this site yet. Please contact the site owner to enroll.',
+    });
+    return;
+  }
+
+  // The price comes from the database, never from the client. Course.price is
+  // stored in whole rupees; Razorpay works in the smallest currency unit.
+  const amountPaise = course.price * 100;
 
   // Create order record with Pending status
   const order = await prisma.order.create({
@@ -84,27 +101,55 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<void
     },
   });
 
-  // Audit log
-  await prisma.auditLog.create({
-    data: {
-      userId: req.user.id,
-      action: 'PAYMENT_ORDER_CREATED',
-      details: JSON.stringify({ orderId: order.id, amount: amountPaise, courseId: course.id }),
-    },
-  });
+  try {
+    // Create the order at the payment gateway. `receipt` is our internal order
+    // id so webhooks/verify can map the gateway order back to our DB.
+    const razorpayOrder = await createRazorpayOrder({
+      amount: amountPaise,
+      currency: 'INR',
+      receipt: order.id,
+      notes: { courseId: course.id },
+    });
 
-  // In production, this would call Razorpay Orders API:
-  // const razorpayOrder = await razorpay.orders.create({ amount: amountPaise, currency: 'INR', receipt: order.id });
-  // order.gatewayOrderId = razorpayOrder.id;
-  // await prisma.order.update({ where: { id: order.id }, data: { gatewayOrderId: razorpayOrder.id, gatewayResponse: '{ redacted }' } });
+    await prisma.order.update({
+      where: { id: order.id },
+      data: {
+        gatewayOrderId: razorpayOrder.id,
+        gatewayResponse: JSON.stringify({ razorpayStatus: razorpayOrder.status, gateway: 'razorpay' }),
+      },
+    });
 
-  res.json({
-    orderId: order.id,
-    amount: amountPaise,
-    currency: 'INR',
-    keyId: process.env.RAZORPAY_KEY_ID || '',
-    // In production, include: razorpayOrder.id as gatewayOrderId
-  });
+    // Audit log
+    await prisma.auditLog.create({
+      data: {
+        userId: req.user.id,
+        action: 'PAYMENT_ORDER_CREATED',
+        details: JSON.stringify({ orderId: order.id, amount: amountPaise, courseId: course.id, gatewayOrderId: razorpayOrder.id }),
+      },
+    });
+
+    res.json({
+      orderId: order.id,
+      amount: amountPaise,
+      currency: 'INR',
+      keyId: razorpayKeyId(),
+      gatewayOrderId: razorpayOrder.id,
+    });
+  } catch (err: any) {
+    // Gateway failure — never let a Pending order linger confusingly.
+    await prisma.order.update({
+      where: { id: order.id },
+      data: { status: 'Failed' },
+    });
+    await prisma.auditLog.create({
+      data: {
+        userId: req.user.id,
+        action: 'PAYMENT_GATEWAY_ERROR',
+        details: JSON.stringify({ orderId: order.id, courseId: course.id, message: String(err?.message || 'unknown').slice(0, 300) }),
+      },
+    });
+    res.status(502).json({ error: err?.message || 'The payment gateway could not create your order. Please try again.' });
+  }
 };
 
 export const verifyPayment = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -140,17 +185,22 @@ export const verifyPayment = async (req: AuthRequest, res: Response): Promise<vo
     return;
   }
 
-  // Find the order
+  // Find the order — scoped to the requesting user so nobody can verify (and
+  // thereby enroll for) someone else's order.
   const order = await prisma.order.findFirst({
-    where: { gatewayOrderId: razorpay_order_id },
+    where: { gatewayOrderId: razorpay_order_id, userId: req.user.id },
   });
   if (!order) {
     res.status(404).json({ error: 'Order not found' });
     return;
   }
 
-  // Mark payment as Success
-  const payment = await prisma.payment.create({
+  // Idempotent bookkeeping — the same payment may already be recorded by the
+  // webhook (or by a retried verify), so never blindly create duplicates.
+  const existingPayment = await prisma.payment.findFirst({
+    where: { gatewayPaymentId: razorpay_payment_id },
+  });
+  const payment = existingPayment ?? (await prisma.payment.create({
     data: {
       orderId: order.id,
       amount: order.amount,
@@ -158,21 +208,26 @@ export const verifyPayment = async (req: AuthRequest, res: Response): Promise<vo
       status: 'Success',
       gatewayPaymentId: razorpay_payment_id,
     },
-  });
+  }));
 
   await prisma.order.update({
     where: { id: order.id },
     data: { status: 'Success' },
   });
 
-  // Create enrollment
-  await prisma.enrollment.create({
-    data: {
-      userId: order.userId,
-      courseId: order.courseId,
-      status: 'ACTIVE',
-    },
+  // Create enrollment (skip if already enrolled)
+  const existingEnrollment = await prisma.enrollment.findUnique({
+    where: { userId_courseId: { userId: order.userId, courseId: order.courseId } },
   });
+  if (!existingEnrollment) {
+    await prisma.enrollment.create({
+      data: {
+        userId: order.userId,
+        courseId: order.courseId,
+        status: 'ACTIVE',
+      },
+    });
+  }
 
   // Audit log
   await prisma.auditLog.create({
@@ -240,29 +295,40 @@ export const handleWebhook = async (req: AuthRequest, res: Response): Promise<vo
         return;
       }
 
-      await prisma.payment.create({
-        data: {
-          orderId: order.id,
-          amount: paymentEntity.amount,
-          currency: paymentEntity.currency,
-          status: 'Success',
-          gatewayPaymentId: paymentEntity.id,
-          gatewayResponse: event_id,
-        },
+      // Idempotent: the same payment may arrive via the client verify flow too.
+      const existingPayment = await prisma.payment.findFirst({
+        where: { gatewayPaymentId: paymentEntity.id },
       });
+      if (!existingPayment) {
+        await prisma.payment.create({
+          data: {
+            orderId: order.id,
+            amount: paymentEntity.amount,
+            currency: paymentEntity.currency,
+            status: 'Success',
+            gatewayPaymentId: paymentEntity.id,
+            gatewayResponse: event_id,
+          },
+        });
+      }
 
       await prisma.order.update({
         where: { id: order.id },
         data: { status: 'Success' },
       });
 
-      await prisma.enrollment.create({
-        data: {
-          userId: order.userId,
-          courseId: order.courseId,
-          status: 'ACTIVE',
-        },
+      const existingEnrollment = await prisma.enrollment.findUnique({
+        where: { userId_courseId: { userId: order.userId, courseId: order.courseId } },
       });
+      if (!existingEnrollment) {
+        await prisma.enrollment.create({
+          data: {
+            userId: order.userId,
+            courseId: order.courseId,
+            status: 'ACTIVE',
+          },
+        });
+      }
 
       await prisma.auditLog.create({
         data: {
@@ -284,16 +350,21 @@ export const handleWebhook = async (req: AuthRequest, res: Response): Promise<vo
         where: { gatewayOrderId: paymentEntity.order_id },
       });
       if (order) {
-        await prisma.payment.create({
-          data: {
-            orderId: order.id,
-            amount: paymentEntity.amount,
-            currency: paymentEntity.currency,
-            status: 'Failed',
-            gatewayPaymentId: paymentEntity.id,
-            gatewayResponse: event_id,
-          },
+        const existingPayment = await prisma.payment.findFirst({
+          where: { gatewayPaymentId: paymentEntity.id },
         });
+        if (!existingPayment) {
+          await prisma.payment.create({
+            data: {
+              orderId: order.id,
+              amount: paymentEntity.amount,
+              currency: paymentEntity.currency,
+              status: 'Failed',
+              gatewayPaymentId: paymentEntity.id,
+              gatewayResponse: event_id,
+            },
+          });
+        }
         await prisma.order.update({
           where: { id: order.id },
           data: { status: 'Failed' },

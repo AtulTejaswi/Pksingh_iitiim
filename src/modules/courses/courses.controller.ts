@@ -12,6 +12,9 @@ const courseSchema = z.object({
   description: z.string().min(10),
   subject: z.string(),
   isFree: z.boolean().optional(),
+  // Sale price in whole rupees (shown to students; stored as-is). Free/paid
+  // is driven by isFree — price is the amount charged when the course is paid.
+  price: z.number().int().min(0).optional().nullable(),
   thumbnailUrl: z.union([z.string().url(), z.literal('')]).optional(),
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
   categoryId: z.string().optional(),
@@ -33,7 +36,7 @@ async function upsertExamTags(courseId: string, examTags: string[]) {
 
 const courseWithTags = {
   id: true, title: true, description: true,
-  subject: true, thumbnailUrl: true, isFree: true,
+  subject: true, thumbnailUrl: true, isFree: true, price: true,
   status: true, categoryId: true, sortOrder: true, createdAt: true,
   tags: { select: { tag: { select: { name: true } } } },
   _count: { select: { lessons: true, enrollments: true } },
