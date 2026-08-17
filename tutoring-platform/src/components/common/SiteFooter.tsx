@@ -7,6 +7,7 @@ import { CONTACT_CONFIG } from '@/data/site-config';
 const footerLinks = {
   learn: [
     { href: '/courses', label: 'All Courses' },
+    { href: '/free-videos', label: 'Free Videos' },
     { href: '/courses?subject=PHYSICS', label: 'Physics' },
     { href: '/courses?subject=CHEMISTRY', label: 'Chemistry' },
     { href: '/courses?subject=MATH', label: 'Mathematics' },

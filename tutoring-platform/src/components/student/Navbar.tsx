@@ -58,6 +58,7 @@ export default function Navbar() {
             <Link href="/" className="text-ink-secondary hover:text-brand-600 transition-colors text-sm font-medium">Home</Link>
             <Link href="/about" className="text-ink-secondary hover:text-brand-600 transition-colors text-sm font-medium">About</Link>
             <Link href="/courses" className="text-ink-secondary hover:text-brand-600 transition-colors text-sm font-medium">Courses</Link>
+            <Link href="/free-videos" className="text-ink-secondary hover:text-brand-600 transition-colors text-sm font-medium">Free Videos</Link>
             <Link href="/blog" className="text-ink-secondary hover:text-brand-600 transition-colors text-sm font-medium">Blog</Link>
             <Link href="/faq" className="text-ink-secondary hover:text-brand-600 transition-colors text-sm font-medium">FAQ</Link>
             {user && (userRole === 'STUDENT' || userRole === 'MENTOR' || userRole === 'INSTRUCTOR') && (
@@ -170,6 +171,7 @@ export default function Navbar() {
               <Link href="/" onClick={() => setIsOpen(false)} className="block px-3 py-3 rounded-xl text-base font-medium text-ink-secondary hover:text-brand-600 hover:bg-brand-50 transition-all">Home</Link>
               <Link href="/about" onClick={() => setIsOpen(false)} className="block px-3 py-3 rounded-xl text-base font-medium text-ink-secondary hover:text-brand-600 hover:bg-brand-50 transition-all">About</Link>
               <Link href="/courses" onClick={() => setIsOpen(false)} className="block px-3 py-3 rounded-xl text-base font-medium text-ink-secondary hover:text-brand-600 hover:bg-brand-50 transition-all">Courses</Link>
+              <Link href="/free-videos" onClick={() => setIsOpen(false)} className="block px-3 py-3 rounded-xl text-base font-medium text-ink-secondary hover:text-brand-600 hover:bg-brand-50 transition-all">Free Videos</Link>
               <Link href="/blog" onClick={() => setIsOpen(false)} className="block px-3 py-3 rounded-xl text-base font-medium text-ink-secondary hover:text-brand-600 hover:bg-brand-50 transition-all">Blog</Link>
               <Link href="/faq" onClick={() => setIsOpen(false)} className="block px-3 py-3 rounded-xl text-base font-medium text-ink-secondary hover:text-brand-600 hover:bg-brand-50 transition-all">FAQ</Link>
               <Link href="/#how" onClick={() => setIsOpen(false)} className="block px-3 py-3 rounded-xl text-base font-medium text-ink-secondary hover:text-brand-600 hover:bg-brand-50 transition-all">How It Works</Link>

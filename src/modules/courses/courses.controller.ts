@@ -130,6 +130,67 @@ export const getCourse = async (req: AuthRequest, res: Response, next: NextFunct
   }
 };
 
+/**
+ * Lightweight public endpoint for video-grid pages: returns every published
+ * lesson of a course with its YouTube video ID (extracted from the attached
+ * media), so the frontend can render thumbnails + play buttons with ONE
+ * request. No media, notes or other lesson payload — just what a grid needs.
+ */
+export const getCourseVideos = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const id = req.params.id as string;
+    const course = await prisma.course.findUnique({
+      where: { id },
+      select: { id: true, title: true, isFree: true, status: true },
+    });
+    if (!course) {
+      res.status(404).json({ error: 'Course not found' });
+      return;
+    }
+    if (course.status !== 'PUBLISHED') {
+      res.status(404).json({ error: 'Course not found' });
+      return;
+    }
+
+    const lessons = await prisma.lesson.findMany({
+      where: { courseId: id, status: 'PUBLISHED' },
+      select: {
+        id: true,
+        title: true,
+        isFree: true,
+        sortOrder: true,
+        media: {
+          orderBy: { sortOrder: 'asc' },
+          select: {
+            mediaAsset: { select: { url: true, type: true } },
+          },
+        },
+      },
+      orderBy: { sortOrder: 'asc' },
+    });
+
+    const videos = lessons
+      .map((lesson) => {
+        const youTube = lesson.media.find((m) => m.mediaAsset?.type === 'YOUTUBE_LINK');
+        const url = youTube?.mediaAsset?.url || '';
+        const match = /[?&]v=([A-Za-z0-9_-]{11})/.exec(url);
+        return {
+          lessonId: lesson.id,
+          title: lesson.title,
+          isFree: lesson.isFree,
+          sortOrder: lesson.sortOrder,
+          videoId: match ? match[1] : null,
+          url: match ? url : null,
+        };
+      })
+      .filter((v) => v.videoId);
+
+    res.json({ course: { id: course.id, title: course.title, isFree: course.isFree }, videos });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const getPublicStats = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const [students, publishedCourses, publishedLessons, enrollments] = await Promise.all([
