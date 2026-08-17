@@ -3,6 +3,7 @@
 import React from 'react';
 import { Settings as SettingsIcon, Shield, Database } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
+import BackupPanel from '@/components/admin/BackupPanel';
 import Link from 'next/link';
 
 export default function AdminSettingsPage() {
@@ -40,6 +41,11 @@ export default function AdminSettingsPage() {
               </span>
             </div>
           </div>
+        </div>
+
+        {/* Data Backup */}
+        <div className="md:col-span-2">
+          <BackupPanel />
         </div>
 
         {/* Quick Links */}
