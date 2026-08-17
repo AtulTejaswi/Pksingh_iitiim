@@ -64,10 +64,13 @@ DEPLOYMENT_GUIDE.md if it hasn't been done.
    relaxed from a hard fail to a loud warning so the backend could deploy
    before this setup; it should be made fatal again once Supabase is
    configured.)
-2. **Razorpay (online payments)** — the site supports paid courses, but
-   accepting real money requires a Razorpay account + keys
-   (DEPLOYMENT_GUIDE.md → Optional step). Until then, courses can be free and
-   the payment buttons stay hidden.
+2. **Razorpay (online payments)** — the checkout is fully implemented
+   (create-order → Razorpay Orders API → checkout modal → signature
+   verification → webhook → automatic enrollment) and verified end-to-end
+   against a mock gateway. Accepting *real* money just requires a Razorpay
+   account + all three keys on the backend (DEPLOYMENT_GUIDE.md → Optional
+   step). Until then, paid courses show a "Buy now" button and students get a
+   friendly "payments aren't set up yet" message instead of paying nothing.
 3. **Static pages** — the mentorship landing pages (IIT/NEET/JEE/SAT/CAT/GMAT,
    the /pricing page, blog articles) are hand-written content, not editable
    from the admin panel. To change their text you need a developer. Course
@@ -233,4 +236,13 @@ HANDOFF.md              this file
   token-protected `POST /api/backup/cron` endpoint; backups also carry a
   GitHub artifact copy.
 - **`/api/health`** now includes DB + storage status.
+- **Real Razorpay integration**: `Course.price` (rupees) added end-to-end
+  (schema → API → admin editor → course page); `createOrder` calls the
+  Razorpay Orders API (`src/utils/razorpay.ts`, `RAZORPAY_API_BASE`
+  overridable for tests) and persists `gatewayOrderId`; `verifyPayment` is
+  user-scoped and both verify + webhook are idempotent (no double
+  enrollment/double charge); friendly 503 (unconfigured) / 502 (gateway
+  down) / 400 (no price, free course) errors; student course page has a
+  Razorpay Checkout "Buy now — ₹…" flow. Verified end-to-end locally with a
+  mock gateway (12 checks) incl. webhook signature + idempotency.
 - Docs: `DEPLOYMENT_GUIDE.md`, `ADMIN_GUIDE.md`, this file.

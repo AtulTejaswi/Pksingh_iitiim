@@ -26,3 +26,6 @@ final-test.txt
 test-final.txt
 test-output.txt
 test-output2.txt
+
+# Freebuff desktop scratch (local DB, logs, mock servers)
+.freebuff/

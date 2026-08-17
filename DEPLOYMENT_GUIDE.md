@@ -205,7 +205,8 @@ permanent file storage is working and your website is fully set up. ✅
 
 ## Optional: turn on online payments (Razorpay)
 
-Your site has a "course price" field in the admin panel, but collecting money
+Your site can charge for courses (set the **price** field in the admin
+course editor — Courses → open a course → Step 3: Pricing). Collecting money
 online is **turned off** until you add a Razorpay account (this is a separate
 service that handles card/UPI payments, like a shop's card machine).
 
@@ -221,13 +222,19 @@ service that handles card/UPI payments, like a shop's card machine).
 | `RAZORPAY_KEY_SECRET` | The secret shown with it |
 | `RAZORPAY_WEBHOOK_SECRET` | A long random string you create yourself |
 
-4. **Save Changes** → **Manual Deploy** → wait for **Live**.
-5. The admin Dashboard's System Status card should now show
-   **Online payments: Enabled**.
+4. In the Razorpay dashboard, set the **webhook URL** to
+   `https://pksingh-backend.onrender.com/api/payments/webhook` (used for
+   automatic payment confirmations).
+5. **Save Changes** → **Manual Deploy** → wait for **Live**.
+6. The admin Dashboard's System Status card should now show
+   **Online payments: Enabled**, and the course page will show a
+   **"Buy now — ₹…"** button for paid courses. Students can pay with cards,
+   UPI, and netbanking; they're enrolled automatically once payment succeeds.
 
 > ⚠️ Use the **live** key (`rzp_live_...`) only when you're actually ready to
 > receive real money. Use the test key (`rzp_test_...`) while practicing. The
-> site will refuse to start if you mix them up (live key outside production).
+> site will refuse to start if you mix them up (live key outside production),
+> or if you set only some of the three values.
 
 ---
 
