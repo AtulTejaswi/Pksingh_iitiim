@@ -1,0 +1,69 @@
+name: Fix Render Frontend Build Command
+
+# Why this exists:
+# Render's auto-detected build for the pksingh-frontend service is
+# `npm ci && npm run build`, run with NODE_ENV=production — which makes npm
+# omit devDependencies. `next build` (Turbopack) then fails in its PostCSS
+# transform with "Cannot find module '@tailwindcss/postcss'" (a devDep).
+# This workflow pins the service's build command to install dev deps too:
+#   npm ci --include=dev && npm run build
+# and triggers a fresh deploy so the service can go live.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    env:
+      SERVICE_ID: srv-d8gih9mgvqtc73eqmg3g
+    steps:
+      - name: Patch build command and redeploy
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        run: |
+          set -e
+          echo "=== 1. PATCH buildCommand ==="
+          curl -s -X PATCH \
+            -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            -H "Content-Type: application/json" \
+            "https://api.render.com/v1/services/${SERVICE_ID}" \
+            -d '{"buildCommand": "npm ci --include=dev && npm run build"}' \
+            | jq '{id, name, buildCommand, startCommand, autoDeploy}'
+
+          echo "=== 2. Trigger deploy of ${GITHUB_SHA} ==="
+          DEPLOY_ID=$(curl -s -X POST \
+            -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            -H "Content-Type: application/json" \
+            "https://api.render.com/v1/services/${SERVICE_ID}/deploys" \
+            -d "{\"commitId\": \"${GITHUB_SHA}\"}" \
+            | jq -r '.deploy.id // .id // empty')
+          echo "deploy_id=${DEPLOY_ID}"
+          if [ -z "${DEPLOY_ID}" ]; then
+            echo "!! No deploy id returned — service may be unreachable or patch failed"
+            exit 1
+          fi
+
+          echo "=== 3. Poll deploy status (up to 10 min) ==="
+          for i in $(seq 1 20); do
+            STATUS=$(curl -s \
+              -H "Authorization: Bearer ${RENDER_API_KEY}" \
+              "https://api.render.com/v1/services/${SERVICE_ID}/deploys/${DEPLOY_ID}" \
+              | jq -r '.deploy.status // .status // "?"')
+            echo "[${i}] status=${STATUS}"
+            case "${STATUS}" in
+              live)
+                echo "=== DEPLOY LIVE ==="
+                exit 0
+                ;;
+              build_failed|deploy_failed|canceled|update_failed)
+                echo "=== DEPLOY ${STATUS} ==="
+                exit 1
+                ;;
+            esac
+            sleep 30
+          done
+          echo "=== still in progress after 10 min; check the Render dashboard ==="
