@@ -18,7 +18,9 @@ import {
   Video,
   AlertCircle,
   Lock,
+  ExternalLink,
 } from 'lucide-react';
+import { getYouTubeEmbedUrl, isYouTubeUrl } from '@/lib/youtube';
 
 export type LessonPlayerMode = 'public' | 'enrolled';
 
@@ -37,11 +39,7 @@ function getYoutubeEmbedUrl(url: string) {
   if (url.includes('drive.google.com')) {
     return url.replace(/\/view.*$/, '/preview');
   }
-  const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
-  if (match && match[1]) {
-    return `https://www.youtube.com/embed/${match[1]}`;
-  }
-  return url;
+  return getYouTubeEmbedUrl(url) || url;
 }
 
 export default function LessonPlayer({ courseId, lessonId, mode }: LessonPlayerProps) {
@@ -123,7 +121,24 @@ export default function LessonPlayer({ courseId, lessonId, mode }: LessonPlayerP
         <div className="lg:col-span-8 space-y-6">
           {videoResource ? (
             <div className="aspect-video w-full rounded-2xl overflow-hidden bg-black border border-slate-200 shadow-lg">
-              {videoResource.type === 'YOUTUBE_LINK' || videoResource.url.includes('youtube.com') || videoResource.url.includes('youtu.be') || videoResource.url.includes('drive.google.com') || (videoResource.type === 'EXTERNAL_LINK' && !videoResource.url.match(/\.(mp4|webm|ogg)$/i)) ? (
+              {isYouTubeUrl(videoResource.url) && !getYouTubeEmbedUrl(videoResource.url) ? (
+                <div className="w-full h-full bg-slate-900 flex flex-col items-center justify-center p-8 text-center">
+                  <AlertCircle className="w-10 h-10 text-amber-400 mb-3" />
+                  <p className="text-white font-bold text-sm mb-1">This video link needs a fix</p>
+                  <p className="text-slate-300 text-xs mb-4 max-w-sm">
+                    The link doesn&apos;t point to a single YouTube video. Tell the site owner to re-add it
+                    from the video&apos;s Share → Copy link.
+                  </p>
+                  <a
+                    href={videoResource.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-bold"
+                  >
+                    Open in YouTube <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              ) : videoResource.type === 'YOUTUBE_LINK' || videoResource.url.includes('youtube.com') || videoResource.url.includes('youtu.be') || videoResource.url.includes('drive.google.com') || (videoResource.type === 'EXTERNAL_LINK' && !videoResource.url.match(/\.(mp4|webm|ogg)$/i)) ? (
                 <iframe
                   src={getYoutubeEmbedUrl(videoResource.url)}
                   title={videoResource.title}

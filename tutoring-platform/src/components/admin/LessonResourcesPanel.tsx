@@ -12,7 +12,9 @@ import {
 import { toast } from 'sonner';
 import { getErrorMessage } from '@/lib/safe-toast';
 import { usePlatformConfig } from '@/hooks/usePlatformConfig';
-import { Plus, Trash, FileText, Link2, PlusCircle, ExternalLink, Info } from 'lucide-react';
+import { isYouTubeUrl, extractYouTubeVideoId, getYouTubeThumbnailUrl } from '@/lib/youtube';
+import { Plus, Trash, FileText, Link2, PlusCircle, ExternalLink, Info, CheckCircle2, AlertTriangle } from 'lucide-react';
+import Image from 'next/image';
 
 interface LessonResourcesPanelProps {
   lessonId: string;
@@ -85,6 +87,11 @@ export default function LessonResourcesPanel({ lessonId, courseId, lessonTitle }
     );
   };
 
+  const trimmedUrl = linkUrl.trim();
+  const isYoutube = isYouTubeUrl(trimmedUrl);
+  const youtubeVideoId = isYoutube ? extractYouTubeVideoId(trimmedUrl) : null;
+  const thumbnailUrl = youtubeVideoId ? getYouTubeThumbnailUrl(trimmedUrl) : null;
+
   const handleAddLink = (e: React.FormEvent) => {
     e.preventDefault();
     if (!linkTitle.trim() || !linkUrl.trim()) {
@@ -92,11 +99,17 @@ export default function LessonResourcesPanel({ lessonId, courseId, lessonTitle }
       return;
     }
 
-    const isYoutube = linkUrl.includes('youtube.com') || linkUrl.includes('youtu.be');
+    if (isYoutube && !youtubeVideoId) {
+      toast.error(
+        'That looks like YouTube, but not a single video. Open the video, click Share → Copy link, and paste that here.'
+      );
+      return;
+    }
+
     const type = isYoutube ? 'YOUTUBE_LINK' : linkType;
 
     addLink(
-      { lessonId, courseId, title: linkTitle.trim(), url: linkUrl.trim(), type },
+      { lessonId, courseId, title: linkTitle.trim(), url: trimmedUrl, type },
       {
         onSuccess: () => {
           toast.success('Link attached');
@@ -201,6 +214,30 @@ export default function LessonResourcesPanel({ lessonId, courseId, lessonTitle }
               <option value="YOUTUBE_LINK">YouTube</option>
               <option value="EXTERNAL_LINK">Other link</option>
             </select>
+            {trimmedUrl && isYoutube && youtubeVideoId && (
+              <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-2.5">
+                <p className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1.5 mb-2">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Video found — students will see this:
+                </p>
+                <Image
+                  src={thumbnailUrl || ''}
+                  alt="YouTube video preview"
+                  width={480}
+                  height={270}
+                  unoptimized
+                  className="w-full aspect-video object-cover rounded-md border border-emerald-100"
+                />
+              </div>
+            )}
+            {trimmedUrl && isYoutube && !youtubeVideoId && (
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-2.5 flex items-start gap-1.5">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-600 mt-0.5 shrink-0" />
+                <p className="text-[11px] text-amber-700">
+                  That looks like YouTube, but not a single video. Open the video you want, click
+                  <strong> Share → Copy link</strong>, and paste that here.
+                </p>
+              </div>
+            )}
             <button
               type="submit"
               disabled={isAddingLink}

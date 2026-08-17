@@ -6,6 +6,7 @@ import { useCreateCourse, useUpdateCourse, useGetCourse } from '@/hooks/useCours
 
 import { useGetLessons, useCreateLesson, useUpdateLesson, useDeleteLesson, type Lesson, type Media } from '@/hooks/useLessons';
 import { apiClient } from '@/lib/api-client';
+import { getYouTubeEmbedUrl as getYouTubeEmbedUrlFromLib } from '@/lib/youtube';
 import { toast } from 'sonner';
 import type { CourseInput } from '@/lib/validators';
 import { ArrowLeft, ArrowRight, Save, GripVertical, Plus, Trash2, Edit3, X, Check, Upload, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
@@ -447,8 +448,7 @@ function CourseBuilderInner({ courseId }: { courseId?: string }) {
 
   const getYouTubeEmbedUrl = (url: string) => {
     if (url.includes('drive.google.com')) return url.replace(/\/view.*$/, '/preview');
-    const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
-    return match ? `https://www.youtube.com/embed/${match[1]}` : null;
+    return getYouTubeEmbedUrlFromLib(url);
   };
 
   if (isEdit && loadingCourse) {
