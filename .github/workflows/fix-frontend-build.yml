@@ -8,6 +8,10 @@ name: Fix Render Frontend Build Command
 # This workflow pins the service's build command to install dev deps too:
 #   npm ci --include=dev && npm run build
 # and triggers a fresh deploy so the service can go live.
+#
+# Note: for a native (node) service the PATCH body must nest buildCommand
+# under serviceDetails.envSpecificDetails (a flat {"buildCommand": ...} is
+# silently ignored, HTTP 200 but no change).
 
 on:
   workflow_dispatch:
@@ -26,15 +30,21 @@ jobs:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
         run: |
           set -e
-          echo "=== 1. PATCH buildCommand ==="
-          PATCH_RESP=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X PATCH \
+          echo "=== 1. PATCH buildCommand (nested envSpecificDetails) ==="
+          PATCH_RESP=$(curl -s -X PATCH \
             -H "Authorization: Bearer ${RENDER_API_KEY}" \
             -H "Content-Type: application/json" \
             "https://api.render.com/v1/services/${SERVICE_ID}" \
-            -d '{"buildCommand": "npm ci --include=dev && npm run build"}')
-          echo "$PATCH_RESP" | head -c 1200
-          echo
-          echo "$PATCH_RESP" | tail -1
+            -d '{"serviceDetails": {"envSpecificDetails": {"buildCommand": "npm ci --include=dev && npm run build", "startCommand": "npm run start"}}}')
+          echo "$PATCH_RESP" | jq '{id, name, buildCommand: .serviceDetails.envSpecificDetails.buildCommand, startCommand: .serviceDetails.envSpecificDetails.startCommand, updatedAt}'
+
+          NEW_CMD=$(echo "$PATCH_RESP" | jq -r '.serviceDetails.envSpecificDetails.buildCommand // empty')
+          if [ "${NEW_CMD}" != "npm ci --include=dev && npm run build" ]; then
+            echo "!! buildCommand not updated — got: ${NEW_CMD:-<empty>}"
+            echo "$PATCH_RESP" | head -c 800
+            exit 1
+          fi
+          echo "buildCommand is now: ${NEW_CMD}"
 
           echo "=== 2. Trigger deploy of ${GITHUB_SHA} ==="
           DEPLOY_ID=$(curl -s -X POST \
@@ -45,12 +55,12 @@ jobs:
             | jq -r '.deploy.id // .id // empty')
           echo "deploy_id=${DEPLOY_ID}"
           if [ -z "${DEPLOY_ID}" ]; then
-            echo "!! No deploy id returned — service may be unreachable or patch failed"
+            echo "!! No deploy id returned"
             exit 1
           fi
 
-          echo "=== 3. Poll deploy status (up to 10 min) ==="
-          for i in $(seq 1 20); do
+          echo "=== 3. Poll deploy status (up to 12 min) ==="
+          for i in $(seq 1 24); do
             STATUS=$(curl -s \
               -H "Authorization: Bearer ${RENDER_API_KEY}" \
               "https://api.render.com/v1/services/${SERVICE_ID}/deploys/${DEPLOY_ID}" \
@@ -68,4 +78,4 @@ jobs:
             esac
             sleep 30
           done
-          echo "=== still in progress after 10 min; check the Render dashboard ==="
+          echo "=== still in progress after 12 min; check the Render dashboard ==="
