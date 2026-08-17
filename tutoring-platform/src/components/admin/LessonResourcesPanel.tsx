@@ -11,7 +11,8 @@ import {
 } from '@/hooks/useLessons';
 import { toast } from 'sonner';
 import { getErrorMessage } from '@/lib/safe-toast';
-import { Plus, Trash, FileText, Link2, PlusCircle, ExternalLink } from 'lucide-react';
+import { usePlatformConfig } from '@/hooks/usePlatformConfig';
+import { Plus, Trash, FileText, Link2, PlusCircle, ExternalLink, Info } from 'lucide-react';
 
 interface LessonResourcesPanelProps {
   lessonId: string;
@@ -43,20 +44,27 @@ export default function LessonResourcesPanel({ lessonId, courseId, lessonTitle }
   const [noteTitle, setNoteTitle] = useState('');
   const [noteContent, setNoteContent] = useState('');
 
+  // Real limits come from the server (MAX_FILE_SIZE_MB / ALLOWED_MIME_TYPES)
+  // so the message the owner sees always matches what the server accepts.
+  const { maxFileSizeMb, allowedMimeTypes } = usePlatformConfig();
+  const maxSizeBytes = maxFileSizeMb * 1024 * 1024;
+  const acceptAttr = allowedMimeTypes.join(',');
+
   const handleUploadFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const maxSize = 50 * 1024 * 1024;
-    if (file.size > maxSize) {
-      toast.error('File must be under 50MB');
+    if (file.size > maxSizeBytes) {
+      toast.error(
+        `This file is too big (${(file.size / (1024 * 1024)).toFixed(1)}MB). The limit is ${maxFileSizeMb}MB. ` +
+          `For large lecture videos, upload to YouTube as Unlisted and paste the link instead.`
+      );
       e.target.value = '';
       return;
     }
 
-    const allowed = ['application/pdf', 'video/mp4', 'video/webm', 'image/jpeg', 'image/png', 'image/webp'];
-    if (!allowed.includes(file.type)) {
-      toast.error('Allowed: PDF, MP4, WebM, JPEG, PNG, WebP');
+    if (!allowedMimeTypes.includes(file.type)) {
+      toast.error('This file type is not supported. Allowed: PDF, MP4, WebM, MOV, MKV, images, Word and PowerPoint documents.');
       e.target.value = '';
       return;
     }
@@ -150,12 +158,20 @@ export default function LessonResourcesPanel({ lessonId, courseId, lessonTitle }
               onChange={handleUploadFile}
               disabled={isUploading}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
-              accept=".pdf,.mp4,.webm,.jpg,.jpeg,.png,.webp"
+              accept={acceptAttr}
             />
             <PlusCircle className="w-8 h-8 text-slate-400 mx-auto mb-2" />
             <p className="text-sm text-slate-600 font-medium">{isUploading ? 'Uploading...' : 'Click or drop file here'}</p>
-            <p className="text-[10px] text-slate-400 mt-1">PDF, MP4, WebM, images — max 50MB</p>
+            <p className="text-[10px] text-slate-400 mt-1">PDF, MP4, WebM, MOV, images, Word/PPT — up to {maxFileSizeMb}MB</p>
           </div>
+          <p className="text-[11px] text-slate-500 flex items-start gap-1.5 bg-blue-50 border border-blue-100 rounded-lg p-2.5">
+            <Info className="w-3.5 h-3.5 text-blue-500 mt-0.5 shrink-0" />
+            <span>
+              <strong>Big video?</strong> Files over {maxFileSizeMb}MB (e.g. full lecture recordings) can&apos;t be uploaded
+              here. Instead, upload the video to YouTube as <strong>Unlisted</strong> and paste the link in the box on the
+              right — it streams better for students and has no size limit.
+            </span>
+          </p>
         </div>
 
         <div className="space-y-4">

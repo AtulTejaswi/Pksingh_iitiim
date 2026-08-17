@@ -39,11 +39,20 @@ export function safeToastError(error: unknown, fallback = 'Something went wrong'
  */
 export function getErrorMessage(err: unknown, fallback = 'Something went wrong'): string {
   if (err && typeof err === 'object') {
-    const axiosErr = err as { response?: { data?: { error?: unknown } }; message?: string };
-    const raw = axiosErr.response?.data?.error;
+    const axiosErr = err as {
+      response?: { data?: { error?: unknown; message?: unknown } };
+      message?: string;
+    };
+    const data = axiosErr.response?.data;
+    // Backend handlers use either `error` (Zod/route handlers) or `message`
+    // (upload/Multer errors). Prefer whichever is a real, readable string so
+    // the owner never sees a generic "Request failed with status code 400".
+    const raw = data?.error ?? data?.message;
     if (typeof raw === 'string') return raw;
     if (raw && typeof raw === 'object') return JSON.stringify(raw);
-    if (typeof axiosErr.message === 'string') return axiosErr.message;
+    if (typeof axiosErr.message === 'string' && !axiosErr.message.startsWith('Request failed')) {
+      return axiosErr.message;
+    }
   }
   return fallback;
 }

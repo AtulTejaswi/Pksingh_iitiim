@@ -5,6 +5,7 @@ import { useGetCourses, type Course } from '@/hooks/useCourses';
 import Link from 'next/link';
 import { BookOpen, Users, Plus, ListChecks, Clock, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
+import SystemStatusCard from '@/components/admin/SystemStatusCard';
 
 function StatCard({ label, value, sublabel, icon: Icon, color }: {
   label: string; value: React.ReactNode; sublabel?: string; icon: React.ComponentType<{ className?: string }>; color: { bg: string; border: string; text: string };
@@ -75,6 +76,11 @@ export default function AdminDashboardPage() {
           </button>
         </div>
       )}
+
+      {/* System Status — plain-English health for the owner */}
+      <div className="mb-6">
+        <SystemStatusCard />
+      </div>
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
