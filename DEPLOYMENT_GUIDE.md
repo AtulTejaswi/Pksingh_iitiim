@@ -124,10 +124,13 @@ Step 5. You're just double-checking.)*
 6. Wait for the deploy to finish (2–3 minutes). The status should go from
    "In Progress" to "Live".
 
-> ⚠️ **Why this matters:** the site is *designed to refuse to start* until
-> these three values are set. If your deploy says "failed" or the site stops
-> loading after an update, 99% of the time it's because one of these three
-> values is missing, misspelled, or has a space in it. Check Step 3 and 5.
+> ⚠️ **Why this matters:** until these three values are set, uploaded files are
+> saved to the server's temporary disk and **deleted on the next update**.
+> The site keeps working but shows an amber "File storage: Stored on server"
+> warning on the admin Dashboard and prints a warning in the server logs until
+> this step is done. If a deploy says "failed", check that all three values
+> are set — a partial set (e.g. only one of the two keys) makes the site
+> refuse to start with a message naming the missing one.
 
 *[Screenshot here: Render → Environment tab with the three variables]*
 

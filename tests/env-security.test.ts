@@ -39,12 +39,14 @@ describe('envSecurity startup guards', () => {
   });
 
   // ─── Cloud storage (course material persistence) ─────────────────────────
-  it('fails boot in production when cloud storage (Supabase) is not configured', () => {
+  // TEMPORARY OVERRIDE: entirely-missing storage is a loud warning, not a
+  // hard fail, so the backend can deploy before the owner finishes Supabase
+  // setup (see envSecurity.ts header). Revert to fatal once configured.
+  it('does not fail boot when cloud storage is entirely unset (loud warning instead)', () => {
     const guard = checkEnvGuards(
       prodEnv({ SUPABASE_URL: undefined, SUPABASE_SERVICE_ROLE_KEY: undefined, SUPABASE_JWT_SECRET: undefined })
     );
-    expect(guard.fatal).toBe(true);
-    expect(guard.fatal && guard.message).toContain('Supabase');
+    expect(guard.fatal).toBe(false);
   });
 
   it('fails boot in production with only SUPABASE_URL (missing service role key)', () => {
@@ -87,6 +89,7 @@ describe('envSecurity startup guards', () => {
         SUPABASE_JWT_SECRET: undefined,
         SUPABASE_URL: undefined,
         SUPABASE_SERVICE_ROLE_KEY: undefined,
+        DATABASE_URL: undefined,
       })
     );
     expect(guard.fatal).toBe(true);

@@ -7,10 +7,16 @@
  * the full Express app.
  *
  * Failure mode policy (important for the non-technical owner):
- *  - Silent data loss is the worst outcome, so production REQUIRES cloud
- *    storage (Supabase) — course videos/PDFs must never land on the host's
- *    ephemeral local disk, which is wiped on every redeploy.
- *  - Production also requires a PostgreSQL DATABASE_URL — never a SQLite file,
+ *  - Silent data loss is the worst outcome. TEMPORARY OVERRIDE (2026-08-17):
+ *    a missing cloud-storage config no longer hard-fails production startup —
+ *    it prints a loud boot warning and the admin Dashboard shows an amber
+ *    "File storage: Stored on server" card instead, so the backend can deploy
+ *    before the owner finishes Supabase setup. REVERT this override (make the
+ *    storage check fatal again) once SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY
+ *    + SUPABASE_JWT_SECRET are set on the host — see DEPLOYMENT_GUIDE.md.
+ *    A PARTIAL storage config (exactly one of the two keys) still hard-fails,
+ *    because that is almost always a copy/paste mistake.
+ *  - Production requires a PostgreSQL DATABASE_URL — never a SQLite file,
  *    which would silently live on the same wiped disk.
  *  - Every message is written for a human to act on, not a stack trace.
  */
@@ -85,14 +91,16 @@ export const checkEnvGuards = (env: EnvSnapshot): GuardFailure => {
         'at a real PostgreSQL database instead.',
     };
   }
-  if (isProd && (!hasSupabaseUrl || !hasServiceKey)) {
+  // TEMPORARY OVERRIDE: missing storage no longer fatals in production (see
+  // header comment) — the boot warning + amber admin card keep it visible.
+  // A PARTIAL config (exactly one of URL/KEY) is almost always a paste mistake
+  // and still hard-fails with a message naming the missing variable.
+  if (isProd && (hasSupabaseUrl !== hasServiceKey)) {
     return {
       fatal: true,
-      message:
-        'Fatal: Cloud storage is not configured, so uploaded course material (videos, PDFs, ' +
-        'images) would be saved to local disk and silently deleted on the next redeploy/restart. ' +
-        'Set BOTH SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY, and create a public "media" bucket ' +
-        'in Supabase Storage. See DEPLOYMENT_GUIDE.md step 2.',
+      message: hasSupabaseUrl
+        ? 'Fatal: SUPABASE_SERVICE_ROLE_KEY is missing (SUPABASE_URL is set). Both are required for file storage — copy the service_role key from Supabase > Project Settings > API.'
+        : 'Fatal: SUPABASE_URL is missing (SUPABASE_SERVICE_ROLE_KEY is set). Both are required for file storage — copy the Project URL from Supabase > Project Settings > API.',
     };
   }
   if (isProd && partialSupabase) {

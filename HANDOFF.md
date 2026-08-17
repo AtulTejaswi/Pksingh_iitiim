@@ -55,11 +55,15 @@ DEPLOYMENT_GUIDE.md if it hasn't been done.
 ## 3. What still needs a developer (be honest about these)
 
 1. **Supabase setup is a one-time, owner-doable task** (DEPLOYMENT_GUIDE.md
-   steps 1–5) — no developer needed, but it *must* be done. Until the
-   `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` and `SUPABASE_JWT_SECRET` are
-   set on the Render backend, **the backend will refuse to start** (that is
-   intentional — it refuses to risk losing your uploaded videos). The site
-   will be down until those three values are pasted in.
+   steps 1–5) — no developer needed, but it *must* be done for uploads to be
+   permanent. Until `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` and
+   `SUPABASE_JWT_SECRET` are set on the Render backend, the site works but
+   shows an amber **"File storage: Stored on server"** card on the admin
+   Dashboard and prints a boot warning — uploaded videos are still wiped on
+   every update until this is done. (Temporary override: the storage guard was
+   relaxed from a hard fail to a loud warning so the backend could deploy
+   before this setup; it should be made fatal again once Supabase is
+   configured.)
 2. **Razorpay (online payments)** — the site supports paid courses, but
    accepting real money requires a Razorpay account + keys
    (DEPLOYMENT_GUIDE.md → Optional step). Until then, courses can be free and
@@ -211,9 +215,10 @@ HANDOFF.md              this file
 ## 7. Changelog of this handoff pass
 
 - **Hard fail-safes added** (`src/utils/envSecurity.ts`): production refuses
-  to start if (a) `DATABASE_URL` is missing or SQLite, (b) cloud storage
-  (`SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`) isn't configured, (c)
-  `SUPABASE_JWT_SECRET` is missing when Supabase is set, (d) Razorpay is
+  to start if (a) `DATABASE_URL` is missing or SQLite, (b) cloud storage is
+  PARTIALLY configured (exactly one of `SUPABASE_URL` /
+  `SUPABASE_SERVICE_ROLE_KEY` set), (c) `SUPABASE_JWT_SECRET` is missing when
+  Supabase is set, (d) Razorpay is
   partially configured or uses a test key in production. All with
   plain-English messages.
 - **DB connect failure now fatal in production** (`src/server.ts`) — a broken
