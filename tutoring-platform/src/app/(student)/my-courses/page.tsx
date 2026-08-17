@@ -4,6 +4,7 @@ import React from 'react';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
 import { useGetMyEnrollments } from '@/hooks/useCourses';
 import Link from 'next/link';
+import Image from 'next/image';
 import { GraduationCap, Play, ChevronRight } from 'lucide-react';
 
 export default function MyCoursesPage() {
@@ -52,13 +53,26 @@ export default function MyCoursesPage() {
               return (
                 <div
                   key={enrollment.id}
-                  className="rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col justify-between"
+                  className="rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col justify-between group"
                 >
-                  <div className="h-32 bg-gradient-to-br from-blue-600 to-violet-600 relative p-6 flex flex-col justify-between">
-                    <span className="self-start px-2 py-0.5 rounded-full bg-white/20 border border-white/30 text-white text-[9px] font-bold uppercase tracking-wider">
+                  <div className={`h-36 relative p-6 flex flex-col justify-between ${course.thumbnailUrl ? 'border-b-0' : 'bg-gradient-to-br from-blue-600 to-violet-600'}`}>
+                    {course.thumbnailUrl && (
+                      <>
+                        <Image
+                          src={course.thumbnailUrl}
+                          alt={course.title}
+                          width={480}
+                          height={270}
+                          unoptimized
+                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30" />
+                      </>
+                    )}
+                    <span className="relative self-start px-2 py-0.5 rounded-full bg-white/20 border border-white/30 text-white text-[9px] font-bold uppercase tracking-wider backdrop-blur-sm">
                       Enrolled
                     </span>
-                    <h3 className="text-lg font-bold text-white leading-snug truncate">{course.title}</h3>
+                    <h3 className="relative text-lg font-bold text-white leading-snug truncate drop-shadow-md">{course.title}</h3>
                   </div>
 
                   <div className="p-6 flex flex-col flex-1">
