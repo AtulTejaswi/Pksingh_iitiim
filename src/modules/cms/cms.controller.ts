@@ -17,7 +17,9 @@ export const createPage = async (req: Request, res: Response): Promise<void> => 
 
 export const getPages = async (req: Request, res: Response): Promise<void> => {
   try {
+    // Public route — draft pages (work in progress) must never be readable.
     const pages = await prisma.page.findMany({
+      where: { status: 'PUBLISHED' },
       include: { sections: { orderBy: { sortOrder: 'asc' } } }
     });
     res.json(pages);
@@ -59,7 +61,9 @@ export const createBlog = async (req: Request, res: Response): Promise<void> => 
 
 export const getBlogs = async (req: Request, res: Response): Promise<void> => {
   try {
+    // Public route — unpublished blog drafts must never be readable.
     const blogs = await prisma.blog.findMany({
+      where: { status: 'PUBLISHED' },
       include: { author: { select: { fullName: true, avatarUrl: true } }, category: true }
     });
     res.json(blogs);
