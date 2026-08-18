@@ -44,10 +44,14 @@ const courseWithTags = {
 
 export const listCourses = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { subject, categoryId, examTag, page = '1', limit = '12', includeDrafts = '0' } = req.query;
+    const { subject, categoryId, examTag, page, limit, includeDrafts = '0' } = req.query;
 
     const includeDraftsBool = String(includeDrafts) === '1' || String(includeDrafts).toLowerCase() === 'true';
     const isAdminOrMentor = req.user?.role === 'SUPER_ADMIN' || req.user?.role === 'MENTOR';
+
+    // Guard against garbage page/limit values (NaN would 500 deep in Prisma).
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit as string, 10) || 12));
 
     const whereClause: any = {
       ...(subject && { subject: subject as string }),
@@ -62,8 +66,8 @@ export const listCourses = async (req: AuthRequest, res: Response, next: NextFun
     const courses = await prisma.course.findMany({
       where: whereClause,
       select: courseWithTags,
-      skip: (parseInt(page as string) - 1) * parseInt(limit as string),
-      take: parseInt(limit as string),
+      skip: (pageNum - 1) * limitNum,
+      take: limitNum,
       orderBy: { sortOrder: 'asc' },
     });
 
@@ -152,8 +156,10 @@ export const getCourseVideos = async (req: AuthRequest, res: Response, next: Nex
       return;
     }
 
+    // Only FREE lessons are exposed here — a paid course's lecture links
+    // must stay behind the enrollment gate on getLesson/getLessonMedia.
     const lessons = await prisma.lesson.findMany({
-      where: { courseId: id, status: 'PUBLISHED' },
+      where: { courseId: id, status: 'PUBLISHED', isFree: true },
       select: {
         id: true,
         title: true,
