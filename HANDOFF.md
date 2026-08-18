@@ -213,7 +213,7 @@ plan ($7/month) on Render — ask a developer to switch.
     utils/storage.ts       Supabase Storage layer (+ local-dev fallback)
     modules/backup/        export/import/cron backup endpoints
     modules/config/        GET /api/config (upload limits + mode, used by admin UI)
-  tests/                backend jest suite (51 tests)
+  tests/                backend jest suite (102 tests incl. Postgres-backed E2E gating tests)
   .github/workflows/    CI, deploys, diagnostics, daily-backup cron
   render.yaml           backend blueprint (env var names live here)
 tutoring-platform/      Next.js frontend (Vercel)
@@ -227,7 +227,44 @@ HANDOFF.md              this file
 
 ---
 
-## 7. Changelog of this handoff pass
+## 7. Security hardening pass — what changed (Aug 18, 2026)
+
+Before handoff, the whole backend was audited (auth, courses, lessons,
+enrollments, media, notes, CMS, backup, quotes, payments, leads, config,
+YouTube-sync, middleware + utilities) for authz gaps, missing validation,
+IDOR, upload safety, and secret handling. Everything below is **fixed,
+tested, and verified live** unless marked "left as-is".
+
+| Area | What was wrong | What changed (commit) |
+|---|---|---|
+| **Passwords** | Every password hashed with one shared fixed salt | Random per-user salt stored as `salt:hash` in the existing column; legacy hashes still work and upgrade on next login (`cb6af8f`) |
+| **Payment webhook** | Unsigned webhooks were trusted when `RAZORPAY_WEBHOOK_SECRET` was unset | Endpoint hard-rejects (503) when the secret is missing and verifies unconditionally when set (`996cee1`) |
+| **Paid content** | Lesson notes/media readable without enrollment; progress could be marked on inaccessible lessons; the videos grid leaked paid-lesson links; draft-lesson media was served | Notes/media/progress gated behind published + enrollment checks; videos grid exposes free lessons only (`692ccd8`, `6ad4b34`) |
+| **CMS** | Public blog/page routes returned DRAFT content | Public listings filter to PUBLISHED only (`1313e27`) |
+| **Login / input** | Login body unvalidated; course pagination could 500 on garbage input | Zod-validated login; sanitized page/limit (`cb6af8f`, `6ad4b34`) |
+| **Rate limiting** | 60 req/15min per IP locked out legit browsing (~6 page loads) | Raised to 300; the strict auth/payment limiters are unchanged (`736dd98`) |
+| **Quotes cron** | Public endpoint anyone could trigger (spam + forced outbound calls) | Token-protected, then scheduled via the `daily-quotes` GitHub Action using the existing GitHub secret — no Vercel env var needed (`145a4dd`, `e3aeffc`) |
+| **Tests** | Suite was mostly DB-agnostic | New Postgres-backed E2E suite proves the paid-content gates (12 tests, runs in CI automatically) (`1ff9857`, `ea35fd6`) |
+
+**Left as-is, on purpose:**
+- **The storage-guard override stays in place.** Supabase is still not
+  configured in production (verified live Aug 18: `/api/config` reports
+  `storage: local`). Reverting it now would stop the backend from booting at
+  all — see §3 item 1. This remains the #1 open item.
+- `/api/quotes` (the public quote list the website shows) stays open by
+  design — only the write side (cron) is protected.
+- CMS admin write routes (createPage/createBlog/etc.) keep light validation
+  — they're mentor/admin-only.
+
+**Verification:** `npm test` → **102/102 passing with a real PostgreSQL**
+(the CI workflow runs exactly this), `tsc` clean, frontend build + lint
+green, and live checks on the deployed backend: webhook 503 without a secret,
+login 400 on malformed input, quotes cron 401 without the token, free-videos
+grid still returns all 20 videos.
+
+---
+
+## 8. Changelog of this handoff pass
 
 - **Hard fail-safes added** (`src/utils/envSecurity.ts`): production refuses
   to start if (a) `DATABASE_URL` is missing or SQLite, (b) cloud storage is
@@ -299,6 +336,15 @@ HANDOFF.md              this file
   course-videos endpoint exposes only free lessons; public CMS listings hide
   drafts; global rate limit raised 60 → 300 req/15min; login body
   Zod-validated; course pagination sanitized.
+- **Aug 18, 2026 — Postgres-backed E2E gating tests (`1ff9857`, `ea35fd6`):**
+  `tests/e2e/access-gating.test.ts` seeds an admin + two students, a paid
+  course with paid/free/draft lessons (each with notes + a YouTube link),
+  and proves through the real API that notes and media return 401 without a
+  token, 200 for enrolled students, 403 for unenrolled students, 200 on free
+  previews, and 404 for students / 200 for admin on drafts. Runs against a
+  real PostgreSQL (CI provides one) and skips gracefully without one. Also
+  fixed the quotes-cron test to stub the external quote API so it can't hang
+  CI.
 - **Aug 18, 2026 — quotes cron protected:** `/api/quotes/cron` is now
   token-protected (same `BACKUP_CRON_TOKEN` as the backup/YouTube sync); the
   frontend cron proxy sends the token; and the schedule moved from a Vercel
