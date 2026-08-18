@@ -168,11 +168,28 @@ into a note — you'll paste it in the next two places.
 
 *[Screenshot here: GitHub → Settings → Secrets → "New repository secret"]*
 
-> 🔁 Both places must have the **exact same** value. The daily backup runs on
-> GitHub's servers and uses this token to ask your site for a backup. The
-> same token also powers the **automatic YouTube sync**: whenever you upload
-> a new video to the PKSir Classes channel, it's added to the free "JEE is
-> EASY" course by itself (every day at 1:30 AM UTC).
+### 6d. Add the token to Vercel (frontend)
+
+The frontend's daily **quote of the day** fetch also uses this token, so it
+needs the same value in Vercel:
+
+1. Open <https://vercel.com> → your **pksingh-iitiim** project.
+2. Click **Settings** → **Environment Variables**.
+3. **Key:** `BACKUP_CRON_TOKEN`
+4. **Value:** paste the **same** 32-character password.
+5. Pick **Production** (and any other environments you want), then **Save**.
+6. Click **Redeploy** (Deployments → ⋯ → Redeploy) so the new variable takes
+   effect.
+
+> 🔁 All **three** places must have the **exact same** value (Render in 6b,
+> GitHub in 6c, Vercel in 6d). The daily backup runs on GitHub's servers and
+> uses this token to ask your site for a backup. The same token also powers
+> the **automatic YouTube sync** (new videos on the PKSir Classes channel
+> become lessons in the free "JEE is EASY" course every day at 1:30 AM UTC)
+> and the **daily quote fetch** (Vercel calls the backend's protected
+> quotes-cron endpoint at midnight UTC). If any place has a different value
+> (or Vercel doesn't have it at all), that one feature's daily run will fail
+> with a clear "invalid token" error until it matches.
 
 ---
 
