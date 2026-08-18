@@ -1,6 +1,15 @@
 import request from 'supertest';
 import app from '../src/app';
 
+// The cron handler calls an external quotes API (zenquotes.io) once it has a
+// DB. That must never be a real network call in tests — it can hang past
+// Jest's timeout in CI — so stub it to fail fast (handler treats non-ok as
+// "nothing new to add" and still returns 200).
+jest.spyOn(global, 'fetch').mockResolvedValue({
+  ok: false,
+  status: 503,
+} as unknown as Response);
+
 const ORIGINAL_TOKEN = process.env.BACKUP_CRON_TOKEN;
 
 const withToken = async (token: string | undefined, fn: () => Promise<void>) => {
