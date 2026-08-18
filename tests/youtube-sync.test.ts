@@ -1,5 +1,9 @@
 import { parseYoutubeFeed, youtubeChannelFeedUrl } from '../src/utils/youtubeRss';
-import { cleanLessonTitle } from '../src/modules/youtube-sync/youtube-sync.service';
+import {
+  cleanLessonTitle,
+  newestFeedVideo,
+  youtubeThumbnailUrl,
+} from '../src/modules/youtube-sync/youtube-sync.service';
 
 const SAMPLE_FEED = `<?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns:media="http://search.yahoo.com/mrss/" xmlns="http://www.w3.org/2005/Atom">
@@ -70,5 +74,24 @@ describe('cleanLessonTitle', () => {
 
   it('passes through plain titles unchanged-ish', () => {
     expect(cleanLessonTitle('Introduction to Physics')).toBe('Introduction to Physics');
+  });
+});
+
+describe('youtubeThumbnailUrl / newestFeedVideo', () => {
+  it('builds the standard hqdefault thumbnail URL', () => {
+    expect(youtubeThumbnailUrl('riDMZTqqmLk')).toBe('https://i.ytimg.com/vi/riDMZTqqmLk/hqdefault.jpg');
+  });
+
+  it('picks the newest video by published date regardless of feed order', () => {
+    const feed = [
+      { videoId: 'older1', title: 'Old', url: 'u', published: '2026-08-10T10:00:00+00:00' },
+      { videoId: 'newest1', title: 'New', url: 'u', published: '2026-08-18T10:00:00+00:00' },
+      { videoId: 'mid1', title: 'Mid', url: 'u', published: '2026-08-15T10:00:00+00:00' },
+    ];
+    expect(newestFeedVideo(feed)?.videoId).toBe('newest1');
+  });
+
+  it('returns null for an empty feed', () => {
+    expect(newestFeedVideo([])).toBeNull();
   });
 });

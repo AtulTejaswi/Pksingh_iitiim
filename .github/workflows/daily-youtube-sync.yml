@@ -32,4 +32,4 @@ jobs:
             echo "::error::YouTube sync failed (HTTP $CODE). Body: $BODY"
             exit 1
           fi
-          echo "$BODY" | jq '{checked, added, skipped, failed, errors}'
+          echo "$BODY" | jq '{checked, added, skipped, failed, thumbnail, errors}'

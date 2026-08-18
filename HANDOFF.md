@@ -282,3 +282,8 @@ HANDOFF.md              this file
   was missing on the Render service so the **daily backup cron had been
   failing every day** — it's now set in both places (Render env + GitHub
   secret) via the new `set-render-backup-token` workflow.
+- **Aug 18, 2026 — thumbnail auto-refresh:** each sync run now sets the free
+  series course's thumbnail to the **newest** channel video's YouTube
+  thumbnail (sorted by publish date, refreshed even when nothing new is
+  imported), so the homepage banner, catalog, and My Courses cards always
+  lead with the latest lecture.

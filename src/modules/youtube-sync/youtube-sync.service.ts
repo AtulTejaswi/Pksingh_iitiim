@@ -16,13 +16,27 @@ export interface SyncResult {
   failed: number;
   courseId: string | null;
   channelId: string;
+  /** Thumbnail the course was refreshed to (newest channel video). */
+  thumbnail: string | null;
   errors: string[];
 }
 
-interface FeedVideo {
+export interface FeedVideo {
   videoId: string;
   title: string;
   url: string;
+  published: string;
+}
+
+/** Standard YouTube thumbnail URL for a video ID (used by the frontend too). */
+export function youtubeThumbnailUrl(videoId: string): string {
+  return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+}
+
+/** The newest video in a feed, by published date (feeds are newest-first, but don't rely on it). */
+export function newestFeedVideo(feed: FeedVideo[]): FeedVideo | null {
+  if (feed.length === 0) return null;
+  return [...feed].sort((a, b) => b.published.localeCompare(a.published))[0];
 }
 
 async function fetchChannelFeed(channelId: string, timeoutMs = 20000): Promise<FeedVideo[]> {
@@ -77,7 +91,7 @@ async function existingYouTubeIdsInCourse(courseId: string): Promise<Set<string>
  */
 export async function syncYouTubeChannel(): Promise<SyncResult> {
   const channelId = process.env.YT_SYNC_CHANNEL_ID || DEFAULT_CHANNEL_ID;
-  const result: SyncResult = { checked: 0, added: 0, skipped: 0, failed: 0, courseId: null, channelId, errors: [] };
+  const result: SyncResult = { checked: 0, added: 0, skipped: 0, failed: 0, courseId: null, channelId, thumbnail: null, errors: [] };
 
   const feed = await fetchChannelFeed(channelId);
   result.checked = feed.length;
@@ -134,6 +148,23 @@ export async function syncYouTubeChannel(): Promise<SyncResult> {
     } catch (err: any) {
       result.failed++;
       result.errors.push(`${video.videoId}: ${err.message || 'unknown error'}`);
+    }
+  }
+
+  // Always refresh the course thumbnail to the newest channel video, so the
+  // homepage/catalog cards show the latest lecture even when nothing new was
+  // imported this run.
+  const newest = newestFeedVideo(feed);
+  if (newest) {
+    try {
+      const thumb = youtubeThumbnailUrl(newest.videoId);
+      await prisma.course.update({
+        where: { id: course.id },
+        data: { thumbnailUrl: thumb },
+      });
+      result.thumbnail = thumb;
+    } catch (err: any) {
+      result.errors.push(`thumbnail update failed: ${err.message || 'unknown error'}`);
     }
   }
 
