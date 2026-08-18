@@ -60,10 +60,14 @@ app.use(express.json({
 // Serve local uploads when running without Supabase storage
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
-// Global rate limit: 60 requests per 15 minutes per IP
+// Global rate limit: generous backstop against abuse (300 req / 15 min / IP).
+// A single student page load makes several API calls (courses, lessons, media,
+// notes, quotes, CMS, config…), so the old cap of 60 locked out legitimate
+// browsing after ~6 page loads. The strict per-route limiters (auth, payments)
+// below are where the real abuse protection lives.
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 60,
+  max: 300,
   standardHeaders: true,
   legacyHeaders: false,
 }));
