@@ -16,8 +16,12 @@ const ensureAdminUser = async () => {
     return;
   }
 
+  // Per-user salted scrypt, same scheme as auth.controller.ts ("salt:hash")
+  // — never the old shared fixed salt.
   const hashPassword = (password: string): string => {
-    return crypto.scryptSync(password, 'local-salt', 64).toString('hex');
+    const salt = crypto.randomBytes(16).toString('hex');
+    const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+    return `${salt}:${hash}`;
   };
 
   const existing = await prisma.user.findUnique({ where: { email } });

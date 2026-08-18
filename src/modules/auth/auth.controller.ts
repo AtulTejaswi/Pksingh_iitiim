@@ -66,12 +66,35 @@ const REFRESH_TOKEN_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 const REFERRAL_REWARD_COPY = 'Refer a friend, both get 1 free 1:1 session';
 
-const hashPassword = (password: string): string => {
-  return crypto.scryptSync(password, 'local-salt', 64).toString('hex');
+/**
+ * Salted password hashing (scrypt). Each user gets a random 16-byte salt,
+ * stored alongside the hash as "salt:hash" in the existing passwordHash
+ * column (no schema change). Hashes written before this change used one
+ * shared 'local-salt' — see isLegacyHash / verifyPassword for how those are
+ * still accepted and upgraded on next login.
+ */
+export const hashPassword = (password: string): string => {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `${salt}:${hash}`;
 };
 
-const verifyPassword = (password: string, hash: string): boolean => {
-  return hashPassword(password) === hash;
+/** True for the old fixed-salt format (64 hex chars, no colon separator). */
+export const isLegacyHash = (stored: string): boolean => !stored.includes(':');
+
+export const verifyPassword = (password: string, stored: string): boolean => {
+  if (!stored) return false;
+  if (isLegacyHash(stored)) {
+    // Pre-salt hash written with the old shared 'local-salt'. Accept it so
+    // existing local users can still sign in, and the caller upgrades it to
+    // a salted hash on next successful login.
+    return crypto.scryptSync(password, 'local-salt', 64).toString('hex') === stored;
+  }
+  const [salt, hash] = stored.split(':');
+  if (!salt || !hash) return false;
+  const candidate = crypto.scryptSync(password, salt, 64).toString('hex');
+  if (candidate.length !== hash.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(candidate, 'hex'), Buffer.from(hash, 'hex'));
 };
 
 const signAccessToken = (userId: string): string => {
@@ -184,8 +207,18 @@ export const getReferralInfo = async (req: AuthRequest, res: Response): Promise<
   });
 };
 
+const loginSchema = z.object({
+  email: z.string().email('A valid email is required'),
+  password: z.string().min(1, 'Password is required'),
+});
+
 export const login = async (req: Request, res: Response): Promise<void> => {
-  const { email, password } = req.body;
+  const result = loginSchema.safeParse(req.body);
+  if (!result.success) {
+    res.status(400).json({ error: formatZodError(result.error) });
+    return;
+  }
+  const { email, password } = result.data;
 
   if (useSupabase && supabase) {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -217,6 +250,15 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     if (!user || !user.passwordHash || !verifyPassword(password, user.passwordHash)) {
       res.status(401).json({ error: 'Invalid email or password' });
       return;
+    }
+
+    // Lazy-migrate legacy fixed-salt hashes to per-user salted ones — the
+    // user just proved their password, so rewriting the hash is safe.
+    if (isLegacyHash(user.passwordHash)) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { passwordHash: hashPassword(password) },
+      });
     }
 
     const accessToken = signAccessToken(user.id);

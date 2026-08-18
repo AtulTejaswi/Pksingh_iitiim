@@ -3,8 +3,12 @@ import crypto, { randomUUID } from 'crypto';
 
 const prisma = new PrismaClient();
 
+// Salted scrypt, same scheme as src/modules/auth/auth.controller.ts — never
+// the old shared fixed salt ("salt:hash" stored in passwordHash).
 const hashPassword = (password: string): string => {
-  return crypto.scryptSync(password, 'local-salt', 64).toString('hex');
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `${salt}:${hash}`;
 };
 
 async function main() {

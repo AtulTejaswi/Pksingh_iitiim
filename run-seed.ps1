@@ -21,6 +21,9 @@ import { PrismaClient } from '@prisma/client';
 import crypto from 'crypto';
 
 const prisma = new PrismaClient();
+# Legacy-format hash. Fine for dev seeds: the server's ensureAdminUser
+# re-hashes the admin with a per-user salt on boot, and other seeded users
+# still verify through auth.controller's legacy-compatible path.
 function hashPassword(p) { return crypto.scryptSync(p, 'local-salt', 64).toString('hex'); }
 
 async function main() {

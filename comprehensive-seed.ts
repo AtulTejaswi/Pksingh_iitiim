@@ -28,8 +28,11 @@ async function main() {
     process.exit(1);
   }
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@pksingh.com';
+  // Salted scrypt, same scheme as src/modules/auth/auth.controller.ts.
   const hashPassword = (password: string): string => {
-    return crypto.scryptSync(password, 'local-salt', 64).toString('hex');
+    const salt = crypto.randomBytes(16).toString('hex');
+    const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+    return `${salt}:${hash}`;
   };
 
   const admin = await prisma.user.create({
