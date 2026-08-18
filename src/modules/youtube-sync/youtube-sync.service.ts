@@ -67,6 +67,16 @@ async function findTargetCourse(): Promise<{ id: string; title: string } | null>
   });
 }
 
+/**
+ * Which videos to import, in INSERTION order. The feed is newest-first, but
+ * each import shifts existing lessons down and inserts at sortOrder 0 — so
+ * importing oldest-first means every newer video pushes the previous one
+ * down and the final syllabus is newest-first (matching the thumbnail).
+ */
+export function videosToImport(feed: FeedVideo[], existing: Set<string>): FeedVideo[] {
+  return feed.filter((v) => !existing.has(v.videoId)).reverse();
+}
+
 /** Existing YouTube video IDs already attached anywhere in the course. */
 async function existingYouTubeIdsInCourse(courseId: string): Promise<Set<string>> {
   const lessons = await prisma.lesson.findMany({
@@ -85,9 +95,23 @@ async function existingYouTubeIdsInCourse(courseId: string): Promise<Set<string>
 }
 
 /**
+ * Shift every lesson in a course down one slot so the newest video can sit
+ * at the top (sortOrder 0), matching the thumbnail which also points at the
+ * newest channel video. The shift is atomic per new lesson.
+ */
+async function shiftLessonsDown(courseId: string): Promise<void> {
+  await prisma.lesson.updateMany({
+    where: { courseId },
+    data: { sortOrder: { increment: 1 } },
+  });
+}
+
+/**
  * Sync the channel feed into the target course. Idempotent: videos whose ID
  * is already attached to any lesson in the course are skipped. New videos
- * become a free, published lesson with the YouTube link attached.
+ * become a free, published lesson with the YouTube link attached, inserted
+ * at the TOP of the syllabus (sortOrder 0, everything else shifts down) so
+ * the newest lecture is the first thing a student sees.
  */
 export async function syncYouTubeChannel(): Promise<SyncResult> {
   const channelId = process.env.YT_SYNC_CHANNEL_ID || DEFAULT_CHANNEL_ID;
@@ -111,17 +135,16 @@ export async function syncYouTubeChannel(): Promise<SyncResult> {
 
   const existing = await existingYouTubeIdsInCourse(course.id);
 
-  for (const video of feed) {
-    if (existing.has(video.videoId)) {
-      result.skipped++;
-      continue;
-    }
+  // Oldest new video first: each newer video shifts the previous down, so
+  // the syllabus ends up newest-first throughout.
+  const toImport = videosToImport(feed, existing);
+  result.skipped = feed.length - toImport.length;
+  for (const video of toImport) {
     try {
       const title = cleanLessonTitle(video.title);
-      const lastLesson = await prisma.lesson.findFirst({
-        where: { courseId: course.id },
-        orderBy: { sortOrder: 'desc' },
-      });
+      // Newest first: shift every existing lesson down so the new video sits
+      // at the top of the syllabus.
+      await shiftLessonsDown(course.id);
       const lesson = await prisma.lesson.create({
         data: {
           courseId: course.id,
@@ -129,7 +152,7 @@ export async function syncYouTubeChannel(): Promise<SyncResult> {
           description: 'YouTube lecture from the JEE is EASY series (PKSir Classes). Press play to watch — free for everyone.',
           isFree: true,
           status: 'PUBLISHED',
-          sortOrder: lastLesson ? lastLesson.sortOrder + 1 : 0,
+          sortOrder: 0,
         },
       });
       const asset = await prisma.mediaAsset.create({

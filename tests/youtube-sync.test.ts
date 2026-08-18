@@ -2,6 +2,7 @@ import { parseYoutubeFeed, youtubeChannelFeedUrl } from '../src/utils/youtubeRss
 import {
   cleanLessonTitle,
   newestFeedVideo,
+  videosToImport,
   youtubeThumbnailUrl,
 } from '../src/modules/youtube-sync/youtube-sync.service';
 
@@ -93,5 +94,32 @@ describe('youtubeThumbnailUrl / newestFeedVideo', () => {
 
   it('returns null for an empty feed', () => {
     expect(newestFeedVideo([])).toBeNull();
+  });
+});
+
+describe('videosToImport (newest-first syllabus ordering)', () => {
+  const v = (id: string, title: string, published: string) => ({ videoId: id, title, url: `u/${id}`, published });
+  const feed = [
+    // feed order = newest first (as YouTube serves it)
+    v('p20', 'P00020 — Newest Topic', '2026-08-18T10:00:00+00:00'),
+    v('p19', 'P00019 — Gravitation', '2026-08-15T10:00:00+00:00'),
+    v('p18', 'P00018 — EM Waves', '2026-08-14T10:00:00+00:00'),
+  ];
+
+  it('imports only videos not already in the course', () => {
+    const existing = new Set(['p18']);
+    const result = videosToImport(feed, existing);
+    expect(result.map((x) => x.videoId)).toEqual(['p19', 'p20']);
+  });
+
+  it('returns the oldes new video FIRST so each newer one lands on top', () => {
+    // Insertion order: p19 first (sortOrder 0), then p20 shifts it to 1 and
+    // takes sortOrder 0 — so the final syllabus is p20, p19 (newest first).
+    const result = videosToImport(feed, new Set());
+    expect(result.map((x) => x.videoId)).toEqual(['p18', 'p19', 'p20']);
+  });
+
+  it('returns an empty list when everything is already imported', () => {
+    expect(videosToImport(feed, new Set(['p18', 'p19', 'p20']))).toEqual([]);
   });
 });

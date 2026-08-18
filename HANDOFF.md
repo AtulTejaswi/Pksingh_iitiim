@@ -287,3 +287,7 @@ HANDOFF.md              this file
   thumbnail (sorted by publish date, refreshed even when nothing new is
   imported), so the homepage banner, catalog, and My Courses cards always
   lead with the latest lecture.
+- **Aug 18, 2026 — newest-first syllabus:** the sync now inserts new videos
+  at the TOP of the course (sortOrder 0, everything else shifts down) and
+  the existing lessons were renumbered so the newest lecture is the first
+  thing a student sees in the syllabus — matching the thumbnail.
