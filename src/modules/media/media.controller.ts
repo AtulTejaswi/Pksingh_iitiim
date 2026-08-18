@@ -225,13 +225,14 @@ export const getLessonMedia = async (req: AuthRequest, res: Response, next: Next
       where: { id: lessonId },
       select: { id: true, isFree: true, courseId: true, status: true },
     });
-    if (!lesson) {
+    const isStaff = req.user?.role === 'SUPER_ADMIN' || req.user?.role === 'MENTOR';
+    if (!lesson || (lesson.status !== 'PUBLISHED' && !isStaff)) {
       res.status(404).json({ error: 'Lesson not found' });
       return;
     }
 
     // Enforce enrollment check for non-free lessons
-    if (!lesson.isFree && req.user?.role !== 'SUPER_ADMIN' && req.user?.role !== 'MENTOR') {
+    if (!lesson.isFree && !isStaff) {
       if (!req.user) {
         res.status(401).json({ error: 'Not authenticated' });
         return;

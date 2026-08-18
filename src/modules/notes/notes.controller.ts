@@ -13,6 +13,33 @@ const noteSchema = z.object({
 
 export const getLessonNotes = async (req: AuthRequest, res: Response): Promise<void> => {
   const lessonId = req.params.lessonId as string;
+  const lesson = await prisma.lesson.findUnique({
+    where: { id: lessonId },
+    select: { id: true, isFree: true, courseId: true, status: true },
+  });
+  const isStaff = req.user?.role === 'SUPER_ADMIN' || req.user?.role === 'MENTOR';
+
+  // Notes are paid study material — a draft lesson or a paid lesson of a
+  // course the user isn't enrolled in must not leak them (same gate as
+  // getLessonMedia).
+  if (!lesson || (lesson.status !== 'PUBLISHED' && !isStaff)) {
+    res.status(404).json({ error: 'Lesson not found' });
+    return;
+  }
+  if (!lesson.isFree && !isStaff) {
+    if (!req.user) {
+      res.status(401).json({ error: 'Not authenticated' });
+      return;
+    }
+    const enrollment = await prisma.enrollment.findUnique({
+      where: { userId_courseId: { userId: req.user.id, courseId: lesson.courseId } },
+    });
+    if (!enrollment) {
+      res.status(403).json({ error: 'Must be enrolled to access this lesson' });
+      return;
+    }
+  }
+
   const notes = await prisma.note.findMany({
     where: { lessonId },
     orderBy: { createdAt: 'asc' }

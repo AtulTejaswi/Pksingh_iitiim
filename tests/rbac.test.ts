@@ -40,4 +40,16 @@ describe('RBAC — Admin-only routes', () => {
       .send({ courseId: '00000000-0000-0000-0000-000000000000' });
     expect(res.status).toBe(401);
   });
+
+  // Lesson study material (notes + media) is gated behind auth at minimum —
+  // the deeper PUBLISHED/enrollment checks live in the controllers.
+  it('unauthenticated user cannot read lesson notes', async () => {
+    const res = await request(app).get('/api/notes/lesson/some-lesson-id');
+    expect(res.status).toBe(401);
+  });
+
+  it('unauthenticated user cannot read lesson media', async () => {
+    const res = await request(app).get('/api/media/lesson/some-lesson-id');
+    expect(res.status).toBe(401);
+  });
 });

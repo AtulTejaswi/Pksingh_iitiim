@@ -186,6 +186,24 @@ export const markProgress = async (req: AuthRequest, res: Response, next: NextFu
       return;
     }
     const lessonId = req.params.id as string;
+    const lesson = await prisma.lesson.findUnique({
+      where: { id: lessonId },
+      select: { isFree: true, courseId: true, status: true },
+    });
+    // Same access gate as getLesson: no progress on lessons you can't watch.
+    if (!lesson || lesson.status !== 'PUBLISHED') {
+      res.status(404).json({ error: 'Lesson not found' });
+      return;
+    }
+    if (!lesson.isFree) {
+      const enrollment = await prisma.enrollment.findUnique({
+        where: { userId_courseId: { userId: req.user.id, courseId: lesson.courseId } },
+      });
+      if (!enrollment) {
+        res.status(403).json({ error: 'Must be enrolled to track progress in this course' });
+        return;
+      }
+    }
     const progress = await prisma.lessonProgress.upsert({
       where: { userId_lessonId: { userId: req.user.id, lessonId } },
       update: {},
