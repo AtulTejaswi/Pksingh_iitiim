@@ -39,19 +39,39 @@ export function newestFeedVideo(feed: FeedVideo[]): FeedVideo | null {
   return [...feed].sort((a, b) => b.published.localeCompare(a.published))[0];
 }
 
+// YouTube's RSS endpoint is occasionally flaky (sporadic 404/500s, often
+// transient). Retry a few times with a browser-like User-Agent before giving
+// up, so one bad response doesn't fail the whole daily sync.
 async function fetchChannelFeed(channelId: string, timeoutMs = 20000): Promise<FeedVideo[]> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const res = await fetch(youtubeChannelFeedUrl(channelId), { signal: controller.signal });
-    if (!res.ok) {
-      throw new Error(`YouTube feed returned HTTP ${res.status}`);
+  const url = youtubeChannelFeedUrl(channelId);
+  const attempts = 4;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const res = await fetch(url, {
+        signal: controller.signal,
+        headers: {
+          'user-agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36',
+          accept: 'application/atom+xml, application/xml;q=0.9, */*;q=0.8',
+        },
+      });
+      if (!res.ok) {
+        throw new Error(`YouTube feed returned HTTP ${res.status}`);
+      }
+      const xml = await res.text();
+      return parseYoutubeFeed(xml);
+    } catch (err: any) {
+      if (attempt === attempts) throw err;
+      const delayMs = 3000 * attempt; // 3s, 6s, 9s backoff
+      console.warn(`[youtube-sync] feed attempt ${attempt} failed (${err.message}); retrying in ${delayMs}ms`);
+      await new Promise((r) => setTimeout(r, delayMs));
+    } finally {
+      clearTimeout(timer);
     }
-    const xml = await res.text();
-    return parseYoutubeFeed(xml);
-  } finally {
-    clearTimeout(timer);
   }
+  throw new Error('YouTube feed fetch failed (unreachable)');
 }
 
 /** Find the target course: by env override, else by title. */
