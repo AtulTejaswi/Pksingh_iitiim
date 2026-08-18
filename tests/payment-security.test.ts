@@ -22,46 +22,85 @@ describe('Payment Security', () => {
 
   // ─── Signature verification rejects tampered payload ──
   it('webhook signature verification — rejects tampered payload', async () => {
-    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || 'test-secret';
-    const payload = {
-      event: 'payment.captured',
-      payload: {
-        payment: {
-          entity: { id: 'pay_test', order_id: 'order_test', amount: 99900, currency: 'INR', status: 'captured' },
+    const prevSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    process.env.RAZORPAY_WEBHOOK_SECRET = 'test-secret';
+    try {
+      const payload = {
+        event: 'payment.captured',
+        payload: {
+          payment: {
+            entity: { id: 'pay_test', order_id: 'order_test', amount: 99900, currency: 'INR', status: 'captured' },
+          },
         },
-      },
-      event_id: 'evt_tampered',
-    };
-    const bodyStr = JSON.stringify(payload);
-    const wrongSignature = crypto.createHmac('sha256', webhookSecret).update('fake-body').digest('hex');
+        event_id: 'evt_tampered',
+      };
+      const wrongSignature = crypto.createHmac('sha256', 'test-secret').update('fake-body').digest('hex');
 
-    const res = await request(app)
-      .post('/api/payments/webhook')
-      .set('x-razorpay-signature', wrongSignature)
-      .send(payload);
-    // Should fail signature check (400) or DB unavailable (200 — accepted)
-    expect([400, 200]).toContain(res.status);
+      const res = await request(app)
+        .post('/api/payments/webhook')
+        .set('x-razorpay-signature', wrongSignature)
+        .send(payload);
+      expect(res.status).toBe(400);
+    } finally {
+      if (prevSecret === undefined) delete process.env.RAZORPAY_WEBHOOK_SECRET;
+      else process.env.RAZORPAY_WEBHOOK_SECRET = prevSecret;
+    }
   });
 
-  // ─── Webhook accepts valid signature (passes signature gate, proceeds to DB) ──
-  it('webhook — accepts valid signature (returns processed or ignored)', async () => {
-    const body = {
-      event: 'payment.captured',
-      payload: {
-        payment: {
-          entity: { id: 'pay_test_2', order_id: 'order_test_2', amount: 99900, currency: 'INR', status: 'captured' },
+  // ─── Webhook with NO secret configured must be rejected, not trusted ──
+  it('webhook — rejects unsigned payloads when no secret is configured (503)', async () => {
+    const prevSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    delete process.env.RAZORPAY_WEBHOOK_SECRET;
+    try {
+      const body = {
+        event: 'payment.captured',
+        payload: {
+          payment: {
+            entity: { id: 'pay_test_2', order_id: 'order_test_2', amount: 99900, currency: 'INR', status: 'captured' },
+          },
         },
-      },
-      event_id: 'evt_accept',
-    };
-    // Send a dummy signature — when RAZORPAY_WEBHOOK_SECRET is empty,
-    // the handler skips verification and proceeds to DB
-    const res = await request(app)
-      .post('/api/payments/webhook')
-      .set('x-razorpay-signature', 'dummy-sig')
-      .send(body);
-    // Returns 200 (accepted or processed) when DB unavailable, or 400 if schema invalid
-    expect([200]).toContain(res.status);
+        event_id: 'evt_unsigned',
+      };
+      // A forged request with a dummy signature must NOT proceed to the DB.
+      const res = await request(app)
+        .post('/api/payments/webhook')
+        .set('x-razorpay-signature', 'dummy-sig')
+        .send(body);
+      expect(res.status).toBe(503);
+    } finally {
+      if (prevSecret === undefined) delete process.env.RAZORPAY_WEBHOOK_SECRET;
+      else process.env.RAZORPAY_WEBHOOK_SECRET = prevSecret;
+    }
+  });
+
+  // ─── Webhook with a VALID signature passes the gate and proceeds to DB ──
+  it('webhook — accepts a correctly-signed payload (proceeds to DB handling)', async () => {
+    const prevSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    process.env.RAZORPAY_WEBHOOK_SECRET = 'test-secret';
+    try {
+      const body = {
+        event: 'payment.captured',
+        payload: {
+          payment: {
+            entity: { id: 'pay_test_3', order_id: 'order_test_3', amount: 99900, currency: 'INR', status: 'captured' },
+          },
+        },
+        event_id: 'evt_valid',
+      };
+      const bodyStr = JSON.stringify(body);
+      const validSignature = crypto.createHmac('sha256', 'test-secret').update(bodyStr).digest('hex');
+
+      const res = await request(app)
+        .post('/api/payments/webhook')
+        .set('x-razorpay-signature', validSignature)
+        .send(body);
+      // Passes the signature gate; with the test DB unavailable the handler
+      // acknowledges the webhook (200 accepted) rather than erroring.
+      expect(res.status).toBe(200);
+    } finally {
+      if (prevSecret === undefined) delete process.env.RAZORPAY_WEBHOOK_SECRET;
+      else process.env.RAZORPAY_WEBHOOK_SECRET = prevSecret;
+    }
   });
 
   // ─── Enrollment requires payment (402) for paid courses ──

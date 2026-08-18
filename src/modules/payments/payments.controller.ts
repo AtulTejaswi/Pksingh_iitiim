@@ -250,19 +250,24 @@ export const handleWebhook = async (req: AuthRequest, res: Response): Promise<vo
     return;
   }
 
-  // Verify webhook signature using the webhook secret (not the API key secret)
+  // Verify webhook signature using the webhook secret (not the API key secret).
+  // envSecurity forbids a partial Razorpay config, so if the secret is unset
+  // here payments are fully OFF — accepting unsigned payloads would let
+  // anyone fake a payment and enroll themselves for free.
   const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || '';
-  if (webhookSecret) {
-    const expectedSig = crypto
-      .createHmac('sha256', webhookSecret)
-      .update(rawBody)
-      .digest('hex');
+  if (!webhookSecret) {
+    res.status(503).json({ error: 'Payments are not configured on this site yet.' });
+    return;
+  }
+  const expectedSig = crypto
+    .createHmac('sha256', webhookSecret)
+    .update(rawBody)
+    .digest('hex');
 
-    if (expectedSig !== signature) {
-      console.warn('Webhook signature verification failed — possible tampering');
-      res.status(400).json({ error: 'Invalid webhook signature' });
-      return;
-    }
+  if (expectedSig !== signature) {
+    console.warn('Webhook signature verification failed — possible tampering');
+    res.status(400).json({ error: 'Invalid webhook signature' });
+    return;
   }
 
   const parseResult = webhookSchema.safeParse(req.body);
