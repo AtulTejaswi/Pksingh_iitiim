@@ -2,10 +2,6 @@
   "framework": "nextjs",
   "crons": [
     {
-      "path": "/api/cron/quotes",
-      "schedule": "0 0 * * *"
-    },
-    {
       "path": "/api/cron/warmup",
       "schedule": "15 2 * * *"
     }

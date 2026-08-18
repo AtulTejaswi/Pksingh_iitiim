@@ -168,28 +168,19 @@ into a note — you'll paste it in the next two places.
 
 *[Screenshot here: GitHub → Settings → Secrets → "New repository secret"]*
 
-### 6d. Add the token to Vercel (frontend)
+### 6d. (Nothing to do in Vercel)
 
-The frontend's daily **quote of the day** fetch also uses this token, so it
-needs the same value in Vercel:
+The daily **quote of the day** fetch used to run as a Vercel cron, which
+would have needed the token in a third place. It now runs as a GitHub Action
+instead (midnight UTC), using the token you already gave GitHub in step 6c —
+so **you do not need to add anything in Vercel**.
 
-1. Open <https://vercel.com> → your **pksingh-iitiim** project.
-2. Click **Settings** → **Environment Variables**.
-3. **Key:** `BACKUP_CRON_TOKEN`
-4. **Value:** paste the **same** 32-character password.
-5. Pick **Production** (and any other environments you want), then **Save**.
-6. Click **Redeploy** (Deployments → ⋯ → Redeploy) so the new variable takes
-   effect.
-
-> 🔁 All **three** places must have the **exact same** value (Render in 6b,
-> GitHub in 6c, Vercel in 6d). The daily backup runs on GitHub's servers and
-> uses this token to ask your site for a backup. The same token also powers
-> the **automatic YouTube sync** (new videos on the PKSir Classes channel
-> become lessons in the free "JEE is EASY" course every day at 1:30 AM UTC)
-> and the **daily quote fetch** (Vercel calls the backend's protected
-> quotes-cron endpoint at midnight UTC). If any place has a different value
-> (or Vercel doesn't have it at all), that one feature's daily run will fail
-> with a clear "invalid token" error until it matches.
+> 🔁 The token must match in **two** places: Render (6b) and GitHub (6c).
+> The daily backup, the **automatic YouTube sync** (new videos on the PKSir
+> Classes channel become lessons in the free "JEE is EASY" course every day
+> at 1:30 AM UTC), and the **daily quote fetch** all run on GitHub's servers
+> and use this token to talk to your site. If the two values ever differ,
+> those daily runs fail with a clear "invalid token" error until they match.
 
 ---
 

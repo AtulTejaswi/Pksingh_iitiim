@@ -29,8 +29,8 @@ runs itself, and exactly what to do when something looks wrong.
 - Render / Vercel / GitHub / Supabase accounts
 - The Supabase **service_role key** (it's a master key — anyone with it can
   read/write all your data and files)
-- The **backup token** (`BACKUP_CRON_TOKEN`) — set in **three** places
-  (Render + GitHub + Vercel), all must match
+- The **backup token** (`BACKUP_CRON_TOKEN`) — set in **two** places
+  (Render + GitHub), must match
 - Supabase database password (shown only once when you created the project)
 
 ---
@@ -41,7 +41,7 @@ runs itself, and exactly what to do when something looks wrong.
 |---|---|---|
 | **Daily backup** (GitHub Action `daily-backup`) | Exports ALL site data and saves two copies — one in the Supabase `backups` bucket (permanent), one in GitHub (90-day history) | Every day at 1:10 AM UTC, also runnable manually from GitHub → Actions → daily-backup |
 | **YouTube sync** (GitHub Action `daily-youtube-sync`) | New videos uploaded to the PKSir Classes YouTube channel are added to the free "JEE is EASY" course as new lessons automatically (idempotent — already-imported videos are skipped) | Every day at 1:30 AM UTC, also runnable manually from GitHub → Actions → daily-youtube-sync |
-| **Daily quote** (Vercel cron `/api/cron/quotes`) | Fetches a new quote for the site's quote section (token-protected via `BACKUP_CRON_TOKEN`) | Every day at midnight UTC |
+| **Daily quote** (GitHub Action `daily-quotes`) | Fetches a new quote for the site's quote section from the token-protected backend endpoint (moved off the Vercel cron so no Vercel env var is needed) | Every day at midnight UTC, also runnable manually from GitHub → Actions → daily-quotes |
 | **Startup backup** (backend) | Every time the server restarts/redeploys, it saves a fresh backup first | On each deploy |
 | **Auto-restore** (backend) | If the database is ever empty (e.g. a data-loss incident), the server automatically restores the latest backup on boot | On each startup, only when data is missing |
 | **Auto-deploy** | When code changes are pushed to GitHub `main`, Vercel and Render rebuild and update themselves | On every push |
@@ -300,8 +300,9 @@ HANDOFF.md              this file
   drafts; global rate limit raised 60 → 300 req/15min; login body
   Zod-validated; course pagination sanitized.
 - **Aug 18, 2026 — quotes cron protected:** `/api/quotes/cron` is now
-  token-protected (same `BACKUP_CRON_TOKEN` as the backup/YouTube sync) and
-  the Vercel cron proxy sends the token. ⚠️ **Action needed:** set
-  `BACKUP_CRON_TOKEN` on **Vercel** (Settings → Environment Variables) with
-  the same value as Render + GitHub, or the daily quote fetch will fail with
-  a clear error. See DEPLOYMENT_GUIDE.md step 6d.
+  token-protected (same `BACKUP_CRON_TOKEN` as the backup/YouTube sync); the
+  frontend cron proxy sends the token; and the schedule moved from a Vercel
+  cron to the new `daily-quotes` GitHub Action (midnight UTC), so the token
+  only needs its two usual places (Render + GitHub) — **no Vercel env var
+  required**. The Vercel cron entry was removed from `vercel.json` to avoid
+  nightly 401 noise; the proxy route stays for manual use.

@@ -1,0 +1,36 @@
+name: daily-quotes
+
+# Automatic daily quote fetch: triggers the backend's token-protected
+# /api/quotes/cron endpoint (adds a fresh quote to the site's quote section).
+#
+# This used to run as a Vercel cron (/api/cron/quotes) but that required the
+# BACKUP_CRON_TOKEN to also be set in Vercel's env. Running it here instead
+# reuses the token GitHub already holds as a secret, so no Vercel env var is
+# needed. The frontend proxy route stays in place for manual use.
+#
+# Requires one secret: BACKUP_CRON_TOKEN — the SAME value set on the Render
+# backend service (see DEPLOYMENT_GUIDE.md step 4).
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  quotes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Trigger backend quotes cron
+        run: |
+          RESP=$(curl -sS -w '\n%{http_code}' --max-time 60 \
+            -H "x-backup-token: ${{ secrets.BACKUP_CRON_TOKEN }}" \
+            https://pksingh-backend.onrender.com/api/quotes/cron || true)
+          CODE=$(echo "$RESP" | tail -n1)
+          BODY=$(echo "$RESP" | sed '$d')
+          echo "HTTP $CODE"
+          if [ "$CODE" != "200" ]; then
+            echo "::error::Quotes cron failed (HTTP $CODE). Body: $BODY"
+            exit 1
+          fi
+          echo "$BODY" | jq '{success, message}'
