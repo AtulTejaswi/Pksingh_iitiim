@@ -10,6 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { signupSchema, SignupInput } from '@/lib/validators';
 import { UserPlus, User, Mail, Key, ShieldCheck, Globe, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import { analytics } from '@/lib/analytics';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -34,8 +35,10 @@ export default function SignupPage() {
 
   const onSubmit = async (data: SignupInput) => {
     setErrorMsg('');
+    analytics.signupStarted();
     try {
       await registerUser(data);
+      analytics.signupCompleted('email');
       toast.success('Account created successfully! Welcome to PK Singh.');
       router.push('/my-courses');
     } catch (err) {

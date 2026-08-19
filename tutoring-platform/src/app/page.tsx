@@ -30,6 +30,7 @@ import { useState, useEffect } from 'react';
 import { GraduationCap, Award, CheckCircle2, ChevronRight, Zap, Target, Search, Flame } from 'lucide-react';
 import SiteFooter from '@/components/common/SiteFooter';
 import { SITE_STATS } from '@/data/site-config';
+import { analytics } from '@/lib/analytics';
 
 function SectionShell({ title, eyebrow, children }: {
   title: string;
@@ -111,6 +112,7 @@ export default function LandingPage() {
             <div className="mt-9 flex flex-wrap items-center gap-4">
               <Link
                 href="/courses"
+                onClick={() => analytics.ctaClicked('Explore Courses', 'hero')}
                 className="inline-flex items-center gap-2 rounded-pill bg-brand-600 px-8 py-4 font-semibold text-white shadow-warm-md transition-all duration-300 hover:shadow-warm-glow hover:-translate-y-0.5"
               >
                 Explore Courses
@@ -118,6 +120,7 @@ export default function LandingPage() {
               </Link>
               <a
                 href="#free-preview"
+                onClick={() => analytics.ctaClicked('Free Study Guide', 'hero')}
                 className="rounded-pill px-8 py-4 font-semibold text-ink-secondary transition-colors hover:text-brand-600"
               >
                 Get the Free Study Guide &rarr;

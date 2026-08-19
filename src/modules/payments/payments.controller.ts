@@ -27,7 +27,15 @@ const webhookSchema = z.object({
         currency: z.string(),
         status: z.string(),
       }),
-    }),
+    }).optional(),
+    subscription: z.object({
+      entity: z.object({
+        id: z.string(),
+        status: z.string(),
+        current_start: z.number().optional(),
+        current_end: z.number().optional(),
+      }),
+    }).optional(),
   }),
   event_id: z.string(),
 });
@@ -288,7 +296,7 @@ export const handleWebhook = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    if (event === 'payment.captured') {
+    if (event === 'payment.captured' && payload.payment) {
       const paymentEntity = payload.payment.entity;
 
       const order = await prisma.order.findFirst({
@@ -349,7 +357,7 @@ export const handleWebhook = async (req: AuthRequest, res: Response): Promise<vo
       });
     }
 
-    if (event === 'payment.failed') {
+    if (event === 'payment.failed' && payload.payment) {
       const paymentEntity = payload.payment.entity;
       const order = await prisma.order.findFirst({
         where: { gatewayOrderId: paymentEntity.order_id },
@@ -374,6 +382,58 @@ export const handleWebhook = async (req: AuthRequest, res: Response): Promise<vo
           where: { id: order.id },
           data: { status: 'Failed' },
         });
+      }
+    }
+
+    // Handle subscription events (Razorpay recurring mandates)
+    if (event.startsWith('subscription.')) {
+      const subEntity = payload.subscription?.entity;
+      if (subEntity) {
+        const subscription = await prisma.subscription.findFirst({
+          where: { razorpaySubscriptionId: subEntity.id },
+        });
+
+        if (subscription) {
+          const newStatus = subEntity.status === 'active' ? 'ACTIVE'
+            : subEntity.status === 'paused' ? 'PAUSED'
+            : subEntity.status === 'cancelled' ? 'CANCELLED'
+            : subEntity.status === 'past_due' ? 'PAST_DUE'
+            : subEntity.status;
+
+          await prisma.subscription.update({
+            where: { id: subscription.id },
+            data: {
+              status: newStatus,
+              ...(subEntity.current_start ? { currentPeriodStart: new Date(subEntity.current_start * 1000) } : {}),
+              ...(subEntity.current_end ? { currentPeriodEnd: new Date(subEntity.current_end * 1000) } : {}),
+            },
+          });
+
+          // If subscription cancelled or past due, deactivate enrollment
+          if (newStatus === 'CANCELLED' || newStatus === 'PAST_DUE') {
+            const enrollment = await prisma.enrollment.findUnique({
+              where: { userId_courseId: { userId: subscription.userId, courseId: subscription.courseId } },
+            });
+            if (enrollment && enrollment.status === 'ACTIVE') {
+              await prisma.enrollment.update({
+                where: { id: enrollment.id },
+                data: { status: newStatus === 'CANCELLED' ? 'CANCELLED' : 'SUSPENDED' },
+              });
+            }
+          }
+
+          await prisma.auditLog.create({
+            data: {
+              userId: subscription.userId,
+              action: `SUBSCRIPTION_${newStatus.toUpperCase()}`,
+              details: JSON.stringify({
+                subscriptionId: subscription.id,
+                razorpaySubscriptionId: subEntity.id,
+                webhookEventId: event_id,
+              }),
+            },
+          });
+        }
       }
     }
 

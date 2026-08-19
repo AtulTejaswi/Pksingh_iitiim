@@ -44,6 +44,7 @@ model User {
   reviews       Review[]
   refreshTokens RefreshToken[]
   orders        Order[]
+  subscriptions Subscription[]
 
   @@map("users")
 }
@@ -76,6 +77,8 @@ model Course {
   reviews      Review[]
   orders       Order[]
   certificates Certificate[]
+  subscriptions Subscription[]
+  subscriptionPlans SubscriptionPlan[]
 
   @@index([status])
   @@index([categoryId])
@@ -536,4 +539,54 @@ model Refund {
 
   @@index([paymentId])
   @@map("refunds")
+}
+
+// ─── SUBSCRIPTIONS (Razorpay Recurring Mandates) ────────────────────────────
+// Razorpay Subscriptions require pre-created "Plans" on their dashboard.
+// SubscriptionPlan maps a Razorpay plan_id to a local course + price.
+// Subscription tracks the actual user subscription lifecycle.
+
+model SubscriptionPlan {
+  id               String   @id @default(uuid())
+  courseId          String?
+  razorpayPlanId   String   @unique  // Razorpay plan_id (plan_...)
+  name             String             // Human-readable, e.g. "Live Cohort Monthly"
+  amount           Int                // Per-period amount in paise
+  currency         String   @default("INR")
+  interval         Int      @default(1)    // e.g. 1
+  intervalUnit     String   @default("month") // day, week, month, year
+  status           String   @default("ACTIVE") // ACTIVE, ARCHIVED
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  course           Course?  @relation(fields: [courseId], references: [id])
+  subscriptions    Subscription[]
+
+  @@index([courseId])
+  @@map("subscription_plans")
+}
+
+model Subscription {
+  id                    String   @id @default(uuid())
+  userId                String
+  courseId              String
+  planId               String
+  razorpaySubscriptionId String @unique  // Razorpay subscription_id (sub_...)
+  razorpayCustomerId   String?          // Razorpay customer_id (cust_...)
+  status               String   @default("ACTIVE")
+                       // ACTIVE, PAUSED, CANCELLED, PAST_DUE, REQUIRES_AUTH
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  cancelAtPeriodEnd    Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course               Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  plan                 SubscriptionPlan @relation(fields: [planId], references: [id])
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([razorpaySubscriptionId])
+  @@map("subscriptions")
 }

@@ -8,6 +8,7 @@ import { getErrorMessage } from '@/lib/safe-toast';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { analytics } from '@/lib/analytics';
 import Link from 'next/link';
 import { ArrowLeft, BookOpen, Clock, Users, Play, Award, Lock, AlertTriangle, CreditCard } from 'lucide-react';
 import { CourseJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
@@ -55,6 +56,7 @@ export default function CourseDetailClient({ params }: { params: Promise<{ id: s
     if (isCheckingOut) return;
 
     setIsCheckingOut(true);
+    analytics.checkoutStarted(course?.title || 'Unknown', course?.price || 0);
     createOrder(courseId, {
       onSuccess: (order) => {
         openRazorpayCheckout({
@@ -72,6 +74,8 @@ export default function CourseDetailClient({ params }: { params: Promise<{ id: s
               },
               {
                 onSuccess: () => {
+                  analytics.checkoutCompleted(course?.title || 'Unknown', course?.price || 0);
+                  analytics.courseEnrolled(courseId, course?.title || 'Unknown', false);
                   toast.success('Payment successful — you\'re enrolled!');
                   router.push('/my-courses');
                 },
