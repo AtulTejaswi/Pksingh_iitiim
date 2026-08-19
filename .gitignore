@@ -29,3 +29,12 @@ test-output2.txt
 
 # Freebuff desktop scratch (local DB, logs, mock servers)
 .freebuff/
+
+# Phase 1 — temp/debug/patch files
+tmp_*
+*.patch
+
+# Stray root-level assets (use tutoring-platform/public/images/ instead)
+*.jpg.png
+PK_Singh_new_photo.jpg.png
+pk_sir_logo.svg
