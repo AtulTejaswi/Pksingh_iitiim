@@ -21,7 +21,6 @@ export const getSitemapData = async (_req: Request, res: Response): Promise<void
         subject: true,
         thumbnailUrl: true,
         isFree: true,
-        slug: false,
         lessons: {
           where: { status: 'PUBLISHED' },
           select: {
