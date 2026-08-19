@@ -30,9 +30,13 @@ npm run db:push             # sync DB schema (prisma db push)
 npm run dev                 # API on http://localhost:4000
 ```
 
-> All secrets live in environment variables only. There are **no** hardcoded
-> fallback credentials in the codebase. In production the server fails to start
-> if required secrets (`LOCAL_JWT_SECRET`/`SUPABASE_*`) or `ADMIN_PASSWORD` are
+> **Never paste real secrets (SUPABASE_SERVICE_ROLE_KEY, JWT secrets, etc.) into
+> a `.env` file that gets committed or shared.** Use your hosting platform's
+> secret manager instead (Render → Environment, Vercel → Settings → Environment
+> Variables). The `.env` file is for local development only and is gitignored.
+>
+> In production the server refuses to start if required secrets (`SUPABASE_URL`,
+> `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET`) or `ADMIN_PASSWORD` are
 > missing or still set to example values. See `.env.example` for the full list.
 
 ### 2. Frontend
