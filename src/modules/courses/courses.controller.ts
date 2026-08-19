@@ -197,15 +197,24 @@ export const getCourseVideos = async (req: AuthRequest, res: Response, next: Nex
   }
 };
 
+// In-memory cache for public stats (refreshed every 5 minutes)
+let statsCache: { data: { students: number; publishedCourses: number; publishedLessons: number; enrollments: number }; ts: number } | null = null;
+const STATS_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
 export const getPublicStats = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
+    if (statsCache && Date.now() - statsCache.ts < STATS_CACHE_TTL_MS) {
+      res.json({ stats: statsCache.data });
+      return;
+    }
     const [students, publishedCourses, publishedLessons, enrollments] = await Promise.all([
       prisma.user.count({ where: { role: 'STUDENT' } }),
       prisma.course.count({ where: { status: 'PUBLISHED' } }),
       prisma.lesson.count({ where: { status: 'PUBLISHED' } }),
       prisma.enrollment.count({ where: { status: 'ACTIVE' } }),
     ]);
-    res.json({ stats: { students, publishedCourses, publishedLessons, enrollments } });
+    statsCache = { data: { students, publishedCourses, publishedLessons, enrollments }, ts: Date.now() };
+    res.json({ stats: statsCache.data });
   } catch (err) {
     next(err);
   }
