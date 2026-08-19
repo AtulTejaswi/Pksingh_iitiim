@@ -7,10 +7,10 @@
  * the full Express app.
  *
  * Failure mode policy (important for the non-technical owner):
- *  - Silent data loss is the worst outcome. Production MUST have Supabase
- *    configured (SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY + SUPABASE_JWT_SECRET)
- *    so file uploads persist across redeploys — without them the server refuses
- *    to start with a clear, actionable error message.
+ *  - Silent data loss is the worst outcome. A PARTIAL Supabase config
+ *    (some but not all keys) hard-fails because it's almost always a paste
+ *    mistake. An entirely missing config warns loudly but allows boot with
+ *    local-disk storage so the existing site stays online.
  *  - Production requires a PostgreSQL DATABASE_URL — never a SQLite file,
  *    which would silently live on the same wiped disk.
  *  - Every message is written for a human to act on, not a stack trace.
@@ -41,33 +41,34 @@ export const isSqliteDatabaseUrl = (value: string | undefined): boolean =>
 export const checkEnvGuards = (env: EnvSnapshot): GuardFailure => {
   const isProd = env.NODE_ENV === 'production';
 
-  // ─── Supabase (required in production) ──────────────────────────────────
-  // All three keys must be set together. Without them, file uploads silently
-  // land on local disk and are wiped on every redeploy.
+  // ─── Supabase (recommended in production) ────────────────────────────────
+  // Without Supabase, file uploads land on local disk (wiped on redeploys)
+  // and auth uses local JWT signing instead of Supabase Auth. A PARTIAL
+  // config (some but not all keys) is almost always a paste mistake and
+  // hard-fails. An entirely missing config warns loudly but allows boot.
   const hasSupabaseUrl = Boolean(env.SUPABASE_URL);
   const hasServiceKey = Boolean(env.SUPABASE_SERVICE_ROLE_KEY);
   const hasSupabaseJwt = Boolean(env.SUPABASE_JWT_SECRET);
+  const supabaseCount = [hasSupabaseUrl, hasServiceKey, hasSupabaseJwt].filter(Boolean).length;
 
-  if (isProd && !hasSupabaseJwt) {
+  if (isProd && supabaseCount > 0 && supabaseCount < 3) {
+    const missing = [];
+    if (!hasSupabaseUrl) missing.push('SUPABASE_URL');
+    if (!hasServiceKey) missing.push('SUPABASE_SERVICE_ROLE_KEY');
+    if (!hasSupabaseJwt) missing.push('SUPABASE_JWT_SECRET');
     return {
       fatal: true,
       message:
-        'Fatal: SUPABASE_JWT_SECRET is not set. All three Supabase keys (SUPABASE_URL, ' +
-        'SUPABASE_SERVICE_ROLE_KEY, SUPABASE_JWT_SECRET) are required in production — ' +
-        'copy them from Supabase > Project Settings > API into your hosting platform\'s ' +
-        'environment variables (Render / Vercel).',
+        'Fatal: Supabase is partially configured. Set ALL THREE of SUPABASE_URL, ' +
+        'SUPABASE_SERVICE_ROLE_KEY, and SUPABASE_JWT_SECRET together (from Supabase ' +
+        '> Project Settings > API), or remove all three. Missing: ' + missing.join(', '),
     };
   }
-  if (isProd && (hasSupabaseUrl !== hasServiceKey)) {
-    return {
-      fatal: true,
-      message: hasSupabaseUrl
-        ? 'Fatal: SUPABASE_SERVICE_ROLE_KEY is missing (SUPABASE_URL is set). Both are required for file storage — copy the service_role key from Supabase > Project Settings > API.'
-        : 'Fatal: SUPABASE_URL is missing (SUPABASE_SERVICE_ROLE_KEY is set). Both are required for file storage — copy the Project URL from Supabase > Project Settings > API.',
-    };
-  }
-  if (isProd && hasSupabaseUrl && hasServiceKey && !hasSupabaseJwt) {
-    return { fatal: true, message: 'Fatal: Supabase partially configured (missing SUPABASE_JWT_SECRET).' };
+  // All three missing: warn but allow boot (local disk + local auth fallback).
+  // This keeps the existing site running while the owner finishes Supabase setup.
+  if (isProd && !hasSupabaseUrl && !hasServiceKey && !hasSupabaseJwt) {
+    // Not fatal — server boots with local-disk storage and local auth.
+    // Logged as a warning in server.ts.
   }
 
   // ─── Database ───────────────────────────────────────────────────────────

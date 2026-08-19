@@ -95,7 +95,11 @@ async function startServer() {
     console.warn('Warning: RAZORPAY_KEY_ID is not set — payment endpoints will be unavailable (payments are off).');
   }
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    console.warn('Warning: Cloud storage is not configured — running with local-disk fallback (development only).');
+    console.warn(
+      'WARNING: Supabase is not configured — file uploads will be saved to local disk ' +
+      'and WILL BE LOST on every redeploy. Set SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, ' +
+      'and SUPABASE_JWT_SECRET in your hosting environment (Render / Vercel) to persist uploads.'
+    );
   }
 
   try {

@@ -38,12 +38,11 @@ describe('envSecurity startup guards', () => {
   });
 
   // ─── Supabase (required in production) ────────────────────────────────────
-  it('fails boot when cloud storage is entirely unset', () => {
+  it('does not fail boot when cloud storage is entirely unset (warns instead)', () => {
     const guard = checkEnvGuards(
       prodEnv({ SUPABASE_URL: undefined, SUPABASE_SERVICE_ROLE_KEY: undefined, SUPABASE_JWT_SECRET: undefined })
     );
-    expect(guard.fatal).toBe(true);
-    expect(guard.fatal && guard.message).toContain('SUPABASE_JWT_SECRET');
+    expect(guard.fatal).toBe(false);
   });
 
   it('fails boot in production with only SUPABASE_URL (missing service role key)', () => {
@@ -56,7 +55,7 @@ describe('envSecurity startup guards', () => {
     expect(guard.fatal).toBe(true);
   });
 
-  it('fails boot when cloud storage is set but SUPABASE_JWT_SECRET is missing', () => {
+  it('fails boot when cloud storage is partially configured (missing JWT secret)', () => {
     const guard = checkEnvGuards(prodEnv({ SUPABASE_JWT_SECRET: undefined }));
     expect(guard.fatal).toBe(true);
     expect(guard.fatal && guard.message).toContain('SUPABASE_JWT_SECRET');
