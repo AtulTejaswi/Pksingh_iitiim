@@ -47,6 +47,7 @@ model User {
   certificates  Certificate[]
   reviews       Review[]
   refreshTokens RefreshToken[]
+  pushSubscriptions PushSubscription[]
   orders        Order[]
 
   @@map("users")
@@ -130,6 +131,9 @@ model Lesson {
   title        String
   description  String?
   content      String?       // Rich text / Markdown body
+  titleHi      String?       // Hindi translation of title
+  descriptionHi String?      // Hindi translation of description
+  contentHi    String?       // Hindi translation of content
   sortOrder    Int           @default(0)
   isFree       Boolean       @default(false)
   status       String   @default("DRAFT")
@@ -531,6 +535,22 @@ model RefreshToken {
   @@index([userId])
   @@index([token])
   @@map("refresh_tokens")
+}
+
+// ─── PUSH NOTIFICATIONS ────────────────────────────────────────────────────
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  endpoint  String   @unique
+  keys      String?  // JSON {p256dh, auth} for web-push encryption
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_subscriptions")
 }
 
 // ─── ORDERS (PAYMENT GATEWAY) ────────────────────────────────────────────────

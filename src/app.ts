@@ -102,6 +102,8 @@ import leadsRoutes from './modules/leads/leads.routes';
 import configRoutes from './modules/config/config.routes';
 import youtubeSyncRoutes from './modules/youtube-sync/youtube-sync.routes';
 import aiRoutes from './modules/ai/ai.routes';
+import seoRoutes from './modules/seo/seo.routes';
+import notificationsRoutes from './modules/notifications/notifications.routes';
 import { isCloudStorageConfigured } from './utils/storage';
 
 app.get('/api/health', (_req, res) => {
@@ -129,6 +131,8 @@ app.use('/api/leads', leadsRoutes);
 app.use('/api/config', configRoutes);
 app.use('/api/youtube-sync', youtubeSyncRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/seo', seoRoutes);
+app.use('/api/notifications', notificationsRoutes);
 
 // Health check
 app.get('/health', (_req, res) => {
