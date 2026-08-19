@@ -14,7 +14,6 @@ router.get('/status', (req, res) => {
     SUPABASE_URL: !!process.env.SUPABASE_URL,
     SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
     SUPABASE_JWT_SECRET: !!process.env.SUPABASE_JWT_SECRET,
-    LOCAL_JWT_SECRET: !!process.env.LOCAL_JWT_SECRET,
   };
 
   res.json(status);

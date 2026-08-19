@@ -52,10 +52,9 @@ const refreshSchema = z.object({
   refreshToken: z.string(),
 });
 
-const useSupabase = Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.SUPABASE_JWT_SECRET);
 const resolvedJwtSecret = resolveJwtSecret();
 if (!resolvedJwtSecret) {
-  console.error('Fatal: No JWT signing secret configured. Set LOCAL_JWT_SECRET or the full SUPABASE_* set.');
+  console.error('Fatal: No JWT signing secret configured. Set SUPABASE_JWT_SECRET.');
   process.exit(1);
 }
 const jwtSecret: string = resolvedJwtSecret;
@@ -117,7 +116,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
   const { email, password, fullName, country, referralCode } = result.data;
 
-  if (useSupabase && supabase) {
+  // Supabase Auth is the only auth provider in production.
+  // In development without Supabase, fall back to local password hashing.
+  if (supabase) {
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email,
       password,
@@ -149,6 +150,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
+  // Local-only dev fallback (no Supabase configured)
   const passwordHash = hashPassword(password);
   const localId = randomUUID();
 
@@ -220,7 +222,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
   const { email, password } = result.data;
 
-  if (useSupabase && supabase) {
+  if (supabase) {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
@@ -389,7 +391,7 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
     return;
   }
 
-  if (useSupabase && supabase) {
+  if (supabase) {
     const updateResult = await (supabase as any).auth.admin.updateUserById(user.supabaseId, { password });
     if (updateResult.error) {
       res.status(500).json({ error: 'Failed to update password' });
@@ -400,6 +402,7 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
     return;
   }
 
+  // Local-only dev fallback
   const passwordHash = hashPassword(password);
   await prisma.user.update({ where: { id: user.id }, data: { passwordHash } });
 
