@@ -1,11 +1,10 @@
 import { checkEnvGuards, EnvSnapshot, isSqliteDatabaseUrl } from '../src/utils/envSecurity';
 
 describe('envSecurity startup guards', () => {
-  // A fully-valid production baseline: PostgreSQL DB, strong JWT, cloud storage
-  // (Supabase trio), real admin credentials. Individual tests override pieces.
+  // A fully-valid production baseline: PostgreSQL DB, Supabase trio,
+  // real admin credentials. Individual tests override pieces.
   const prodEnv = (overrides: Partial<EnvSnapshot> = {}): EnvSnapshot => ({
     NODE_ENV: 'production',
-    LOCAL_JWT_SECRET: 'a-really-strong-random-secret-value',
     ADMIN_PASSWORD: 'a-real-strong-password',
     ADMIN_EMAIL: 'owner@real-co.com',
     DATABASE_URL: 'postgres://user:secret@host:5432/pksingh',
@@ -15,7 +14,7 @@ describe('envSecurity startup guards', () => {
     ...overrides,
   });
 
-  it('passes when a real secret, password, email, DB, and cloud storage are set', () => {
+  it('passes when all required secrets, password, email, DB, and cloud storage are set', () => {
     expect(checkEnvGuards(prodEnv()).fatal).toBe(false);
   });
 
@@ -38,15 +37,13 @@ describe('envSecurity startup guards', () => {
     expect(isSqliteDatabaseUrl(undefined)).toBe(false);
   });
 
-  // ─── Cloud storage (course material persistence) ─────────────────────────
-  // TEMPORARY OVERRIDE: entirely-missing storage is a loud warning, not a
-  // hard fail, so the backend can deploy before the owner finishes Supabase
-  // setup (see envSecurity.ts header). Revert to fatal once configured.
-  it('does not fail boot when cloud storage is entirely unset (loud warning instead)', () => {
+  // ─── Supabase (required in production) ────────────────────────────────────
+  it('fails boot when cloud storage is entirely unset', () => {
     const guard = checkEnvGuards(
       prodEnv({ SUPABASE_URL: undefined, SUPABASE_SERVICE_ROLE_KEY: undefined, SUPABASE_JWT_SECRET: undefined })
     );
-    expect(guard.fatal).toBe(false);
+    expect(guard.fatal).toBe(true);
+    expect(guard.fatal && guard.message).toContain('SUPABASE_JWT_SECRET');
   });
 
   it('fails boot in production with only SUPABASE_URL (missing service role key)', () => {
@@ -79,50 +76,6 @@ describe('envSecurity startup guards', () => {
   it('fails boot when ADMIN_EMAIL is the placeholder value', () => {
     const guard = checkEnvGuards(prodEnv({ ADMIN_EMAIL: 'admin@example.com' }));
     expect(guard.fatal).toBe(true);
-  });
-
-  // ─── JWT secret ───────────────────────────────────────────────────────────
-  it('fails boot when LOCAL_JWT_SECRET is the .env.example placeholder', () => {
-    const guard = checkEnvGuards(
-      prodEnv({
-        LOCAL_JWT_SECRET: 'pksingh-jwt-secret-change-this-to-a-strong-random-value',
-        SUPABASE_JWT_SECRET: undefined,
-        SUPABASE_URL: undefined,
-        SUPABASE_SERVICE_ROLE_KEY: undefined,
-        DATABASE_URL: undefined,
-      })
-    );
-    expect(guard.fatal).toBe(true);
-  });
-
-  it('fails boot in production when no JWT secret is set', () => {
-    const guard = checkEnvGuards(
-      prodEnv({
-        LOCAL_JWT_SECRET: undefined,
-        SUPABASE_JWT_SECRET: undefined,
-        DATABASE_URL: undefined,
-      })
-    );
-    expect(guard.fatal).toBe(true);
-  });
-
-  it('still fails boot when LOCAL_JWT_SECRET is a placeholder and no derivation source exists', () => {
-    const guard = checkEnvGuards(
-      prodEnv({
-        LOCAL_JWT_SECRET: 'pksingh-jwt-secret-change-this-to-a-strong-random-value',
-        DATABASE_URL: undefined,
-        SUPABASE_URL: undefined,
-        SUPABASE_SERVICE_ROLE_KEY: undefined,
-        SUPABASE_JWT_SECRET: undefined,
-      })
-    );
-    expect(guard.fatal).toBe(true);
-    expect(guard.fatal && guard.message).toContain('placeholder');
-  });
-
-  it('passes with a placeholder LOCAL_JWT_SECRET when cloud storage provides the JWT secret', () => {
-    const guard = checkEnvGuards(prodEnv({ LOCAL_JWT_SECRET: 'pksingh-jwt-secret-change-this-to-a-strong-random-value' }));
-    expect(guard.fatal).toBe(false);
   });
 
   // ─── Razorpay (payment gateway) ───────────────────────────────────────────

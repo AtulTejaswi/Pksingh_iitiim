@@ -29,3 +29,7 @@ test-output2.txt
 
 # Freebuff desktop scratch (local DB, logs, mock servers)
 .freebuff/
+
+# Temp / debug files (must not be committed)
+tmp_*.js
+*.patch

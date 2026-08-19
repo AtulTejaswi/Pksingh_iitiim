@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { AuthRequest } from '../../middleware/auth.middleware';
 import { prisma } from '../../config/db';
 import { askClaude, buildLessonContext, isAIConfigured } from '../../utils/ai';
+import { isQueueAvailable, enqueueDoubtJob, enqueueMockTestJob } from '../../queue';
 
 // ─── DOUBT RESOLUTION ──────────────────────────────────────────────────────
 
@@ -48,7 +49,30 @@ export const askDoubt = async (req: AuthRequest, res: Response): Promise<void> =
       },
     });
 
-    // Build context from lesson content (RAG)
+    // When Redis/BullMQ is available, enqueue for background processing.
+    // Otherwise, process synchronously (same logic, just blocking).
+    if (isQueueAvailable()) {
+      const jobId = await enqueueDoubtJob({
+        doubtId: doubt.id,
+        userId: req.user.id,
+        lessonId: lessonId || undefined,
+        courseId: courseId || undefined,
+        subject: subject || undefined,
+        questionText: questionText.trim(),
+        questionImageUrl: questionImageUrl || undefined,
+      });
+
+      res.json({
+        doubt,
+        jobId,
+        confidence: null,
+        flaggedForReview: null,
+        message: 'Your question has been submitted and is being processed in the background. You will see the answer shortly.',
+      });
+      return;
+    }
+
+    // Synchronous fallback (no Redis)
     const lessonContext = await buildLessonContext(prisma, {
       lessonId,
       courseId,
@@ -56,7 +80,6 @@ export const askDoubt = async (req: AuthRequest, res: Response): Promise<void> =
       questionText,
     });
 
-    // Call Claude for an answer
     const systemPrompt = `You are an expert JEE/NEET tutor helping a student with their doubt.
 Use the provided lesson context to give a clear, accurate, and helpful answer.
 If the question is about a specific topic, explain the concept step by step.
@@ -70,10 +93,8 @@ Always be encouraging and educational.`;
       },
     ]);
 
-    // Estimate confidence based on answer quality heuristics
     const confidence = estimateConfidence(result.text, lessonContext);
 
-    // Update the doubt with AI answer
     const updatedDoubt = await prisma.doubt.update({
       where: { id: doubt.id },
       data: {
@@ -259,11 +280,47 @@ export const analyzeMockTest = async (req: AuthRequest, res: Response): Promise<
       return;
     }
 
-    // Build context for analysis
     const score = Math.round((correctAnswers / totalQuestions) * 100);
+
+    // When Redis/BullMQ is available, enqueue for background processing.
+    if (isQueueAvailable()) {
+      const mockTest = await prisma.mockTest.create({
+        data: {
+          userId: req.user.id,
+          courseId: courseId || null,
+          title,
+          totalQuestions,
+          correctAnswers,
+          score,
+          status: 'PENDING',
+        },
+      });
+
+      const jobId = await enqueueMockTestJob({
+        mockTestId: mockTest.id,
+        userId: req.user.id,
+        courseId: courseId || undefined,
+        title,
+        totalQuestions,
+        correctAnswers,
+        subjectBreakdown,
+      });
+
+      res.json({
+        mockTest,
+        jobId,
+        aiAnalysis: null,
+        weakTopics: [],
+        suggestedLessons: [],
+        score,
+        message: 'Test recorded. AI analysis is being processed in the background.',
+      });
+      return;
+    }
+
+    // Synchronous fallback (no Redis)
     const analysisContext = buildMockTestContext(totalQuestions, correctAnswers, subjectBreakdown);
 
-    // Fetch relevant lesson content for suggested lessons
     const relevantLessons = courseId
       ? await prisma.lesson.findMany({
           where: { courseId, status: 'PUBLISHED' },
@@ -291,11 +348,9 @@ Be specific and actionable. Format your response in clear sections.`;
       },
     ]);
 
-    // Parse weak topics and suggested lessons from AI response
     const weakTopics = extractWeakTopics(result.text);
     const suggestedLessons = extractSuggestedLessons(result.text, relevantLessons);
 
-    // Create the mock test record
     const mockTest = await prisma.mockTest.create({
       data: {
         userId: req.user.id,

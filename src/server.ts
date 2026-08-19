@@ -1,12 +1,22 @@
 import 'dotenv/config';
 import app from './app';
 import { prisma } from './config/db';
+import { supabase } from './config/supabase';
 import crypto from 'crypto';
 import { ensureDemoData } from './seed-demo';
 import { tryAutoRestore, autoBackup } from './modules/backup/backup.controller';
 import { checkEnvGuards } from './utils/envSecurity';
+import { isQueueAvailable, startDoubtWorker, startMockTestWorker, closeQueue } from './queue';
+import { processDoubtJob, processMockTestJob } from './queue/workers';
 
 const PORT = process.env.PORT || 4000;
+
+/** Salted scrypt hash for local-only dev mode (no Supabase configured). */
+const hashPassword = (password: string): string => {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `${salt}:${hash}`;
+};
 
 const ensureAdminUser = async () => {
   const email = process.env.ADMIN_EMAIL;
@@ -16,15 +26,39 @@ const ensureAdminUser = async () => {
     return;
   }
 
-  // Per-user salted scrypt, same scheme as auth.controller.ts ("salt:hash")
-  // — never the old shared fixed salt.
-  const hashPassword = (password: string): string => {
-    const salt = crypto.randomBytes(16).toString('hex');
-    const hash = crypto.scryptSync(password, salt, 64).toString('hex');
-    return `${salt}:${hash}`;
-  };
-
   const existing = await prisma.user.findUnique({ where: { email } });
+
+  // Supabase Auth is the primary path in production.
+  if (supabase) {
+    if (!existing) {
+      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+      });
+      if (authError && !authError.message?.includes('already registered')) {
+        console.error('Failed to create admin in Supabase Auth:', authError.message);
+        return;
+      }
+      const supabaseId = authData?.user?.id;
+      if (supabaseId) {
+        await prisma.user.create({
+          data: {
+            supabaseId,
+            email,
+            fullName: 'PK Singh Admin',
+            role: 'SUPER_ADMIN',
+          },
+        });
+        console.log(`Created admin user via Supabase Auth: ${email}`);
+      }
+    } else {
+      console.log(`Admin user already exists: ${email}`);
+    }
+    return;
+  }
+
+  // Local-only dev fallback (no Supabase configured)
   if (existing) {
     await prisma.user.update({
       where: { email },
@@ -95,9 +129,27 @@ async function startServer() {
     (app as any).locals.dbConnected = false;
   }
   
+  // Start background job workers if Redis is available
+  if (isQueueAvailable()) {
+    startDoubtWorker(processDoubtJob);
+    startMockTestWorker(processMockTestJob);
+    console.log('Background job workers started (Redis-backed)');
+  } else {
+    console.log('No Redis configured — AI jobs will process synchronously');
+  }
+
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
+
+  // Graceful shutdown: close queue connections
+  const shutdown = async () => {
+    console.log('Shutting down...');
+    await closeQueue();
+    process.exit(0);
+  };
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', shutdown);
 }
 
 startServer();
