@@ -6,6 +6,8 @@ import crypto from 'crypto';
 import { ensureDemoData } from './seed-demo';
 import { tryAutoRestore, autoBackup } from './modules/backup/backup.controller';
 import { checkEnvGuards } from './utils/envSecurity';
+import { isQueueAvailable, startDoubtWorker, startMockTestWorker, closeQueue } from './queue';
+import { processDoubtJob, processMockTestJob } from './queue/workers';
 
 const PORT = process.env.PORT || 4000;
 
@@ -127,9 +129,27 @@ async function startServer() {
     (app as any).locals.dbConnected = false;
   }
   
+  // Start background job workers if Redis is available
+  if (isQueueAvailable()) {
+    startDoubtWorker(processDoubtJob);
+    startMockTestWorker(processMockTestJob);
+    console.log('Background job workers started (Redis-backed)');
+  } else {
+    console.log('No Redis configured — AI jobs will process synchronously');
+  }
+
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
+
+  // Graceful shutdown: close queue connections
+  const shutdown = async () => {
+    console.log('Shutting down...');
+    await closeQueue();
+    process.exit(0);
+  };
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', shutdown);
 }
 
 startServer();
