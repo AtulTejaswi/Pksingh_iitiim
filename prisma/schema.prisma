@@ -15,10 +15,12 @@ datasource db {
 
 // ─── ENUMS ───────────────────────────────────────────────────────────────────
 
-// Role is stored as String: SUPER_ADMIN, INSTRUCTOR, MENTOR, STUDENT
+// Role is stored as String: SUPER_ADMIN, INSTRUCTOR, MENTOR, TUTOR, STUDENT
 // PublishStatus is stored as String: DRAFT, PUBLISHED, ARCHIVED
 // QueryStatus is stored as String: OPEN, IN_PROGRESS, RESOLVED, CLOSED
 // EventType is stored as String: LIVE_CLASS, WEBINAR, WORKSHOP, COUNSELING
+// DoubtStatus is stored as String: PENDING, AI_ANSWERED, FLAGGED_FOR_REVIEW, RESOLVED
+// MockTestStatus is stored as String: PENDING, COMPLETED, REVIEWED
 
 // ─── USERS ───────────────────────────────────────────────────────────────────
 
@@ -39,6 +41,8 @@ model User {
   enrollments   Enrollment[]
   progress      LessonProgress[]
   queries       StudentQuery[]
+  doubts        Doubt[]
+  mockTests     MockTest[]
   authoredBlogs Blog[]
   certificates  Certificate[]
   reviews       Review[]
@@ -433,6 +437,56 @@ model QueryReply {
   query       StudentQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
 
   @@map("student_query_replies")
+}
+
+// ─── AI DOUBT RESOLUTION ───────────────────────────────────────────────────
+
+model Doubt {
+  id              String   @id @default(uuid())
+  userId          String
+  lessonId        String?
+  courseId         String?
+  subject         String?
+  questionText    String
+  questionImageUrl String?
+  aiAnswer        String?
+  aiConfidence    Float?
+  status          String   @default("PENDING")
+  assignedToId    String?
+  resolutionNote  String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([assignedToId])
+  @@map("doubts")
+}
+
+// ─── AI MOCK TEST ANALYSIS ──────────────────────────────────────────────────
+
+model MockTest {
+  id                  String   @id @default(uuid())
+  userId              String
+  courseId             String?
+  title               String
+  totalQuestions      Int
+  correctAnswers      Int?
+  score               Float?
+  weakTopics          String?
+  suggestedLessons    String?
+  answerSheetUrl      String?
+  aiAnalysis          String?
+  status              String   @default("PENDING")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user                User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("mock_tests")
 }
 
 // ─── AUDIT LOG ───────────────────────────────────────────────────────────────
