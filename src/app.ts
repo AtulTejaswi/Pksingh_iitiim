@@ -102,6 +102,7 @@ import subscriptionRoutes from './modules/subscriptions/subscription.routes';
 import leadsRoutes from './modules/leads/leads.routes';
 import configRoutes from './modules/config/config.routes';
 import youtubeSyncRoutes from './modules/youtube-sync/youtube-sync.routes';
+import aiRoutes from './modules/ai/ai.routes';
 import { isCloudStorageConfigured } from './utils/storage';
 
 app.get('/api/health', (_req, res) => {
@@ -129,6 +130,7 @@ app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/leads', leadsRoutes);
 app.use('/api/config', configRoutes);
 app.use('/api/youtube-sync', youtubeSyncRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Health check
 app.get('/health', (_req, res) => {
