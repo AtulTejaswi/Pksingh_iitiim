@@ -62,7 +62,10 @@ export default function Navbar() {
             <Link href="/blog" className="text-ink-secondary hover:text-brand-600 transition-colors text-sm font-medium">Blog</Link>
             <Link href="/faq" className="text-ink-secondary hover:text-brand-600 transition-colors text-sm font-medium">FAQ</Link>
             {user && (userRole === 'STUDENT' || userRole === 'MENTOR' || userRole === 'INSTRUCTOR') && (
-              <Link href="/my-courses" className="text-ink-secondary hover:text-brand-600 transition-colors text-sm font-medium">My Courses</Link>
+              <>
+                <Link href="/my-courses" className="text-ink-secondary hover:text-brand-600 transition-colors text-sm font-medium">My Courses</Link>
+                <Link href="/doubts" className="text-ink-secondary hover:text-brand-600 transition-colors text-sm font-medium">Ask a Doubt</Link>
+              </>
             )}
             <Link href="/#how" className="text-ink-secondary hover:text-brand-600 transition-colors text-sm font-medium">How It Works</Link>
           </div>
@@ -175,6 +178,12 @@ export default function Navbar() {
               <Link href="/blog" onClick={() => setIsOpen(false)} className="block px-3 py-3 rounded-xl text-base font-medium text-ink-secondary hover:text-brand-600 hover:bg-brand-50 transition-all">Blog</Link>
               <Link href="/faq" onClick={() => setIsOpen(false)} className="block px-3 py-3 rounded-xl text-base font-medium text-ink-secondary hover:text-brand-600 hover:bg-brand-50 transition-all">FAQ</Link>
               <Link href="/#how" onClick={() => setIsOpen(false)} className="block px-3 py-3 rounded-xl text-base font-medium text-ink-secondary hover:text-brand-600 hover:bg-brand-50 transition-all">How It Works</Link>
+              {user && (
+                <Link href="/doubts" onClick={() => setIsOpen(false)} className="block px-3 py-3 rounded-xl text-base font-medium text-ink-secondary hover:text-brand-600 hover:bg-brand-50 transition-all">Ask a Doubt</Link>
+              )}
+              {user && (
+                <Link href="/doubts" onClick={() => setIsOpen(false)} className="block px-3 py-3 rounded-xl text-base font-medium text-ink-secondary hover:text-brand-600 hover:bg-brand-50 transition-all">Ask a Doubt</Link>
+              )}
             </div>
 
             {/* Mobile locale */}
