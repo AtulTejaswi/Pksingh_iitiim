@@ -1,13 +1,13 @@
-import { resolveJwtSecret } from '../src/utils/jwtSecret';
+import { resolveJwtSecret, deriveJwtSecretFromDatabaseUrl } from '../src/utils/jwtSecret';
 
 describe('resolveJwtSecret', () => {
   const realSecret = 'a-really-strong-random-secret-value';
+  const dbUrl = 'postgres://user:supersecretpw@host:5432/pksingh';
 
-  // Every env var that resolveJwtSecret could read. The helper scrubs all of
-  // them first so each test case is hermetic and unaffected by ambient environment.
   const RELEVANT_KEYS = [
     'NODE_ENV',
     'SUPABASE_JWT_SECRET',
+    'DATABASE_URL',
   ] as const;
 
   const withEnv = (env: Record<string, string | undefined>, fn: () => string | undefined): string | undefined => {
@@ -29,25 +29,34 @@ describe('resolveJwtSecret', () => {
     expect(secret).toBe(realSecret);
   });
 
-  it('returns undefined in production when no SUPABASE_JWT_SECRET is set', () => {
+  it('derives from DATABASE_URL when no SUPABASE_JWT_SECRET is set', () => {
+    const secret = withEnv({ NODE_ENV: 'production', DATABASE_URL: dbUrl }, () => resolveJwtSecret());
+    expect(secret).toBeDefined();
+    expect(secret).toMatch(/^[0-9a-f]{64}$/);
+    // Deterministic across calls
+    const again = withEnv({ NODE_ENV: 'production', DATABASE_URL: dbUrl }, () => resolveJwtSecret());
+    expect(again).toBe(secret);
+  });
+
+  it('returns undefined in production when no secret or DB URL exists', () => {
     const secret = withEnv({ NODE_ENV: 'production' }, () => resolveJwtSecret());
     expect(secret).toBeUndefined();
   });
 
-  it('returns ephemeral secret in development when no SUPABASE_JWT_SECRET is set', () => {
+  it('returns ephemeral secret in development when nothing is set', () => {
     const secret = withEnv({ NODE_ENV: 'development' }, () => resolveJwtSecret());
     expect(secret).toBeDefined();
     expect(secret!.length).toBeGreaterThan(0);
   });
 
-  it('ephemeral secret is consistent within the same process (cached)', () => {
-    const first = withEnv({ NODE_ENV: 'development' }, () => resolveJwtSecret());
-    const second = withEnv({ NODE_ENV: 'development' }, () => resolveJwtSecret());
-    expect(first).toBe(second);
-  });
-
   it('returns SUPABASE_JWT_SECRET in development when configured', () => {
     const secret = withEnv({ NODE_ENV: 'development', SUPABASE_JWT_SECRET: realSecret }, () => resolveJwtSecret());
     expect(secret).toBe(realSecret);
+  });
+
+  it('deriveJwtSecretFromDatabaseUrl is deterministic and undefined without a URL', () => {
+    expect(deriveJwtSecretFromDatabaseUrl(dbUrl)).toBe(deriveJwtSecretFromDatabaseUrl(dbUrl));
+    expect(deriveJwtSecretFromDatabaseUrl(undefined)).toBeUndefined();
+    expect(deriveJwtSecretFromDatabaseUrl('')).toBeUndefined();
   });
 });

@@ -54,7 +54,7 @@ const refreshSchema = z.object({
 
 const resolvedJwtSecret = resolveJwtSecret();
 if (!resolvedJwtSecret) {
-  console.error('Fatal: No JWT signing secret configured. Set SUPABASE_JWT_SECRET.');
+  console.error('Fatal: No JWT signing secret configured. Set SUPABASE_JWT_SECRET or DATABASE_URL.');
   process.exit(1);
 }
 const jwtSecret: string = resolvedJwtSecret;
